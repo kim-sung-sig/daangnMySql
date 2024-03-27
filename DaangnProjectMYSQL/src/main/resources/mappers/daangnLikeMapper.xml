@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.dao.DaangnLikeDAO">
+	
+	<!-- 좋아요 저장하기 -->
+	<insert id="insertLike" parameterType="DaangnLikeVO">
+		insert into daangn_like_tb (userIdx, boardIdx)
+		values (#{userIdx}, #{boardIdx})
+	</insert>
+	
+	<!-- 좋아요 삭제하기 -->
+	<delete id="deleteLike" parameterType="DaangnLikeVO">
+		delete from	daangn_like_tb where userIdx = #{userIdx} and boardIdx = #{boardIdx}	   
+	</delete>
+	
+	<!-- 게시글당 좋아요 개수 가져오기 -->
+	<select id="countLike" parameterType="int" resultType="int">
+		select count(*) from daangn_like_tb where boardIdx = #{boardIdx}
+	</select>
+	
+	<!-- 유저가 누른 좋아요 목록 가져오기 -->
+	<select id="selectLikeByUseridx" parameterType="int" resultType="DaangnMainBoardVO">
+		SELECT 
+			dlt.IDX AS likeIdx,
+			db.*,
+			dc.categoryName,
+			ds.statusName,
+			COUNT(dlt.IDX) AS countLike,
+			COUNT(cr.boardIdx) AS chatRoomCount
+		FROM
+			DAANGN_LIKE_TB dlt
+		JOIN
+			DAANGN_BOARD db ON dlt.BOARDIDX = db.idx
+		LEFT JOIN
+			daangn_category dc ON db.categoryRef = dc.categoryIdx
+		LEFT JOIN
+			daangn_status ds ON db.statusRef = ds.statusIdx
+		LEFT JOIN
+			chatRoom cr ON cr.boardIdx = db.idx
+		WHERE 
+			dlt.USERIDX = #{userIdx}
+		GROUP BY 
+			dlt.IDX, db.idx, db.userRef, db.categoryRef, db.statusRef, db.subject, db.content, db.price,
+			db.latitude, db.longitude, db.location, db.loc, db.readCount, db.regDate,
+			dc.categoryName, ds.statusName, dc.categoryName, ds.statusName
+		ORDER BY 
+    		dlt.IDX DESC
+	</select>
+	
+	<!-- 하트 중복확인 0,1 리턴-->
+	<select id="select" parameterType="DaangnLikeVO" resultType="int">
+		select count(*) from daangn_like_tb where userIdx = #{userIdx} and boardIdx = #{boardIdx}
+	</select>
+	  
+</mapper>

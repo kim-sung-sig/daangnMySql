@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.dao.DaangnChatMessageDAO">
+
+	<select id="selectChatByChatRoomIdx" parameterType="hashmap" resultType="ChatMessageVO">
+		SELECT 
+		    cm.*, 
+		    dm.nickName AS nickName,
+		    duf.saveFileName AS userProfileName
+		FROM 
+		    chatMessage cm
+		LEFT JOIN daangn_member AS dm ON cm.sender = dm.idx
+		LEFT JOIN daangn_user_file AS duf ON cm.sender = duf.ref
+		WHERE 
+			<![CDATA[
+				cm.idx < #{lastItemIdx}
+			]]>
+		    AND cm.chatRoom = #{chatRoomIdx}
+		ORDER BY 
+		    cm.idx DESC
+		LIMIT #{sizeOfPage};
+	</select>
+	
+	<select id="getLastIdx" resultType="int">
+		SELECT 
+	        CASE 
+	            WHEN MAX(chatMessage.idx) IS NULL THEN 0
+	            ELSE MAX(chatMessage.idx)
+	        END
+	    FROM chatMessage
+	</select>
+	
+	<insert id="insertChat" parameterType="ChatMessageVO">
+		<selectKey keyColumn="idx" keyProperty="idx" resultType="int" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into chatMessage (chatRoom, typeRef, sender, content, regDate, readed)
+		values (#{chatRoom}, #{typeRef}, #{sender}, #{content}, CURRENT_TIMESTAMP, 2)
+	</insert>
+	
+	<update id="updateChat" parameterType="int">
+		update chatMessage set readed = readed - 1 where idx = #{idx}
+	</update>
+	
+	<update id="updateAllChat" parameterType="ChatMessageVO">
+	    <![CDATA[
+	        update chatMessage set readed = 0 where chatRoom = #{chatRoom} and sender <> #{sender}
+	    ]]>
+	</update>
+
+	
+	<select id="unreadCount" parameterType="ChatMessageVO">
+		select count(*) from chatMessage where chatRoom = #{chatRoom} and sender = #{sender} and readed = 1
+	</select>
+	
+	<select id="selectByIdx" parameterType="int">
+		select * from chatMessage where idx = #{idx}
+	</select>
+	
+	<delete id="deleteChat" parameterType="int">
+		delete from chatMessage where idx = #{idx}
+	</delete>
+</mapper>

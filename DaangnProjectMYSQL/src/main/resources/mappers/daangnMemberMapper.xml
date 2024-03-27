@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.dao.DaangnMemberDAO">
+
+	<!-- 회원가입할때 -->
+	<insert id="insert" parameterType="DaangnMemberVO">
+		insert into daangn_member (username, password, role, name, nickName, email, emailOk, signUpDate, lastLoginDate, stAddress, dtAddress)
+		values (#{username}, #{password}, #{role}, #{name}, #{nickName}, #{email}, #{emailOk}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, #{stAddress}, #{dtAddress})
+	</insert>
+
+	<!-- userDetails -->
+	<select id="selectByUsername" parameterType="string" resultType="DaangnMemberVO">
+		select * from daangn_member where username = #{username}
+	</select>
+	
+	<!-- idx로 유저 얻기 -->
+	<select id="selectByIdx" parameterType="int" resultType="DaangnMemberVO">
+		select * from daangn_member where idx = #{idx}
+	</select>
+	
+	<!-- 중복확인을 위한 코드 -->
+	<select id="selectCountByUsername" parameterType="string" resultType="int">
+		select count(*) from daangn_member where username = #{username}
+	</select>
+	
+	<select id="selectCountByNickName" parameterType="string" resultType="int">
+		select count(*) from daangn_member where nickName = #{nickName}
+	</select>
+	
+	<select id="selectUserNameByEmail" parameterType="string" resultType="string">
+		select username from daangn_member where email = #{email}
+	</select>
+	
+	<!-- 마이페이지 및 관리자페이지용 -->	
+	<!-- 모두 얻기 (admin용) 이거 페이징 처리-->
+	<select id="selectUser" parameterType="hashmap" resultType="DaangnMemberVO">
+		SELECT * 
+		FROM daangn_member
+		<where>
+			<if test="search != null">
+				(
+					username LIKE CONCAT('%', #{search}, '%')
+					OR name LIKE CONCAT('%', #{search}, '%')
+					OR nickName LIKE CONCAT('%', #{search}, '%')
+				)
+			</if>
+		</where>
+		ORDER BY idx DESC
+		LIMIT #{startNo}, #{sizeOfPage}
+	</select>
+	
+	<!-- totalCount 얻기용 -->
+	<select id="selectCountUser" parameterType="hashmap" resultType="int">
+		select
+			count(*)
+		from
+			daangn_member
+		<where>
+			<if test="search != null">
+				username like '%' || #{search} || '%'
+				or name like '%' || #{search} || '%'
+				or nickName like '%' || #{search} || '%'
+			</if>
+		</where>
+	</select>
+	
+	<!-- 회원 정보 수정 -->
+	<update id="update" parameterType="DaangnMemberVO">
+	    update daangn_member
+	    <set>
+	        <if test="role != null">role = #{role}</if>
+	        <if test="password != null">password = #{password}</if>
+	        <if test="nickName != null">nickName = #{nickName}</if>
+	        <if test="email != null">email = #{email}</if>
+	        <if test="emailOk != null">emailOk = #{emailOk}</if>
+	        <if test="stAddress != null">stAddress = #{stAddress},</if>
+	        <if test="dtAddress != null">dtAddress = #{dtAddress}</if>
+	    </set>
+	    where idx = #{idx}
+	</update>
+	
+	<!-- 마지막 접속일 수정 -->
+	<update id="updateLastLoginDate" parameterType="int">
+		update daangn_member set lastLoginDate = CURRENT_TIMESTAMP where idx = #{idx}
+	</update>
+
+	<!-- 탈퇴하기 idx-->
+	<delete id="deleteByIdx" parameterType="int">
+		delete from daangn_member where idx = #{idx}
+	</delete>
+	
+</mapper>

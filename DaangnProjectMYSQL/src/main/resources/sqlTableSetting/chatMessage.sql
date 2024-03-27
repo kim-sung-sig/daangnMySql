@@ -1,0 +1,14 @@
+DROP TABLE chatMessage;
+CREATE TABLE chatMessage (
+	idx INT PRIMARY KEY AUTO_INCREMENT,
+	chatRoom INT NOT NULL,
+	typeRef INT NOT NULL,
+	sender INT NOT NULL,
+	content VARCHAR(200) NOT NULL,
+	regDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	readed INT DEFAULT 2,
+	CONSTRAINT fk_chatMessage_chatRoom_ref FOREIGN KEY (chatRoom) REFERENCES chatRoom(roomIdx) ON DELETE CASCADE,
+	CONSTRAINT fk_chatMessage_sender_ref FOREIGN KEY (sender) REFERENCES daangn_member(idx) ON DELETE CASCADE
+);
+
+SELECT * FROM CHATMESSAGE c ;

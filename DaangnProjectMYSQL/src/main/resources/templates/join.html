@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th=http://www.thymeleaf.org
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>당근 로그인</title>
+<!-- UIkit CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css" />
+<!-- UIkit JS -->
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+<!-- jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- 다음 우편번호 API를 이용하려면 포함해야 한다. -->
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<!-- Ajax처리를 위한 포함 -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link rel="stylesheet"  href="/css/join.css" />
+<script src="/js/join.js"></script>
+</head>
+<body>
+	<div class="uk-container uk-container-xsmall">
+		<form method="POST" action="/member/joinok" id="joinForm">
+			<h2 class="form-heading" style="text-align: center;"><img src="https://i.namu.wiki/i/urKu84c6cV1U3tmZqPiopxkCnQOn96j3gA6Wf730iSTzz41XDOeqypSusjBVPXeHxGe8RJAOjMY11uywzcDqSA.svg" alt="logo" /></h2>
+			<div class="form-group">
+				<div class="uk-margin">
+					<h4>아이디</h4><span id="message"></span><input type="hidden" id="usernameCk" value="0"/>
+					<div class="uk-inline">
+						<span class="uk-form-icon" uk-icon="icon: user"></span>
+						<input id="username" name="username" type="text" autocomplete="off" class="uk-input uk-form" placeholder="아이디를 8~20자 이내로 작성해주세요." autofocus="autofocus" required="required" maxlength="20"/>
+					</div>
+				</div>
+				<div class="uk-margin">
+					<h4>비밀번호</h4><span id="pwmessage"></span><input type="hidden" id="pwmessageCk" value="0"/>
+					<div class="uk-inline">
+			            <span class="uk-form-icon" uk-icon="icon: lock"></span>
+			            <input id="password" name="password" type="password" class="uk-input" placeholder="비밀번호를 특수문자,숫자 포함 8~20자 이내로 작성해주세요." required="required" aria-label="Not clickable icon" maxlength="20">
+			        </div>				
+				</div>
+				<div class="uk-margin">
+					<h4>비밀번호 재확인</h4><span id="pwmessage2"></span><input type="hidden" id="pwmessage2Ck" value="0"/>
+					<div class="uk-inline">
+			            <span class="uk-form-icon" uk-icon="icon: lock"></span>
+			            <input id="password2" type="password" class="uk-input" placeholder="비밀번호 재확인" required="required" aria-label="Not clickable icon" maxlength="20">
+			        </div>				
+				</div>
+				<div class="uk-margin">
+					<h4>성 명</h4>
+			        <div class="uk-inline">
+						<input id="name" name="name" type="text" class="uk-input " placeholder="이름을 입력하세요." required="required" />
+			        </div>				
+				</div>
+				<div class="uk-margin">
+					<h4>닉네임</h4><span id="ninkNameMessage"></span><input type="hidden" id="nickNameCk" value="0"/>
+					<input id="nickName" name="nickName" type="text" class="uk-input " placeholder="닉네임을 2~10자내외로 입력하세요." required="required" />				
+				</div>
+				<div class="uk-margin">
+					<h4>이메일</h4>
+					<div class="uk-inline emails">
+						<input id="email" type="text" class="uk-input " placeholder="이메일" required="required" /><span class="dot">@</span>
+						<select class="uk-select " id="emailAddress">
+			                <option selected value="0">선택</option>
+			                <option value="naver.com">naver.com</option>
+			                <option value="google.com">gmail.com</option>
+			            </select>
+			            <input type="hidden" name="email" id="newEmail">
+			            <input type="button" id="sendEmail" class="uk-button uk-button-default" value="메일 인증">
+					</div>
+				</div>
+				<div class="uk-margin" id="emailCheckBox" style="display: none;">
+					<h4>인증번호 입력</h4>
+					<div class="uk-inlin" id="emailck">
+						<input type="text" id="check" class="uk-input" placeholder="인증번호를 입력해주세요">
+						<input type="button" id="checkMail" class="uk-button uk-button-default" value="인증번호체크">
+						<input type="hidden" id="emailComplete" value="0">
+					</div>
+				</div>
+				<div class="uk-margin">
+					<h4>주소지</h4>
+					<div class="uk-inline">
+						<input type="text" name="postcode" id="postcode" class="uk-input " aria-describedby="passwordHelpInline" readonly="readonly" disabled="disabled" required="required">
+						<input id="daum" class="uk-button uk-button-default" type="button" value="우편번호 검색" onclick="daumPostcode()"/>						
+					</div>
+				</div>
+				<div class="uk-margin">
+					<div class="uk-inline">
+						<input name="stAddress" id="addr1" type="text" class="uk-input" placeholder="사용자 주소" readonly="readonly" required="required"/>
+						<input name="dtAddress" id="addr2" type="text" class="uk-input" placeholder="사용자 상세 주소" required="required"/>					
+					</div>
+				</div>
+				<h4>이메일 수신동의</h4>
+				<div class="uk-margin" style="border: 1px solid #ccc; padding: 10px 20px;">
+		            <input id="r1" class="uk-radio" type="radio" name="emailOk" value="0" checked="checked"> <label for="r1" style="cursor: pointer;">이메일 수신에 동의</label><br />
+		            <input id="r2" class="uk-radio" type="radio" name="emailOk" value="1"> <label for="r2" style="cursor: pointer;">이메일 수신에 동의하지 않음</label>
+		        </div>
+				<div class="uk-margin" style="text-align: right;">
+					<button class="uk-button buttons" type="submit">회 원 가 입</button>
+					<input class="uk-button buttons" type="button" onclick="location.href='/'" value="이전 페이지" />
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

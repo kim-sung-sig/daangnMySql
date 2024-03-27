@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.dao.DaangnMainBoardDAO">
+	
+	<!-- 관리자용 페이징처리 및 서치도 가능하게 -->
+	<select id="selectList" parameterType="hashmap" resultType="DaangnMainBoardVO">
+		select
+			db.*
+			, c.categoryName AS categoryName
+			, s.statusName AS statusName
+			, COALESCE(dlt.countLike, 0) AS countLike
+			, COALESCE(cr.chatRoomCount, 0) AS chatRoomCount
+		from
+			daangn_board db
+		JOIN
+		    daangn_category c ON db.categoryRef = c.categoryIdx
+		JOIN
+		    daangn_status s ON db.statusRef = s.statusIdx
+		LEFT JOIN
+		    (
+		        SELECT 
+		            boardIdx,
+		            COUNT(*) AS countLike
+		        FROM 
+		            daangn_like_tb
+		        GROUP BY 
+		            boardIdx
+		    ) dlt ON dlt.boardIdx = db.idx
+		LEFT JOIN
+		    (
+		        SELECT 
+		            boardIdx,
+		            COUNT(*) AS chatRoomCount
+		        FROM 
+		            chatRoom
+		        GROUP BY 
+		            boardIdx
+		    ) cr ON cr.boardIdx = db.idx
+		<where>
+            <if test="search != null">
+                (
+                    subject LIKE CONCAT('%', #{search}, '%')
+                    OR content LIKE CONCAT('%', #{search}, '%')
+                )
+            </if>
+   		</where>
+		order by
+			db.idx DESC
+		LIMIT #{startNo}, #{sizeOfPage}
+	</select>
+	
+	<select id="selectCount" parameterType="hashmap" resultType="int">
+		SELECT
+			count(*)
+		FROM
+			daangn_board
+		<where>
+            <if test="search != null">
+                (
+                    subject LIKE CONCAT('%', #{search}, '%')
+                    OR content LIKE CONCAT('%', #{search}, '%')
+                )
+            </if>
+   		</where>
+	</select>
+	
+	<!-- 한개 얻기 -->
+	<select id="selectByIdx" parameterType="int" resultType="DaangnMainBoardVO">
+		SELECT
+		    db.*,
+		    dc.categoryName AS categoryName,
+		    ds.statusName AS statusName,
+		    COALESCE(dlt.countLike, 0) AS countLike,
+		    COALESCE(cr.chatRoomCount, 0) AS chatRoomCount
+		FROM daangn_board db
+		LEFT JOIN daangn_category dc ON db.categoryRef = dc.categoryIdx
+		LEFT JOIN daangn_status ds ON db.statusRef = ds.statusIdx
+		LEFT JOIN
+		    (
+		        SELECT
+		            boardIdx,
+		            count(*) AS countLike
+		        FROM
+		            daangn_like_tb
+		        GROUP BY
+		            boardIdx
+		    ) AS dlt ON db.idx = dlt.boardIdx
+		LEFT JOIN
+		    (
+		        SELECT
+		            boardIdx,
+		            count(*) AS chatRoomCount
+		        FROM
+		            chatRoom cr
+		        GROUP BY
+		            boardIdx
+		    ) AS cr ON db.idx = cr.boardIdx
+		WHERE
+		    db.idx = #{idx}
+	</select>
+	
+	<insert id="insert" parameterType="DaangnMainBoardVO">
+		<selectKey keyColumn="idx" keyProperty="idx" order="AFTER" resultType="int">
+	        SELECT LAST_INSERT_ID()
+	    </selectKey>
+		INSERT INTO daangn_board (userRef, categoryRef, statusRef, subject, content, price, latitude, longitude, location, loc, readCount, regDate)
+    	VALUES (#{userRef}, #{categoryRef}, 1, #{subject}, #{content}, #{price}, #{latitude}, #{longitude}, #{location}, #{loc}, 0, CURRENT_TIMESTAMP)
+	</insert>
+	
+	<update id="update" parameterType="hashmap">
+		update
+			daangn_board
+		set
+			<if test="statusRef != null">
+				statusRef = #{statusRef}
+			</if>
+			<if test="categoryRef != null">
+				categoryRef = #{categoryRef},
+			</if>
+			<if test="subject != null">
+				subject = #{subject},
+			</if>
+			<if test="content != null">
+				content = #{content},
+			</if>
+			<if test="price != null">
+				price = #{price},
+			</if>
+			<if test="latitude != null">
+				latitude = #{latitude},
+			</if>
+			<if test="longitude != null">
+				longitude = #{longitude},
+			</if>
+			<if test="location != null">
+				location = #{location},
+			</if>
+			<if test="loc != null">
+				loc = #{loc}
+			</if>
+			
+			<if test="readCount != null">
+				readCount = readCount + 1
+			</if>
+		where
+			idx = #{idx}
+	</update>
+	
+	<delete id="deleteByIdx" parameterType="int">
+		delete from daangn_board where idx = #{idx}
+	</delete>
+	
+	<!-- 유저가쓴글 보기 -->
+	<select id="selectByRef" parameterType="int" resultType="DaangnMainBoardVO">
+		select * from daangn_board where userRef = #{userRef}
+	</select>
+</mapper>

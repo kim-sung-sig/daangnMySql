@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" />
+	<title>관리자-공지사항</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- include libraries(jQuery, bootstrap) -->
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<!-- include summernote css/js -->
+	<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+    
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css"/>
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+	<link rel="stylesheet" href="/css/admin/header.css">
+    <style type="text/css">
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+    	#delete-btn {
+	   		background-color: #d44252;
+	  		color: white;
+	    	padding: 8px 25px;
+	    	border: none;
+	    	border-radius: 4px;
+	    	cursor: pointer;
+	    	font-size: 15px; /* 폰트 크기 추가 */
+	    	width: 90px;
+	    	height: 30px;
+	    	margin-left: auto;
+	    	display: flex; /* 내부 요소를 플렉스 박스로 설정 */
+	    	align-items: center; /* 수직 정렬을 위한 설정 */
+		}
+		
+		#delete-btn:hover {
+	   		background-color: #d32f2f;
+		}
+        
+        .thumbnail {
+            margin-right: 10px;
+            width: 100px;
+            height: auto;
+        }
+        #buttonsBox input{ width: 200px;}
+        #cancleBtn{background: #2F409F;}
+        #deleteBtn{background: #E33950;}
+        label{cursor: pointer;}
+    </style>
+</head>
+<body>
+<div id="wrap">
+    <div id="content">
+    	<!-- header -->
+    	<th:block th:insert="~{/admin/header.html}"></th:block>
+	    <div style="padding-top: 50px;">
+	    	<!-- leftArea -->
+	    	<th:block th:insert="~{/admin/leftArea.html}"></th:block>
+	        <div id="right-area">
+	        	<div style="width: 550px; margin: auto;">
+		        	<!-- 쓰기 -->
+		        	<h2>공지사항 쓰기</h2>
+	        		<form action="/adm/noticeUploadOk" method="POST" id="insertForm">
+				        <input class="uk-input" type="text" name="title" id="title" placeholder="글 제목을 입력해 주세요." required="required"/>
+				        <label for="r1" style="color: #FF6F0F"><input class="uk-radio" id="r1" type="radio" name="highlight" value="1" checked="checked"/><svg style="fill: #FF6F0F" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.66639 1.53331C8.99775 1.20195 9.53498 1.20195 9.86634 1.53331L14.5376 6.20452C14.8689 6.53588 14.8689 7.07311 14.5376 7.40446C13.9376 8.00444 12.3662 7.97587 12.3662 7.97587L10.4377 10.5043C10.4377 10.5043 10.9377 12.2042 9.73777 13.4042C9.40642 13.7355 8.86918 13.7355 8.53783 13.4042L6.30944 11.1758C6.27702 11.2048 1.82953 15.1809 1.35985 14.7112C0.890158 14.2415 4.86622 9.79404 4.89524 9.7616L2.66667 7.53303C2.33531 7.20168 2.33546 6.6643 2.66682 6.33294C3.86676 5.133 5.56668 5.63297 5.56668 5.63297L8.09514 3.70449C8.09514 3.70449 8.06642 2.13328 8.66639 1.53331Z" fill="var(--seed-scale-color-carrot-500)"></path></svg> 중요</label>
+				        <label for="r2"><input class="uk-radio" id="r2" type="radio" name="highlight" value="0"/> 공지</label>
+				        <textarea id="summernote" name="content"></textarea>
+				        <div id="buttonsBox" style="width: 100%; display: flex; justify-content: end; gap:20px;">
+					        <input type="submit" id="submitBtn" value="글 올리기"/>
+					        <input type="button" id="cancleBtn" onclick="window.location.href='/notice'" value="취소"/>			        
+				        </div>
+				    </form>
+	        	</div>
+	        </div>
+        </div>
+    </div>
+</div>
+	<script type="text/javascript">
+		$(function(){
+			// 썸머노트
+			$('#summernote').summernote({
+				lang : "ko-KR",
+			    placeholder: '내용을 입력하세요',
+			    tabsize: 2,
+			    height: 320,
+			    toolbar: [
+				    	['fontname', ['fontname']],
+					    ['fontsize', ['fontsize']],
+					    ['style', ['bold', 'italic', 'underline','strikethrough', 'clear']],
+					    ['color', ['forecolor','color']],
+					    ['table', ['table']],
+					    ['para', ['ul', 'ol', 'paragraph']],
+					    ['height', ['height']],
+					    ['insert',['picture','link','video']],
+					    ['view', ['fullscreen', 'help']]
+			    ],
+		        fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New','맑은 고딕','궁서','굴림체','굴림','돋움체','바탕체'],
+				fontSizes: ['8','9','10','11','12','14','16','18','20','22','24','28','30','36','50','72'],
+				focus : true,
+				// 이미지가 1MB를 넘을경우 수동으로 업로드를 처리하고 실행될 코드를 지정해준다.
+				callbacks : {
+					onImageUpload : function(files, editor, welEditable) {
+						for (var i = files.length - 1; i >= 0; i--) {
+							sendFile(files[i], this);
+						}
+					}
+				}
+			});
+			
+			// 실제 업로드되는 서버의 파일을 Ajax로 호출해 줘야한다.
+			function sendFile(file, el) {
+				// 폼 작성
+				var form_data = new FormData();
+		      	form_data.append('file', file);
+		      	// Ajax 호출
+		      	$.ajax({
+		        	data: form_data,
+		        	type: "POST",
+		        	url: '/adm/notice/fileUpload',
+		        	cache: false,
+		        	contentType: false,
+		        	enctype: 'multipart/form-data',
+		        	processData: false,
+		        	success: function(img_name) { // 성공
+		        		console.log(img_name);
+		          		$(el).summernote('editor.insertImage', img_name.url);
+		        	}
+		      	});
+		    }
+			
+	     	// 폼체크
+	        $("#insertForm").submit(function () {
+	            let value = $("#title").val();
+	            if (value.trim().length === 0) {
+	                alert("제목을 입력해주세요.");
+	                $("#title").val("");
+	                $("#title").focus();
+	                return false;
+	            }
+	            let summernoteContent = $('#summernote').summernote('code');
+	            if (summernoteContent.trim().length === 0) {
+	                alert("내용을 입력해주세요.");
+	                $("#content2").val("");
+	                $("#content2").focus();
+	                return false;
+	            }
+	            return true;
+	        })
+		})
+	</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.dao.DaangnMainBoardScrollDAO">
+	<!-- 페이징을 위한 List 뿌리기 -->
+	<select id="selectScrollList" parameterType="hashmap" resultType="DaangnMainBoardVO">
+		select
+			db.*
+			, c.categoryName AS categoryName
+			, s.statusName AS statusName
+			, COALESCE(dlt.countLike, 0) AS countLike
+			, COALESCE(cr.chatRoomCount, 0) AS chatRoomCount
+		from
+			daangn_board db
+		JOIN
+		    daangn_category c ON db.categoryRef = c.categoryIdx
+		JOIN
+		    daangn_status s ON db.statusRef = s.statusIdx
+		LEFT JOIN
+		    (
+		        SELECT 
+		            boardIdx,
+		            COUNT(*) AS countLike
+		        FROM 
+		            daangn_like_tb
+		        GROUP BY 
+		            boardIdx
+		    ) dlt ON dlt.boardIdx = db.idx
+		LEFT JOIN
+		    (
+		        SELECT 
+		            boardIdx,
+		            COUNT(*) AS chatRoomCount
+		        FROM 
+		            chatRoom
+		        GROUP BY 
+		            boardIdx
+		    ) cr ON cr.boardIdx = db.idx
+		where
+			<![CDATA[
+				db.idx < #{lastItemIdx}
+			]]>
+			<if test="userRef != null">
+				and db.userRef = #{userRef}
+			</if>
+            <if test="statusRef != null">
+                and db.statusRef = #{statusRef}
+            </if>
+            <if test="statusRef == null">
+                AND <![CDATA[ db.statusRef <> 3]]>
+            </if>
+			<if test="categoryRef != null">
+                and db.categoryRef = #{categoryRef}
+            </if>
+			<if test="search != null">
+                AND (
+                    db.subject LIKE CONCAT('%', #{search}, '%')
+                    OR db.content LIKE CONCAT('%', #{search}, '%')
+                )
+            </if>
+            <if test="region != null">
+                AND db.LOC LIKE CONCAT('%', #{region}, '%')
+            </if>
+            <if test="gu != null">
+                AND db.LOC LIKE CONCAT('%', #{gu}, '%')
+            </if>
+            <if test="dong != null">
+                AND db.LOC LIKE CONCAT('%', #{dong}, '%')
+            </if>
+            <if test="boardRef != null">
+            	AND <![CDATA[db.idx <> #{boardRef}]]>
+            </if>
+		order by
+			db.idx DESC
+		LIMIT #{sizeOfPage}
+	</select>
+	
+	
+	<select id="getLastIdx" resultType="int">
+	    SELECT 
+	        CASE 
+	            WHEN MAX(daangn_board.idx) IS NULL THEN 0
+	            ELSE MAX(daangn_board.idx)
+	        END
+	    FROM daangn_board
+	</select>
+	
+	<select id="getBoardCountByUserIdxAndStatusRef" parameterType="hashmap" resultType="int">
+		SELECT
+			count(*)
+		FROM
+			daangn_board
+		WHERE
+			userRef = #{userRef} AND statusRef = #{statusRef}
+	</select>
+</mapper>

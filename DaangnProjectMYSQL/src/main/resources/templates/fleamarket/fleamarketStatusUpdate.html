@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>상품상세보기</title>
+<!--제이쿼리 추가-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<!-- UIkit CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css" />
+<!-- UIkit JS -->
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap">
+<!-- 카카오맵 api -->
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=fa04a00338cccad468f169754f5e7cc6&libraries=services"></script>
+<!-- axios -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+<link rel="stylesheet" href="/css/header.css">
+<style type="text/css">
+	main {margin:auto; padding:90px 0 ;width: 400px; position: relative;}
+	
+	.highlight{color: #FF8A3D; font-size: 24px; font-weight: 500;}
+	#footer{
+		position: fixed; left: 0; bottom: 0;
+		width: 100%; height: 76px;
+	}
+	#footerInner{
+		width: 400px; height: 76px; margin: auto; background: #fff;
+		display: flex; justify-content: right; align-items: center;
+	}
+	#footerInner input {padding: 0 20px; border-radius: 10px; font-weight: 500; color: #fff;}
+	#reserveBtn{background: #5abd90}
+	#reserveBtn:hover {background: #4a9975}
+	
+	#imgBox img {max-width: 80px; filter: grayscale(100%);}
+	#imgBox label{border-radius: 10px; box-shadow: 1px 2px 4px #ccc;}
+	#imgBox label.active {box-shadow: 1px 2px 4px #FF8A3D;}
+	#imgBox label.active img{filter: none;}
+	
+	.checkbox{margin-bottom: 5px;}
+	.checkbox2 + label{
+    position: relative;
+	}
+	.checkbox input[type="radio"].checkbox2{
+	    display: none;
+	}
+	.checkbox input[type="radio"].checkbox2 + label:before { /* 체크박스 배경 */
+	    display: inline-block;
+	    content: '';
+	    width: 1em; 
+	    height: 1em;
+	    background-color: #FF8A3D;
+	    border-radius: 50%;
+	    margin: 0 5px -3px 0;
+	}
+	.checkbox input[type="radio"].checkbox2 + label:after { /* 체크 마크 */
+	    position: absolute;
+	    left: 1px;
+	    content: '✔'; /* 체크 마크 ASCii 문자 */
+	    font-size: 1.2em;
+	    line-height: 1;
+	    color: #fff;
+	    transition: all .3s;
+	}
+	[type="radio"].checkbox2 + label:after { /* 기본 상태 - 투명에 크기 0 */
+	    opacity: 0;
+	    transform: scale(0);
+	}
+	[type="radio"]:checked.checkbox2 + label:after { /* 체크 상태 - 불투명에 크기 1 */
+	    opacity: 1;
+	    transform: scale(1);
+	}
+</style>
+</head>
+<body>
+	<input type="hidden" id="boardIdx" th:value="${board.idx}">
+	<input type="hidden" id="statusRef" th:value="${statusRef}">
+	<div id="wrap">
+		<th:block th:insert="~{/header.html}"></th:block>
+		
+		<!-- 채팅한 유저가 없는경우 -->
+		<th:block th:if="${#lists.isEmpty(chatUsers)}">
+			<main>
+				채팅목록이없습니다.
+			</main>
+			<div id="footer">
+				<div id="footerInner">
+					<input type="button" value="돌아가기" class="uk-button" id="cancleBtn">
+				</div>
+			</div>
+		</th:block>
+		
+		<th:block th:if="${not #lists.isEmpty(chatUsers)}">
+			<!-- 예약취소를 하려하는 경우 -->
+			<th:block th:if="${statusRef == 1}">
+				<form action="/fleamarketStatusUpdateOk" method="post" id="submitForm">
+					<main>
+						<input type="hidden" name="boardRef" th:value="${board.idx}">
+						<input type="hidden" name="statusRef" value="1">
+						예약을 취소하겠습니까?
+					</main>
+					<div id="footer">
+						<div id="footerInner">
+							<input type="button" value="돌아가기" class="uk-button" id="cancleBtn" style="margin-right: 10px;">
+							<input type="submit" value="예약취소" class="uk-button" id="reserveBtn">
+						</div>
+					</div>
+				</form>
+			</th:block>
+			
+			<!-- 예약하는 경우 -->
+			<th:block th:if="${statusRef == 2}">
+				<form action="/fleamarketStatusUpdateOk" method="post" id="submitForm">
+					<main>
+						<input type="hidden" name="boardRef" th:value="${board.idx}">
+						<input type="hidden" name="statusRef" value="2">
+						<p style="padding-top: 20px; font-weight: 400;"><span class="highlight">어떤 유저</span>와 <span class="highlight">예약</span>을 하셨나요?</p>
+						<p style="font-weight: 400; margin-bottom:5px;">유저 닉네임</p>
+						<select id="userIdx" name="userIdx" class="uk-select">
+							<option value="0">유저를 선택해주세요.</option>
+							<option th:each="user : ${chatUsers}" th:value="${user.idx}">[[${user.nickName}]]</option>
+						</select>
+						<p>
+							즐거운 거래가 되길 기원합니다.!!
+							<br /> -당근마켓-
+						</p>
+					</main>
+					<div id="footer">
+						<div id="footerInner">
+							<input type="button" value="돌아가기" class="uk-button" id="cancleBtn" style="margin-right: 10px;">
+							<input type="submit" value="예약하기" class="uk-button" id="reserveBtn">
+						</div>
+					</div>
+				</form>
+			</th:block>
+			
+			<!-- 거래완료 -->
+			<th:block th:if="${statusRef == 3}">
+				<!-- 예약자가 없던 경우 -->
+				<th:block th:if="${rv == null}">
+					<form action="/fleamarketStatusUpdateOk" method="post" id="submitForm2">
+						<main>
+							<div id="ItemBox" style="width: 100%; height: 100px;padding: 10px; display: flex;">
+								<div id="ItemImgBox" style="width: 80px; height: 80px; background: #333; border-radius: 20px; margin-right: 10px;">
+									
+								</div>
+								<div id="ItemInfo">
+									<p style="margin: 0; font-size: 13px; color: #ccc; font-weight: 400;">거래한물건</p>
+									<p id="ItemTitle" style="margin: 0; font-size: 16px; font-weight: 500;">[[${board.subject}]]</p>
+									<span id="ItemPrice">[[${#numbers.formatInteger(board.price, 0, 'COMMA')}]]원</span>
+								</div>
+							</div>
+							<hr style="margin: 0;" />
+							<input type="hidden" name="boardRef" th:value="${board.idx}">
+							<input type="hidden" name="statusRef" value="3">
+							
+							<p style="font-weight: 400;"><span class="highlight">어떤 유저</span>와 <span class="highlight">거래</span>를 하셨나요?</p>
+							<p style="font-weight: 400;">유저 닉네임</p>
+							<select id="userIdx" name="userIdx" class="uk-select">
+								<option value="0">유저를 선택해주세요.</option>
+								<option th:each="user : ${chatUsers}" th:value="${user.idx}">[[${user.nickName}]]</option>
+							</select>
+							<p>
+								즐거운 거래가 되셨나요??
+								유저에게 유저평을 남겨주세요!
+								<br /> -당근마켓-
+							</p>
+							<div id="imgBox" style="width: 100%; display: flex; justify-content: space-around; margin-bottom: 30px;">
+								<label for="s1"><img src="/img/s1.png" alt="" /></label>
+								<label for="s2"><img src="/img/s2.png" alt="" /></label>
+								<label for="s3" class="active"><img src="/img/s3.png" alt="" /></label>
+								<div style="display: none;">
+									<input id="s1" type="radio" name="score" value="1">
+									<input id="s2" type="radio" name="score" value="3">
+									<input id="s3" type="radio" name="score" value="5" checked="checked">
+								</div>							
+							</div>
+							<div id="commentBox">
+								<div class="checkbox">
+								    <input type="radio" name="content" id="c1" value="친절하고 메너가 좋아요." class="checkbox2" checked="checked">
+								    <label for="c1">친절하고 메너가 좋아요.</label>
+								</div>
+								<div class="checkbox">
+								    <input type="radio" name="content" id="c2" value="시간 약속을 잘 지켜요." class="checkbox2">
+								    <label for="c2">시간 약속을 잘 지켜요.</label>
+								</div>
+								<div class="checkbox">
+								    <input type="radio" name="content" id="c3" value="응답이 빨라요." class="checkbox2">
+								    <label for="c3">응답이 빨라요.</label>
+								</div>
+								<div class="checkbox">
+								    <input type="radio" name="content" id="c4" value="응답이 빨라요." class="checkbox2">
+								    <label for="c4">제가 있는곳까지 와서 거래했어요.</label>
+								</div>
+							</div>
+						</main>
+						<div id="footer">
+							<div id="footerInner">
+								<input type="button" value="돌아가기" class="uk-button" id="cancleBtn" style="margin-right: 10px;">
+								<input type="submit" value="거래완료" class="uk-button" id="reserveBtn">
+							</div>
+						</div>
+					</form>
+				</th:block>
+				
+				<!-- 예약자가 있던 경우 -->
+				<th:block th:if="${rv != null}">
+					<form action="/fleamarketStatusUpdateOk" method="post" id="submitForm2">
+						<main>
+							<div id="ItemBox" style="width: 100%; height: 100px;padding: 10px; display: flex;">
+								<div id="ItemImgBox" style="width: 80px; height: 80px; background: #333; border-radius: 20px; margin-right: 10px;">
+									
+								</div>
+								<div id="ItemInfo">
+									<p style="margin: 0; font-size: 13px; color: #ccc; font-weight: 400;">거래한물건</p>
+									<p id="ItemTitle" style="margin: 0; font-size: 16px; font-weight: 500;">[[${board.subject}]]</p>
+									<span id="ItemPrice">[[${#numbers.formatInteger(board.price, 0, 'COMMA')}]]원</span>
+								</div>
+							</div>
+							<hr style="margin: 0;" />
+							<input type="hidden" name="boardRef" th:value="${board.idx}">
+							<input type="hidden" name="statusRef" value="3">
+							
+							<p style="font-weight: 400;"><span class="highlight">어떤 유저</span>와 <span class="highlight">거래</span>를 하셨나요?</p>
+							<p style="font-weight: 400;">유저 닉네임</p>
+							<select id="userIdx" name="userIdx" class="uk-select">
+								<option value="0">유저를 선택해주세요.</option>
+								<option th:each="user : ${chatUsers}" th:value="${user.idx}" th:selected="${user.idx == rv.userRef}">[[${user.nickName}]]</option>
+							</select>
+							<p>
+								즐거운 거래가 되셨나요??
+								유저에게 유저평을 남겨주세요!
+								<br /> -당근마켓-
+							</p>
+							<div id="imgBox" style="width: 100%; display: flex; justify-content: space-around; margin-bottom: 30px;">
+								<label for="s1"><img src="/img/s1.png" alt="" /></label>
+								<label for="s2"><img src="/img/s2.png" alt="" /></label>
+								<label for="s3" class="active"><img src="/img/s3.png" alt="" /></label>
+								<div style="display: none;">
+									<input id="s1" type="radio" name="score" value="1">
+									<input id="s2" type="radio" name="score" value="3">
+									<input id="s3" type="radio" name="score" value="5" checked="checked">
+								</div>							
+							</div>
+							<div id="commentBox">
+								<div class="checkbox">
+								    <input type="radio" name="content" id="c1" value="친절하고 메너가 좋아요." class="checkbox2" checked="checked">
+								    <label for="c1">친절하고 메너가 좋아요.</label>
+								</div>
+								<div class="checkbox">
+								    <input type="radio" name="content" id="c2" value="시간 약속을 잘 지켜요." class="checkbox2">
+								    <label for="c2">시간 약속을 잘 지켜요.</label>
+								</div>
+								<div class="checkbox">
+								    <input type="radio" name="content" id="c3" value="응답이 빨라요." class="checkbox2">
+								    <label for="c3">응답이 빨라요.</label>
+								</div>
+								<div class="checkbox">
+								    <input type="radio" name="content" id="c4" value="응답이 빨라요." class="checkbox2">
+								    <label for="c4">제가 있는곳까지 와서 거래했어요.</label>
+								</div>
+							</div>
+						</main>
+						<div id="footer">
+							<div id="footerInner">
+								<input type="button" value="돌아가기" class="uk-button" id="cancleBtn" style="margin-right: 10px;">
+								<input type="submit" value="거래완료" class="uk-button" id="reserveBtn">
+							</div>
+						</div>
+					</form>
+				</th:block>
+			</th:block>
+		</th:block>
+	</div>
+	
+	<script type="text/javascript">
+		$(function(){
+			$("#submitForm").submit(function(){
+				if($("#userIdx").val() == 0){
+					alert('유저를 선택해주세요.');
+					return false;
+				}
+				return true;
+			})
+			
+			$("#submitForm2").submit(function(){
+				if($("#userIdx").val() == 0){
+					alert('유저를 선택해주세요.');
+					return false;
+				}
+				// 유저 점수도!
+				let value = $("#content").val();
+				if(value.trim().length == 0){
+					alert('유저평을 남겨주세요.')
+					return false;
+				}
+				return false;
+			})
+			
+			
+			$("#imgBox label").click(function(){
+				$("#imgBox label").removeClass("active");
+				$(this).addClass("active");
+			})
+		})
+	</script>
+</body>
+</html>
