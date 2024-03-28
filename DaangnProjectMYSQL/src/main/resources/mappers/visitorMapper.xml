@@ -22,29 +22,16 @@
 	<!-- 사용하나? -->
 	<select id="getPagedVisitor" parameterType="hashmap" resultType="VisitVO">
 		select
-			R.*
+			*
 		from
-			(
-				select
-					rownum rnum, Q.*
-				from
-					(
-						select
-							*
-						from
-							tb_visitor
-						order by
-							idx desc
-					) Q
-				where
-					<![CDATA[
-						rownum <= #{endNo}
-					]]> 
-			) R
-		where
-			<![CDATA[
-				rnum >= #{startNo}
-			]]>
+			tb_visitor
+		order by
+			idx desc
+		LIMIT #{startNo}, #{sizeOfPage}
+	</select>
+	
+	<select id="getCountVisitor" resultType="int">
+		select count(*) from tb_visitor
 	</select>
 	
 </mapper>

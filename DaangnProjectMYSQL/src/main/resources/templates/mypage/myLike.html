@@ -43,12 +43,12 @@
 			<th:block th:insert="~{mypage/leftArea.html}"></th:block>
 			<div id="rightArea">
 				<h3 style="font-weight: 600"><span class="highlight">[[${user.nickName}]]</span>님의 관심목록</h3>
-				<th:block th:if="${#lists.isEmpty(likeList)}">
+				<th:block th:if="${#lists.isEmpty(pv.list)}">
 					<p>등록된 관심목록이 없습니다.</p>
 				</th:block>
-				<th:block th:if="${not #lists.isEmpty(likeList)}">
+				<th:block th:if="${not #lists.isEmpty(pv.list)}">
 					<ul id="boardNav">
-						<li th:each="board : ${likeList}" class="itemLi">
+						<li th:each="board : ${pv.list}" class="itemLi">
 							<div class="itemImg">
 								<img th:src="'/upload/' + ${board.boardFileList[0].saveFileName}" alt="상품사진" />
 							</div>
@@ -68,6 +68,9 @@
 							</div>
 						</li>
 					</ul>
+					<div id="page" style="display: flex; align-items: center; justify-content: center; margin-top: 30px">
+						[(${pv.pageList})]
+					</div>
 				</th:block>
 			</div>
 		</main>

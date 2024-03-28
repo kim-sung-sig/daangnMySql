@@ -31,6 +31,7 @@ public class DaangnCommentServiceImpl implements DaangnCommentService{
 		int result = 0;
 		try {
 			daangnCommentDAO.deleteCommentByIdx(idx);
+			result = 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

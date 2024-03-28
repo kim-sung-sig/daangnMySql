@@ -1,6 +1,7 @@
 package kr.ezen.daangn.dao;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -16,7 +17,9 @@ public interface DaangnLikeDAO {
 	
 	int countLike(int boardIdx) throws SQLException;
 	
-	List<DaangnMainBoardVO> selectLikeByUseridx(int userIdx) throws SQLException;
+	List<DaangnMainBoardVO> selectLikeByUseridx(HashMap<String, Integer> map) throws SQLException;
+	
+	int selectLikeCountByUseridx(int userIdx) throws SQLException;
 	
 	int select(DaangnLikeVO likeVO) throws SQLException;
 	

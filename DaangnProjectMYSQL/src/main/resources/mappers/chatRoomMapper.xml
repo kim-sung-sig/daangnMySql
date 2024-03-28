@@ -50,8 +50,6 @@
 		        ELSE
 		            0
 		    END AS roomIdx
-		FROM
-		    dual
 	</select>
 	
 	<update id="updateLastUpdateDate" parameterType="int">

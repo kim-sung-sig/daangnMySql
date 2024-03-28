@@ -1,6 +1,7 @@
 package kr.ezen.daangn.service;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kr.ezen.daangn.dao.DaangnBoardFileDAO;
 import kr.ezen.daangn.dao.DaangnLikeDAO;
+import kr.ezen.daangn.vo.CommonVO;
 import kr.ezen.daangn.vo.DaangnLikeVO;
 import kr.ezen.daangn.vo.DaangnMainBoardVO;
+import kr.ezen.daangn.vo.PagingVO;
 
 @Service(value = "daangnLikeService")
 @Transactional
@@ -20,6 +23,8 @@ public class DaangnLikeServiceImpl implements DaangnLikeService{
 	private DaangnLikeDAO daangnLikeDAO;
 	@Autowired
 	private DaangnBoardFileDAO daangnBoardFileDAO;
+	@Autowired
+	private DaangnMemberService daangnMemberService;
 	
 	@Override
 	public int countLike(int boardIdx) {
@@ -61,19 +66,27 @@ public class DaangnLikeServiceImpl implements DaangnLikeService{
 	
 	
 	@Override
-	public List<DaangnMainBoardVO> selectLikeByUseridx(int userIdx) {
-		List<DaangnMainBoardVO> list = null;
+	public PagingVO<DaangnMainBoardVO> selectLikeByUseridx(CommonVO cv) {
+		PagingVO<DaangnMainBoardVO> pv = null;
 		try {
-			list = daangnLikeDAO.selectLikeByUseridx(userIdx);
+			int totalCount = daangnLikeDAO.selectLikeCountByUseridx(cv.getUserRef());
+			pv = new PagingVO<>(totalCount, cv.getCurrentPage(), cv.getSizeOfPage(), cv.getSizeOfBlock());
+			HashMap<String, Integer> map = new HashMap<>();
+			map.put("userIdx", cv.getUserRef());
+			map.put("startNo", pv.getStartNo() - 1);
+			map.put("sizeOfPage", pv.getSizeOfPage());
+			List<DaangnMainBoardVO> list = daangnLikeDAO.selectLikeByUseridx(map);
 			for(DaangnMainBoardVO boardVO : list) {
 				if(boardVO != null) {
 					boardVO.setBoardFileList(daangnBoardFileDAO.selectFileByBoardIdx(boardVO.getIdx()));
+					boardVO.setMember(daangnMemberService.selectByIdx(boardVO.getUserRef()));
 				}
 			}
+			pv.setList(list);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return list;
+		return pv;
 	}
 
 	@Override

@@ -18,13 +18,13 @@
 		select count(*) from daangn_like_tb where boardIdx = #{boardIdx}
 	</select>
 	
-	<!-- 유저가 누른 좋아요 목록 가져오기 -->
-	<select id="selectLikeByUseridx" parameterType="int" resultType="DaangnMainBoardVO">
+	<!-- 유저가 누른 좋아요 목록 가져오기 (이것도 페이징해야됨!)-->
+	<select id="selectLikeByUseridx" parameterType="hashmap" resultType="DaangnMainBoardVO">
 		SELECT 
-			dlt.IDX AS likeIdx,
+			dlt.Idx AS likeIdx,
 			db.*,
-			dc.categoryName,
-			ds.statusName,
+			dc.categoryName AS categoryName,
+			ds.statusName AS statusName,
 			COUNT(dlt.IDX) AS countLike,
 			COUNT(cr.boardIdx) AS chatRoomCount
 		FROM
@@ -44,7 +44,13 @@
 			db.latitude, db.longitude, db.location, db.loc, db.readCount, db.regDate,
 			dc.categoryName, ds.statusName, dc.categoryName, ds.statusName
 		ORDER BY 
-    		dlt.IDX DESC
+    		dlt.Idx DESC
+    	LIMIT #{startNo}, #{sizeOfPage}
+	</select>
+	
+	<!-- 유저가 좋아요한 게시글 총 갯수 가져오기 -->
+	<select id="selectLikeCountByUseridx" parameterType="int" resultType="int">
+		select count(*) from DAANGN_LIKE_TB where userIdx = #{userIdx}
 	</select>
 	
 	<!-- 하트 중복확인 0,1 리턴-->

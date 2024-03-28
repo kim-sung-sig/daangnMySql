@@ -13,64 +13,51 @@
 		delete from tb_reserve where boardRef = #{boardRef}
 	</delete>
 	
-	<!--
-		구매목록 보기 (이것도 우선 버튼 페이징으로 하겠다.)
-	-->
+	<!-- 구매목록 보기 (이것도 우선 버튼 페이징으로 하겠다.) -->
 	<select id="selectPurchaseListByUserIdx" parameterType="hashmap" resultType="DaangnMainBoardVO">
-		select
-			R.*
-		from
+		SELECT 
+			db.*
+			, dc.categoryName AS categoryName
+			, '판매완료' AS statusName
+			, COALESCE(dlt.countLike, 0) AS countLike
+			, COALESCE(cr.chatRoomCount, 0) AS chatRoomCount
+		FROM 
+			DAANGN_BOARD db
+		JOIN
 			(
-				select
-					rownum rnum, Q.*
-				from
-					(
-						SELECT 
-							db.*
-							, dc.categoryName AS categoryName
-							, '판매완료' AS statusName
-							, (
-								SELECT 
-									count(*)
-								FROM
-									DAANGN_LIKE_TB dlt 
-								WHERE 
-									dlt.boardIdx = db.idx
-							) AS countLike
-							, (
-								SELECT
-									COUNT(*)
-								FROM
-									chatRoom cr
-								WHERE
-									cr.boardIdx = db.idx
-							) AS chatRoomCount
-						FROM 
-							DAANGN_BOARD db
-						JOIN
-							daangn_category dc ON dc.categoryIdx = db.categoryRef
-						JOIN
-							(
-								SELECT
-								    tr.idx AS idx,
-								    tr.boardRef
-								FROM
-								    tb_reserve tr
-								WHERE
-								    tr.USERREF = #{userRef} AND tr.INTERACTION = 1
-							) reserve ON reserve.boardRef = db.idx
-						ORDER BY
-							reserve.idx desc
-					) Q
-				where
-					<![CDATA[
-						rownum <= #{endNo}
-					]]>
-			) R
-		where
-			<![CDATA[
-				rnum >= #{startNo}
-			]]>
+				SELECT
+				    tr.idx AS idx,
+				    tr.boardRef
+				FROM
+				    tb_reserve tr
+				WHERE
+				    tr.USERREF = #{userRef} AND tr.INTERACTION = 1
+			) tr ON tr.boardRef = db.idx
+		LEFT JOIN
+			daangn_category dc ON dc.categoryIdx = db.categoryRef
+		LEFT JOIN
+		    (
+		        SELECT 
+		            boardIdx,
+		            COUNT(*) AS countLike
+		        FROM 
+		            daangn_like_tb
+		        GROUP BY 
+		            boardIdx
+		    ) dlt ON dlt.boardIdx = db.idx
+		LEFT JOIN
+		    (
+		        SELECT 
+		            boardIdx,
+		            COUNT(*) AS chatRoomCount
+		        FROM 
+		            chatRoom
+		        GROUP BY 
+		            boardIdx
+		    ) cr ON cr.boardIdx = db.idx
+		ORDER BY
+			tr.idx desc
+		LIMIT #{startNo}, #{sizeOfPage}
 	</select>
 	
 	<select id="getPurchaseListTotalCountByUserIdx" parameterType="int" resultType="int">

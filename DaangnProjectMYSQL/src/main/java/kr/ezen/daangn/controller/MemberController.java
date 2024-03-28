@@ -2,7 +2,6 @@ package kr.ezen.daangn.controller;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -232,14 +231,16 @@ public class MemberController {
     
     /** 마이페이지 관심목록 글 보기 */
     @GetMapping(value = "/myLike")
-    public String myLike(HttpSession session, Model model) {
+    public String myLike(HttpSession session, Model model, @ModelAttribute(value = "cv") CommonVO cv) {
     	log.info("myLike 실행");
     	DaangnMemberVO sessionUser = (DaangnMemberVO) session.getAttribute("user");
     	DaangnMemberVO user = daangnMemberService.selectByIdx(sessionUser.getIdx());
     	model.addAttribute("user", user);
-		List<DaangnMainBoardVO> likeList = daangnLikeService.selectLikeByUseridx(user.getIdx());
-		log.info("myLike 리턴 {}개", likeList.size());
-    	model.addAttribute("likeList", likeList);
+    	cv.setUserRef(user.getIdx());
+    	cv.setSizeOfPage(5);
+		PagingVO<DaangnMainBoardVO> pv = daangnLikeService.selectLikeByUseridx(cv);
+		log.info("myLike 리턴 {}개", pv.getTotalCount());
+    	model.addAttribute("pv", pv);
     	return "mypage/myLike";
     }
     
