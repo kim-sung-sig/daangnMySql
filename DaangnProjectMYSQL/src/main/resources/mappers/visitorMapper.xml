@@ -13,8 +13,8 @@
 		from
 			tb_visitor
 		<where>
-			<if test="date != null">
-				TO_CHAR(visitTime, 'YYYY-MM-DD') = #{strDate}
+			<if test="strDate != null">
+				DATE_FORMAT(visitTime, '%Y-%m-%d') = #{strDate}
 			</if>
 		</where> 
 	</select>
