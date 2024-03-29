@@ -212,8 +212,8 @@ public class DaangnMemberServiceImpl implements DaangnMemberService{
 			}
 			int totalCount = daangnMemberDAO.selectCountUser(map);
 			pv = new PagingVO<>(totalCount, cv.getCurrentPage(), cv.getSizeOfPage(), cv.getSizeOfBlock());
-			map.put("startNo", pv.getStartNo());
-			map.put("endNo", pv.getEndNo());
+			map.put("startNo", pv.getStartNo() - 1);
+			map.put("sizeOfPage", pv.getSizeOfPage());
 			List<DaangnMemberVO> list = daangnMemberDAO.selectUser(map);
 			pv.setList(list);
 		} catch (SQLException e) {

@@ -82,7 +82,7 @@ public class DaangnMainBoardServiceImpl implements DaangnMainBoardService{
 	public PagingVO<DaangnMainBoardVO> selectList(CommonVO cv) {
 		PagingVO<DaangnMainBoardVO> pv = null;
 		try {
-			HashMap<String, String> map = new HashMap<>();
+			HashMap<String, Object> map = new HashMap<>();
 			map.put("region", cv.getRegion());
 			map.put("gu", cv.getGu());
 			map.put("dong", cv.getDong());
@@ -93,8 +93,8 @@ public class DaangnMainBoardServiceImpl implements DaangnMainBoardService{
 			int totalCount = daangnMainBoardDAO.selectCount(map);
 			pv = new PagingVO<>(totalCount, cv.getCurrentPage(), cv.getSizeOfPage(), cv.getSizeOfBlock());
 			
-			map.put("startNo", pv.getStartNo() + "");
-			map.put("endNo", pv.getEndNo() + "");
+			map.put("startNo", pv.getStartNo() - 1);
+			map.put("sizeOfPage", pv.getSizeOfPage());
 			List<DaangnMainBoardVO> list = daangnMainBoardDAO.selectList(map);
 			log.info("list => {}", list);
 			for(DaangnMainBoardVO boardVO : list) {

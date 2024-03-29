@@ -64,8 +64,8 @@ public class ReserveServiceImpl implements ReserveService{
 			pv = new PagingVO<>(totalCount, cv.getCurrentPage(), cv.getSizeOfPage(), cv.getSizeOfBlock());
 			HashMap<String, Integer> map = new HashMap<>();
 			map.put("userRef", cv.getUserRef());
-			map.put("startNo", pv.getStartNo());
-			map.put("endNo", pv.getEndNo());
+			map.put("startNo", pv.getStartNo() - 1);
+			map.put("sizeOfPage", pv.getSizeOfPage());
 			List<DaangnMainBoardVO> list = reserveDAO.selectPurchaseListByUserIdx(map);
 			log.info("list => {}", list);
 			for(DaangnMainBoardVO boardVO : list) {

@@ -4,8 +4,8 @@ CREATE TABLE tb_reserve (
     boardRef INT NOT NULL,
     userRef INT NOT NULL,
     interaction INT NOT NULL,
-    CONSTRAINT fk_boardRef FOREIGN KEY (boardRef) REFERENCES daangn_board(idx) ON DELETE CASCADE,
-    CONSTRAINT fk_userRef FOREIGN KEY (userRef) REFERENCES daangn_member(idx) ON DELETE CASCADE
+    CONSTRAINT fk_reserve_boardRef FOREIGN KEY (boardRef) REFERENCES daangn_board(idx) ON DELETE CASCADE,
+    CONSTRAINT fk_reserve_userRef FOREIGN KEY (userRef) REFERENCES daangn_member(idx) ON DELETE CASCADE
 );
 
 SELECT * FROM TB_RESERVE tr ;

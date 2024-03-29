@@ -54,8 +54,8 @@ public class PopularServiceImpl implements PopularService{
 			map.put("userRef", cv.getUserRef());
 			int totalCount = popularDAO.totalCountPopular(map);
 			pv = new PagingVO<>(totalCount, cv.getCurrentPage(), cv.getSizeOfPage(), cv.getSizeOfBlock());
-			map.put("startNo", pv.getStartNo());
-			map.put("endNo", pv.getEndNo());
+			map.put("startNo", pv.getStartNo() - 1);
+			map.put("sizeOfPage", pv.getSizeOfPage());
 			List<PopularVO> popularList = popularDAO.getUserTrendAnalysis(map);
 			for(PopularVO p : popularList) {
 				p.setMember(daangnMemberService.selectByIdx(p.getUserRef()));
@@ -103,8 +103,8 @@ public class PopularServiceImpl implements PopularService{
 			pv = new PagingVO<>(totalCount, cv.getCurrentPage(), cv.getSizeOfPage(), cv.getSizeOfBlock());
 			HashMap<String, Integer> map = new HashMap<>();
 			map.put("userRef", cv.getUserRef());
-			map.put("startNo", pv.getStartNo());
-			map.put("endNo", pv.getEndNo());
+			map.put("startNo", pv.getStartNo() - 1);
+			map.put("sizeOfPage", pv.getSizeOfPage());
 			List<DaangnMainBoardVO> list = popularDAO.getRecentVisitsBoardByUserIdx(map);
 			for(DaangnMainBoardVO boardVO : list) {
 				boardVO.setMember(daangnMemberService.selectByIdx(boardVO.getUserRef()));				// 유저정보

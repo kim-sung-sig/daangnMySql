@@ -21,6 +21,6 @@ public interface DaangnMainBoardDAO {
 	void deleteByIdx(int idx) throws SQLException;
 	
 	
-	List<DaangnMainBoardVO> selectList(HashMap<String, String> map) throws SQLException;
-	int selectCount(HashMap<String, String> map) throws SQLException;
+	List<DaangnMainBoardVO> selectList(HashMap<String, Object> map) throws SQLException;
+	int selectCount(HashMap<String, Object> map) throws SQLException;
 }
