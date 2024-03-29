@@ -22,8 +22,8 @@ table {
 body, html {font-family: "Noto Sans KR"; font-weight: 300; }
 
 #wrap{width: 100%;}
-header{width: 100%; box-shadow: 0 0 10px #ccc;}
-#header-inner{max-width: 1200px;margin: 0 auto;align-items: center;display: flex;justify-content: space-between;}
+header{width: 100%; box-shadow: 0 0 10px #ccc; position: fixed;top: 0;left: 0; background: #fff;}
+#header-inner{max-width: 1200px;min-width:1000px; margin: 0 auto;align-items: center;display: flex;justify-content: space-between;}
 #navi{display: flex;align-items: center;}
 #logo img{width: 170px;margin-right: 20px;}
 nav>ul{display: flex;}
@@ -32,12 +32,11 @@ nav>ul>li>a:hover{color: #d05300;}
 #search{display: flex;}
 #search>span{margin-right: 10px; height: 40px}
 main{
-	width: 100%;
-	/* height: calc(100vh - 139.27px); */
+	min-width: 1000px;
 	padding-top:75.27px;
 	background: #EF8449;
-	/*background: linear-gradient(rgb(255, 255, 185), rgb(255, 151, 121, 0.7));*/
+	background: linear-gradient(rgb(255, 255, 185), rgb(255, 151, 121, 0.7));
 }
-.chat{width: 320px}
+.chat{width: 320px;}
 
 footer{width: 100%; background: #333;}
