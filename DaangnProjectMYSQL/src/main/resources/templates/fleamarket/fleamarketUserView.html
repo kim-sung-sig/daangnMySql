@@ -51,7 +51,7 @@
 	<input type="hidden" id="userRef" th:value="${user.idx}">
 	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx + 1}">
 	<div id="wrap">
-		<th:block th:insert="~{/header.html}"></th:block>
+		<th:block th:insert="~{header.html}"></th:block>
 		<main>
 			<div style="display: flex; justify-content: space-between; align-items: center;">
 				<h3 style="font-weight: 600"><span class="highlight">[[${user.nickName}]]</span>님의 판매내역</h3>

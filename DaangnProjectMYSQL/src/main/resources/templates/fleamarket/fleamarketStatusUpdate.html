@@ -79,7 +79,7 @@
 	<input type="hidden" id="boardIdx" th:value="${board.idx}">
 	<input type="hidden" id="statusRef" th:value="${statusRef}">
 	<div id="wrap">
-		<th:block th:insert="~{/header.html}"></th:block>
+		<th:block th:insert="~{header.html}"></th:block>
 		
 		<!-- 채팅한 유저가 없는경우 -->
 		<th:block th:if="${#lists.isEmpty(chatUsers)}">

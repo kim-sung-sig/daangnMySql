@@ -44,9 +44,8 @@ public class DaangnMainBoardServiceImpl implements DaangnMainBoardService{
 		List<String> list = new ArrayList<>();
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
-			JsonNode jsonNode = objectMapper.readTree(new File("src/main/resources/static/data/data.json"));
-			// 리턴() => 서울시, 강원도,.. 
-			if(region == null) {
+			JsonNode jsonNode = objectMapper.readTree(getClass().getResourceAsStream("/static/data/data.json"));
+			if(region == null) { // 리턴() => 서울시, 강원도,.. 
 				Iterator<String> regionNames = jsonNode.fieldNames();
 				while (regionNames.hasNext()) {
 					list.add(regionNames.next());

@@ -29,9 +29,9 @@ public class MailServiceImpl implements MailService{
 		String authCode= null;
 		try {
 			mailHandler = new MailHandler(javaMailSender);
-			mailHandler.setFrom("tjdtlr12349@naver.com", "당근마켓");					// 누가
-			mailHandler.setTo(to);										// 누구에게
-			mailHandler.setSubject("당근마켓 인증번호");  				// 제목
+			mailHandler.setFrom("tjdtlr12349@naver.com", "당근마켓클론");	// 누가
+			mailHandler.setTo(to);											// 누구에게
+			mailHandler.setSubject("당근마켓 인증번호");  					// 제목
 			authCode = createCode();
 			mailHandler.setText("인증번호: " + authCode); // 내용
 			mailHandler.send();	// 전송
@@ -79,9 +79,8 @@ public class MailServiceImpl implements MailService{
 	        String email = null; // 이메일 변수를 선언하고 초기화
 	        try {
 	            mailHandler = new MailHandler(javaMailSender);
-	            
 	            email = daangnMemberService.selectByIdx(userIdx).getEmail();
-	            mailHandler.setFrom("tjdtlr12349@naver.com", "jungBlogCompany");
+	            mailHandler.setFrom("tjdtlr12349@naver.com", "당근마켓클론");
 	            mailHandler.setTo(email);
 	            mailHandler.setSubject(subject);
 	            mailHandler.setText(subject);
