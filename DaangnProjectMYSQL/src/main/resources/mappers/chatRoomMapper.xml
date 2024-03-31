@@ -45,8 +45,8 @@
 	<select id="findChatRoom" parameterType="ChatRoomVO" resultType="int">
 		SELECT
 		    CASE 
-		        WHEN (SELECT count(*) FROM CHATROOM c WHERE (userIdx = #{userIdx} AND boardIdx = #{boardIdx})) = 1 THEN
-		            (SELECT roomIdx FROM CHATROOM c WHERE (userIdx = #{userIdx} AND boardIdx = #{boardIdx}))
+		        WHEN (SELECT count(*) FROM chatRoom c WHERE (userIdx = #{userIdx} AND boardIdx = #{boardIdx})) = 1 THEN
+		            (SELECT roomIdx FROM chatRoom c WHERE (userIdx = #{userIdx} AND boardIdx = #{boardIdx}))
 		        ELSE
 		            0
 		    END AS roomIdx

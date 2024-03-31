@@ -58,13 +58,13 @@
                 )
             </if>
             <if test="region != null">
-                AND db.LOC LIKE CONCAT('%', #{region}, '%')
+                AND db.loc LIKE CONCAT('%', #{region}, '%')
             </if>
             <if test="gu != null">
-                AND db.LOC LIKE CONCAT('%', #{gu}, '%')
+                AND db.loc LIKE CONCAT('%', #{gu}, '%')
             </if>
             <if test="dong != null">
-                AND db.LOC LIKE CONCAT('%', #{dong}, '%')
+                AND db.loc LIKE CONCAT('%', #{dong}, '%')
             </if>
             <if test="boardRef != null">
             	AND <![CDATA[db.idx <> #{boardRef}]]>

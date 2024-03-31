@@ -32,6 +32,12 @@ public class SecurityConfig {
 					.requestMatchers("/css/**", "/js/**", "/img/**", "/upload/**", "/data/**").permitAll()
 					// 회원가입 폼과 회원가입 완료는 누구나 접근 가능 
 					.requestMatchers("/member/login/useridcheck","/member/login","/member/logout","/member/join","/member/joinok","/member/send","/member/findUserName","/member/checkEmailAndUsername","/member/passwordUpdateByUsername","/member/login/usernicknamecheck").permitAll()
+					// 지역 리턴
+					.requestMatchers("/region/**").permitAll()
+					// 동네생활
+					.requestMatchers("/life/view/**", "/life/list", "/life/commentlist", "/life/detail/**").permitAll()
+					// 동네생활댓글얻기
+					.requestMatchers("/life/commentlist").permitAll()
 					// 공지사항
 					.requestMatchers("/notice/**").permitAll()
 					// 중고거래 리스트 사이트!
@@ -59,12 +65,11 @@ public class SecurityConfig {
 		});
 		// 로그아웃시 처리 내용 지정
 		http.logout((logout) ->
-		// 권한 설정
-		logout.permitAll()
-				// 로그아웃후 이동할 주소 지정
-				.logoutSuccessUrl("/")
-				// 세션 정보를 지울지 여부
-				.invalidateHttpSession(true));
+			logout
+				.logoutUrl("/member/logout") // 로그아웃 주소설정
+				.permitAll() // 권한 설정
+				.logoutSuccessUrl("/") // 로그아웃후 이동할 주소 지정
+				.invalidateHttpSession(true)); // 세션 정보를 지울지 여부
 		// 완성해서 리턴(객체 등록)
 		return http.build();
 	}

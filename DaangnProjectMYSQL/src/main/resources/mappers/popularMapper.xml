@@ -71,9 +71,9 @@
 		            MAX(tp.idx) AS idx,
 		            tp.boardRef
 		        FROM
-		            TB_POPULAR tp
+		            tb_popular tp
 		        WHERE
-		            tp.USERREF = 1 AND tp.INTERACTION = 1
+		            tp.userRef = 1 AND tp.interaction = 1
 		        GROUP BY
 		            tp.boardRef, tp.userRef
 		    ) tp ON tp.boardRef = db.idx
@@ -122,9 +122,9 @@
 		            MAX(tp.idx) AS idx,
 		            tp.boardRef
 		        FROM
-		            TB_POPULAR tp
+		            tb_popular tp
 		        WHERE
-		            tp.USERREF = #{userRef} AND tp.INTERACTION = 1
+		            tp.userRef = #{userRef} AND tp.interaction = 1
 		        GROUP BY
 		            tp.boardRef, tp.userRef
 		    ) popular ON popular.boardRef = db.idx

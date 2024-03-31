@@ -22,7 +22,7 @@
 			, COALESCE(dlt.countLike, 0) AS countLike
 			, COALESCE(cr.chatRoomCount, 0) AS chatRoomCount
 		FROM 
-			DAANGN_BOARD db
+			daangn_board db
 		JOIN
 			(
 				SELECT
@@ -31,7 +31,7 @@
 				FROM
 				    tb_reserve tr
 				WHERE
-				    tr.USERREF = #{userRef} AND tr.INTERACTION = 1
+				    tr.userRef = #{userRef} AND tr.interaction = 1
 			) tr ON tr.boardRef = db.idx
 		LEFT JOIN
 			daangn_category dc ON dc.categoryIdx = db.categoryRef
@@ -66,7 +66,7 @@
 		FROM
 		    tb_reserve tr
 		WHERE
-		    tr.USERREF = #{userRef} AND tr.INTERACTION = 1
+		    tr.userRef = #{userRef} AND tr.interaction = 1
 	</select>
 	
 	<select id="getTBReserveByBoardRef" parameterType="int" resultType="ReserveVO">

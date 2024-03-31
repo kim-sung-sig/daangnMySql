@@ -117,7 +117,9 @@ public class MemberController {
 		int result = daangnMemberService.insert(memberVO);
 		return result + "";
 	}
+	
 	/** 로그아웃 */
+	/*
 	@GetMapping(value = "/logout")
 	public String logout(HttpServletRequest request) {
 		log.info("logout 실행");
@@ -126,6 +128,7 @@ public class MemberController {
 		log.info("session.user =>{}", request.getSession().getAttribute("user"));
 		return "redirect:/";
 	}
+	*/
 	
 	/** 회원가입중 필요한 메일을 보내는 주소 */
     @PostMapping(value = "/send", produces = "text/plain" )

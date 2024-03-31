@@ -3,28 +3,28 @@
 <mapper namespace="kr.ezen.daangn.dao.DaangnCommentDAO">
 	<!-- 저장 -->
 	<insert id="insertComment" parameterType="DaangnCommentVO">
-		INSERT INTO Daangn_comment (userIdx, writerIdx, score, content, regDate)
+		INSERT INTO daangn_comment (userIdx, writerIdx, score, content, regDate)
 		VALUES (#{userIdx}, #{writerIdx}, #{score}, #{content}, CURRENT_TIMESTAMP)
 	</insert>
 	
 	<!-- 댓글 평점 합계 계산하기 -->
 	<select id="selectScoreByUserIdx" parameterType="int" resultType="float">
-		SELECT COALESCE(AVG(score), 3) FROM Daangn_comment WHERE userIdx = #{userIdx}
+		SELECT COALESCE(AVG(score), 3) FROM daangn_comment WHERE userIdx = #{userIdx}
 	</select>
 	
 	<!-- 1. userIdx에 해당하는 댓글 주기 (고려사항 페이징)-->
 	<select id="selectCommentByUserIdx" parameterType="int" resultType="DaangnCommentVO">
-		SELECT * FROM Daangn_comment WHERE userIdx = #{userIdx} order by desc
+		SELECT * FROM daangn_comment WHERE userIdx = #{userIdx} order by desc
 	</select>
 	
 	<!-- 글 댓글지우기? -->
 	<delete id="deleteCommentByIdx" parameterType="int">
-		DELETE FROM Daangn_comment WHERE idx = #{idx}
+		DELETE FROM daangn_comment WHERE idx = #{idx}
 	</delete>
 	
 	<!-- 댓글수정불가? 하게? 1회용으로만? -->
 	<update id="updateComment" parameterType="DaangnCommentVO">
-		UPDATE Daangn_comment 
+		UPDATE daangn_comment 
 		SET content = #{content}, regDate = sysdate, score = #{score}
 		WHERE idx = #{idx}
 	</update>

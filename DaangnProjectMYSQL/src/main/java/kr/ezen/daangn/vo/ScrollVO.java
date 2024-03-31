@@ -11,8 +11,8 @@ public class ScrollVO {
 	private String region;
 	private String gu;
 	private String dong;
-	private int chatRoomIdx;
-	private int userRef;
-	private int statusRef;
-	private int boardRef;
+	private Integer chatRoomIdx;
+	private Integer userRef;
+	private Integer statusRef;
+	private Integer boardRef;
 }

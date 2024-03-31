@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.dao.DaangnLifeBoardDAO">
+	
+	<!-- 동네생활 게시물 목록 페이징 조회 -->
+    <select id="selectPagedLifeBoards" parameterType="hashmap" resultType="DaangnLifeBoardVO">
+		    SELECT
+		        dlb.*,
+		        dlc.categoryName AS categoryName,
+		        dm.nickName AS nickName
+		    FROM
+		        daangn_life_board dlb
+		    JOIN
+		        daangn_member dm ON dlb.userRef = dm.idx
+		    JOIN
+		    	daangn_life_category dlc IN dlb.categoryRef = dlc.idx
+		    WHERE
+		        <![CDATA[
+		        	dlb.idx < #{lastItemIdx}
+				]]>
+		        <if test="categoryRef != null">
+		            AND dlb.categoryRef = #{categoryRef}
+		        </if>
+		        <if test="region != null">
+		            AND dlb.loc1 = #{region}
+		        </if>
+		        <if test="gu != null">
+		            AND dlb.loc2 = #{gu}
+		        </if>
+		        <if test="dong != null">
+		            AND dlb.loc3 = #{dong}
+		        </if>
+		        <if test="search != null and search != ''">
+		            AND dlb.title LIKE CONCAT('%', #{search}, '%')
+		        </if>
+		        <if test="userRef != null">
+		            AND dlb.userRef = #{userRef}
+		        </if>
+		    ORDER BY
+		        dlb.idx DESC
+		    LIMIT #{sizeOfPage}
+    </select>
+    
+    <select id="getLastIdx" resultType="int">
+        SELECT COALESCE(MAX(idx), 0) FROM daangn_life_board
+	</select>
+	
+	<!-- 동네생활 게시물 1개 얻기 -->
+	<select id="selectByIdx" parameterType="int" resultType="DaangnLifeBoardVO">
+		SELECT
+	        dlb.*,
+	        dlc.categoryName AS categoryName,
+	        dm.nickName AS nickName
+	    FROM
+	        daangn_life_board dlb
+	    JOIN
+	        daangn_member dm ON dlb.userRef = dm.idx
+	    JOIN
+	    	daangn_life_category dlc IN dlb.categoryRef = dlc.idx
+	    WHERE
+        	dlb.idx = #{idx}
+	</select>
+	
+	<!-- 동네생활 게시물 저장 -->
+    <insert id="insertLifeBoard" parameterType="DaangnLifeBoardVO" useGeneratedKeys="true" keyProperty="idx">
+        INSERT INTO daangn_life_board (userRef, categoryRef, title, content, loc1, loc2, loc3, ip)
+        VALUES (#{userRef}, #{categoryRef}, #{title}, #{content}, #{loc1}, #{loc2}, #{loc3}, #{ip})
+    </insert>
+
+    <!-- 동네생활 게시물 수정 -->
+    <update id="updateLifeBoard" parameterType="DaangnLifeBoardVO">
+        UPDATE daangn_life_board
+        SET
+        	title = #{title},
+        	content = #{content},
+        	loc1 = #{loc1},
+        	loc2 = #{loc2},
+        	loc3 = #{loc3},
+        	updateDate = current_timestamp
+        WHERE
+        	idx = #{idx}
+    </update>
+
+    <!-- 동네생활 게시물 삭제 -->
+    <delete id="deleteLifeBoard" parameterType="int">
+        DELETE FROM daangn_life_board WHERE idx = #{idx}
+    </delete>
+    
+    
+    <!-- 동네생활 게시물 조회수 증가 -->
+    <update id="incrementReadCount" parameterType="int">
+        UPDATE daangn_life_board
+        SET readCount = readCount + 1
+        WHERE idx = #{idx}
+    </update>
+
+    <!-- 동네생활 게시물 좋아요 수 증가 -->
+    <update id="incrementLikeCount" parameterType="int">
+        UPDATE daangn_life_board
+        SET likeCount = likeCount + 1
+        WHERE idx = #{idx}
+    </update>
+    
+    <!-- 동네생활 게시물 좋아요 수 감소 -->
+    <update id="decrementLikeCount" parameterType="int">
+        UPDATE daangn_life_board
+        SET likeCount = likeCount - 1
+        WHERE idx = #{idx}
+    </update>
+    
+    <!-- 동네생활 게시물 댓글 수 증가 -->
+    <update id="incrementCommentCount" parameterType="int">
+        UPDATE daangn_life_board
+        SET commentCount = commentCount + 1
+        WHERE idx = #{idx}
+    </update>
+    
+    <!-- 동네생활 게시물 댓글 수 감소 -->
+    <update id="decrementCommentCount" parameterType="int">
+        UPDATE daangn_life_board
+        SET commentCount = commentCount - 1
+        WHERE idx = #{idx}
+    </update>
+</mapper>

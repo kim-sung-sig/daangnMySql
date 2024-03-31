@@ -34,7 +34,7 @@ public class NewsService {
 			InputStream is = url.openStream();
 			UnicodeBomInputStream is2 = new UnicodeBomInputStream(is);
 			is2.skipBOM();
-			InputStreamReader isr = new InputStreamReader(is2);
+			InputStreamReader isr = new InputStreamReader(is2, "UTF-8");
 			vo = (RssVO) um.unmarshal(isr);
 			items = new ArrayList<>();
 			for(Item item : vo.getChannel().getItem()) {

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.dao.DaangnLifeBoardCommentDAO">
+	
+	<!-- 동네생활 게시물에 해당하는 댓글 목록 페이징 조회 (부모들만) -->
+    <select id="selectPagedLifeBoardComments" parameterType="hashmap" resultType="DaangnLifeCommentVO">
+	    SELECT
+	        dlc.*,
+	        dm.nickName AS nickName
+	    FROM
+	        daangn_life_comment dlc
+	    JOIN
+	        daangn_member dm ON dlc.userRef = dm.idx 
+	    WHERE
+	        <![CDATA[
+	        	dlc.idx < #{lastItemIdx}
+			]]>
+	        AND dlc.boardRef = #{boardRef}
+	        AND dlc.parentComIdx IS NULL
+	    ORDER BY
+	        dlc.idx DESC
+	    LIMIT #{sizeOfPage}
+    </select>
+    
+	<!-- 동네생활 댓글에 해당하는 자식 조회 -->
+    <select id="selectLifeBoardChildComments" parameterType="int" resultType="DaangnLifeCommentVO">
+	    SELECT
+	        dlc.*,
+	        dm.nickName AS nickName
+	    FROM
+	        daangn_life_comment dlc
+	    JOIN
+	        daangn_member dm ON dlc.userRef = dm.idx 
+	    WHERE
+        	dlc.parentComIdx IS NOT NULL
+           	AND dlc.parentComIdx = #{commentRef}
+	    ORDER BY
+	        dlc.idx
+    </select>
+    
+    <select id="getLastIdx" resultType="int">
+        SELECT COALESCE(MAX(idx), 0) FROM daangn_life_comment
+	</select>
+	
+	<!-- 댓글 저장 -->
+    <insert id="insertLifeBoardComment" parameterType="DaangnLifeCommentVO">
+        INSERT INTO daangn_life_comment
+        	(
+        		userRef,
+        		boardRef,
+        		<if test="parentComIdx != null">
+	        		parentComIdx,
+        		</if>
+        		comment,
+        		<if test="isOwner != null">
+	        		isOwner,        		
+        		</if>
+        		ip
+        	)
+        VALUES
+        	(
+        		#{userRef},
+        		#{categoryRef},
+        		<if test="parentComIdx != null">
+	        		#{parentComIdx},
+        		</if>
+        		#{comment},
+        		<if test="isOwner != null">
+	        		#{isOwner},
+        		</if>
+        		#{ip}
+        	)
+    </insert>
+
+    <!-- 댓글 수정 -->
+    <update id="updateLifeBoardComment" parameterType="DaangnLifeCommentVO">
+        UPDATE daangn_life_comment
+        SET
+        	comment = #{comment},
+        	updateDate = current_timestamp
+        WHERE
+        	idx = #{idx}
+    </update>
+
+    <!-- 댓글 삭제 -->
+    <delete id="deleteLifeBoardComment" parameterType="int">
+        DELETE FROM daangn_life_comment WHERE idx = #{idx}
+    </delete>
+    
+    
+    <!-- 댓글 좋아요 수 증가 -->
+    <update id="incrementLikeCount" parameterType="int">
+        UPDATE daangn_life_board
+        SET likeCount = likeCount + 1
+        WHERE idx = #{idx}
+    </update>
+
+    <!-- 댓글 좋아요 수 감소 -->
+    <update id="decrementLikeCount" parameterType="int">
+        UPDATE daangn_life_board
+        SET likeCount = likeCount - 1
+        WHERE idx = #{idx}
+    </update>
+    
+    <!-- 댓글 대댓글 수 증가 -->
+    <update id="incrementChildCommentCount" parameterType="int">
+        UPDATE daangn_life_board
+        SET childCommentCount = childCommentCount + 1
+        WHERE idx = #{idx}
+    </update>
+
+    <!-- 댓글 대댓글 수 감소 -->
+    <update id="decrementChildCommentCount" parameterType="int">
+        UPDATE daangn_life_board
+        SET childCommentCount = childCommentCount - 1
+        WHERE idx = #{idx}
+    </update>
+</mapper>

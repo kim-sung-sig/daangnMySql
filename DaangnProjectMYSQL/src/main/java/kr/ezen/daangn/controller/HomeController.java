@@ -70,24 +70,33 @@ public class HomeController {
 	
 	
 	//===========================================================================================
-	
-	// 딱! 한번만 실행해야한다!
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	@Autowired
-	private BCryptPasswordEncoder passwordEncoder;	
-	
+	private BCryptPasswordEncoder passwordEncoder;
 	/**
-	 * 초기 어드민들 패스워드 암호화하는 주소
-	 * @return
+	 * 초기유저 초기화하는 주소
 	 */
-	//@GetMapping("/dbinit") // 기존에 등록된 비번을 암호화 해서 변경한다. 1번만 실행하고 지워줘라~~~
+	@GetMapping("/dbinit") // 테스트시 초기화시키는 곳! 모든 admin 계정과 test계정을 초기화 시켜주는 곳
 	public String dbInit() {
-		jdbcTemplate.update("update daangn_member set password=? where username=?", passwordEncoder.encode("123456"),"admin");
-		jdbcTemplate.update("update daangn_member set password=? where username=?", passwordEncoder.encode("123456"),"master");
-		jdbcTemplate.update("update daangn_member set password=? where username=?", passwordEncoder.encode("123456"),"webmaster");
-		jdbcTemplate.update("update daangn_member set password=? where username=?", passwordEncoder.encode("123456"),"root");
-		jdbcTemplate.update("update daangn_member set password=? where username=?", passwordEncoder.encode("123456"),"dba");
-		return "redirect:/";
+		String query = "update daangn_member "
+					 + "set password = ?, role = ?, nickName = ?, email = ' ', emailOk = 1, stAddress = ' ', dtAddress = ' ' "
+					 + "where username = ?";
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_ADMIN", "admin", "admin");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_ADMIN", "master", "master");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_ADMIN", "webmaster", "webmaster");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_ADMIN", "root", "root");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_ADMIN", "dba", "dba");
+
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_USER", "재미있는중고", "testuser1");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_USER", "중고보물찾기", "testuser2");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_USER", "Carrot매니아", "testuser3");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_USER", "devel당근", "testuser4");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_USER", "당근Hunter", "testuser5");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_USER", "중고보물찾기", "testuser6");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_USER", "믿음직한구매자", "testuser7");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_USER", "따뜻한이웃", "testuser8");
+		jdbcTemplate.update(query, passwordEncoder.encode("123456"), "ROLE_USER", "당근종합프로", "testuser9");
+		return "redirect:/member/logout";
 	}
 }

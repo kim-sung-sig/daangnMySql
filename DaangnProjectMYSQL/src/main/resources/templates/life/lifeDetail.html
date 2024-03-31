@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>당근 동네생활</title>
+	<!--제이쿼리 추가-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<!-- UIkit CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css" />
+	<!-- UIkit JS -->
+	<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<!-- axios -->
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<!-- moment.js -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+	
+	<link rel="stylesheet" href="/css/header.css">
+</head>
+<body>
+	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx}"/>
+	<input type="hidden" id="region" th:value="${region}">
+	<input type="hidden" id="gu" th:value="${gu}">
+	<input type="hidden" id="dong" th:value="${dong}">
+	<input type="hidden" id="search" th:value="${search}">
+	<div id="wrap">
+		<th:block th:insert="~{header.html}"></th:block>
+		<main>
+			<div class="uk-container">
+				<div class="main-top">
+					<h3 style="font-weight: 600; font-size: 30px; text-align: center; margin-bottom: 40px;">중고 물품 목록</h3>
+					<div class="navBox">
+						<div class="region" style="margin-right: 20px;">
+							<select class="uk-select" id="r1">
+								<option th:selected="${region eq null}" value="0">지역을 선택하세요.</option>
+								<option th:each="reg : ${regionList}" th:value="${reg}" th:selected="${region == reg}">[[${reg}]]</option>
+							</select>
+							<th:block th:if="${region != null}">
+								<select class="uk-select" id="r2">
+									<option th:selected="${gu eq null}" value="0">지역을 선택하세요.</option>
+									<option th:each="g : ${guList}" th:value="${g}" th:selected="${gu == g}">[[${g}]]</option>
+								</select>
+							</th:block>
+							<th:block th:if="${gu != null}">
+								<select class="uk-select" id="r3">
+									<option th:selected="${dong eq null}" value="0">지역을 선택하세요.</option>
+									<option th:each="do : ${dongList}" th:value="${do}" th:selected="${dong == do}">[[${do}]]</option>
+								</select>
+							</th:block>
+						</div>
+						<form action="" method="get" id="searchForm">
+							<div class="uk-inline" style="width: 240px;">
+					        	<span class="uk-form-icon" uk-icon="icon: search"></span>
+					        	<input th:if="${search == null}" class="uk-input uk-form-width-long chat" type="text" aria-label="Not clickable icon" placeholder="동네 물품을 검색해주세요!" name="search" id="searchText">
+					        	<input th:if="${search != null}" th:value="${search}" class="uk-input uk-form-width-long chat" type="text" aria-label="Not clickable icon" placeholder="동네 물품을 검색해주세요!" name="search" id="searchText">
+					    	</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			
+			<div class="uk-container" id="viewBox">
+				<div id="slide"></div>
+			</div>
+		</main>
+	</div>
+</body>
+</html>

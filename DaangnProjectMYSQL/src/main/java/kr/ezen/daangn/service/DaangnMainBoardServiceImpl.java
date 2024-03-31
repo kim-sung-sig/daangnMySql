@@ -1,6 +1,5 @@
 package kr.ezen.daangn.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -218,10 +217,10 @@ public class DaangnMainBoardServiceImpl implements DaangnMainBoardService{
 			map.put("region", sv.getRegion());
 			map.put("gu", sv.getGu());
 			map.put("dong", sv.getDong());
-			if(sv.getUserRef() != 0) {
+			if(sv.getUserRef() != null) {
 				map.put("userRef", sv.getUserRef());
 			}
-			if(sv.getStatusRef() != 0) {
+			if(sv.getStatusRef() != null) {
 				map.put("statusRef", sv.getStatusRef());
 			}
 			list = daangnMainBoardScrollDAO.selectScrollList(map);

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.dao.DaangnLifeBoardFileDAO">
+	<!-- 동네생활 사진 저장하기 -->
+	<insert id="insertFile" parameterType="DaangnLifeBoardFileVO">
+		insert into daangn_life_board_file (boardRef,  saveFileName)
+		values (#{boardRef}, #{saveFileName})
+	</insert>
+	
+	<!-- 동네생활 게시글에 대한 사진 얻기 -->
+	<select id="selectFileByBoardRef" parameterType="int" resultType="DaangnLifeBoardFileVO">
+		select * from daangn_life_board_file where boardRef = #{boardRef} ORDER BY idx
+	</select>
+</mapper>

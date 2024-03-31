@@ -21,16 +21,16 @@
 	<!-- 유저가 누른 좋아요 목록 가져오기 (이것도 페이징해야됨!)-->
 	<select id="selectLikeByUseridx" parameterType="hashmap" resultType="DaangnMainBoardVO">
 		SELECT 
-			dlt.Idx AS likeIdx,
+			dlt.idx AS likeIdx,
 			db.*,
 			dc.categoryName AS categoryName,
 			ds.statusName AS statusName,
-			COUNT(dlt.IDX) AS countLike,
+			COUNT(dlt.idx) AS countLike,
 			COUNT(cr.boardIdx) AS chatRoomCount
 		FROM
-			DAANGN_LIKE_TB dlt
+			daangn_like_tb dlt
 		JOIN
-			DAANGN_BOARD db ON dlt.BOARDIDX = db.idx
+			daangn_board db ON dlt.boardIdx = db.idx
 		LEFT JOIN
 			daangn_category dc ON db.categoryRef = dc.categoryIdx
 		LEFT JOIN
@@ -38,19 +38,19 @@
 		LEFT JOIN
 			chatRoom cr ON cr.boardIdx = db.idx
 		WHERE 
-			dlt.USERIDX = #{userIdx}
+			dlt.userIdx = #{userIdx}
 		GROUP BY 
-			dlt.IDX, db.idx, db.userRef, db.categoryRef, db.statusRef, db.subject, db.content, db.price,
+			dlt.idx, db.idx, db.userRef, db.categoryRef, db.statusRef, db.subject, db.content, db.price,
 			db.latitude, db.longitude, db.location, db.loc, db.readCount, db.regDate,
 			dc.categoryName, ds.statusName, dc.categoryName, ds.statusName
 		ORDER BY 
-    		dlt.Idx DESC
+    		dlt.idx DESC
     	LIMIT #{startNo}, #{sizeOfPage}
 	</select>
 	
 	<!-- 유저가 좋아요한 게시글 총 갯수 가져오기 -->
 	<select id="selectLikeCountByUseridx" parameterType="int" resultType="int">
-		select count(*) from DAANGN_LIKE_TB where userIdx = #{userIdx}
+		select count(*) from daangn_like_tb where userIdx = #{userIdx}
 	</select>
 	
 	<!-- 하트 중복확인 0,1 리턴-->

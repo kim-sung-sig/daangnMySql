@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.dao.DaangnLifeBoardCommentLikeDAO">
+	<!-- 좋아요 하기 (저장) -->
+	<insert id="insertLifeBoardCommentLike" parameterType="hashmap">
+		INSERT INTO daangn_life_comment_like (userRef, commentRef)
+		SET (#{userRef}, #{commentRef})
+	</insert>
+	
+	<!-- 좋아요 취소하기 (삭제) -->
+	<delete id="deleteLifeBoardCommentLike" parameterType="hashmap">
+		DELETE FROM daangn_life_comment_like
+		WHERE userRef = #{userRef} AND commentRef = #{commentRef}
+	</delete>
+	
+	<!-- 좋아요 했는지 확인하기 (조회) -->
+	<select id="selectLifeBoardCommentLike" parameterType="hashmap" resultType="int">
+		SELECT count(*)
+		FROM daangn_life_comment_like
+		WHERE userRef = #{userRef} AND commentRef = #{commentRef}
+	</select>
+</mapper>
