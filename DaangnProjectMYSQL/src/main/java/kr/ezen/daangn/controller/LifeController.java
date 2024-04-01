@@ -54,6 +54,7 @@ public class LifeController {
 							@PathVariable(value = "region", required = false) String region,
 							@PathVariable(value = "gu", required = false) String gu,
 							@PathVariable(value = "dong", required = false) String dong,
+							@RequestParam(value = "categoryRef", required = false) Integer categoryRef,
 							@RequestParam(value = "search", required = false) String search) {
 		log.debug("lifeview 실행 region: {}, gu: {}, dong: {}, search: {}", region, gu, dong, search);
 		if(region != null) {
@@ -65,6 +66,9 @@ public class LifeController {
 		if(dong != null) {
 			model.addAttribute("dong", dong);
 		}
+		if(categoryRef != null && categoryRef > 0) {
+			model.addAttribute("categoryRef", categoryRef);
+		}
 		if(search != null && !search.equals("")) {
 			model.addAttribute("search", search);
 		}
@@ -73,11 +77,11 @@ public class LifeController {
 	}
 	
 	/**
-	 * 동네 생활 게시글 리턴
+	 * 동네 생활 게시글 리턴 (lastItemIdx, sizeOfPage, categoryRef, region, gu, dong, search, userRef)
 	 * @param sv
 	 * @return
 	 */
-	@GetMapping(value = "/list")
+	@PostMapping(value = "/list")
 	@ResponseBody
 	public List<DaangnLifeBoardVO> getLifeBoardList(@RequestBody ScrollVO sv){
 		log.info("getLifeBoardList 실행 : {}", sv);

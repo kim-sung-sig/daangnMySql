@@ -18,6 +18,50 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
 	
 	<link rel="stylesheet" href="/css/header.css">
+	<link rel="stylesheet" href="/css/life/selectRegion.css">
+	<script src="/js/life/selectRegion.js"></script>
+	
+	<style type="text/css">
+		main{width: 100%; padding: 110px 0;}
+		.uk-container{width: 982px; padding: 0;}
+		.category-nav{margin-bottom: 24px;}
+		.category-nav a {
+		    display: inline-flex;
+		    -webkit-box-align: center;
+		    align-items: center;
+		    border: 1px solid #eee;
+		    border-radius: 6.25rem;
+		    padding: 0.5rem 0.75rem;
+		    font-size: 0.875rem;
+		    cursor: pointer;
+		}
+		.category-nav a.selected {
+			color: #fff;
+			background: #333;
+		}
+		
+		#writeButton {
+		    display: inline-block;
+		    width: 150px;
+		    height: 60px;
+		    background-color: #ff8300;
+		    color: #ffffff;
+		    border: none;
+		    border-radius: 900px;
+		    font-size: 24px;
+		    cursor: pointer;
+		    transition: width 1s, background-color 0.5s; /* 트랜지션을 추가합니다 */
+		}
+		
+		#writeButton:hover {
+		    background-color: #e67e00;
+		    width: 150px;
+		}
+		
+		#writeButton:active {
+		    background-color: #d97700;
+		}
+	</style>
 </head>
 <body>
 	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx}"/>
@@ -25,46 +69,182 @@
 	<input type="hidden" id="gu" th:value="${gu}">
 	<input type="hidden" id="dong" th:value="${dong}">
 	<input type="hidden" id="search" th:value="${search}">
+	<input type="hidden" id="categoryRef" th:value="${categoryRef}">
+	<button id="writeButton" style="position: fixed; bottom: 100px; right: 100px;" th:if="${session.user == null}" onclick="alert('로그인이 필요합니다.');">+ 글쓰기</button>
+    <button id="writeButton" style="position: fixed; bottom: 100px; right: 100px;" th:if="${session.user != null}" onclick="location.href='/life/board';">+ 글쓰기</button>
 	<div id="wrap">
 		<th:block th:insert="~{header.html}"></th:block>
 		<main>
 			<div class="uk-container">
-				<div class="main-top">
-					<h3 style="font-weight: 600; font-size: 30px; text-align: center; margin-bottom: 40px;">중고 물품 목록</h3>
-					<div class="navBox">
-						<div class="region" style="margin-right: 20px;">
-							<select class="uk-select" id="r1">
-								<option th:selected="${region eq null}" value="0">지역을 선택하세요.</option>
-								<option th:each="reg : ${regionList}" th:value="${reg}" th:selected="${region == reg}">[[${reg}]]</option>
-							</select>
-							<th:block th:if="${region != null}">
-								<select class="uk-select" id="r2">
-									<option th:selected="${gu eq null}" value="0">지역을 선택하세요.</option>
-									<option th:each="g : ${guList}" th:value="${g}" th:selected="${gu == g}">[[${g}]]</option>
-								</select>
-							</th:block>
-							<th:block th:if="${gu != null}">
-								<select class="uk-select" id="r3">
-									<option th:selected="${dong eq null}" value="0">지역을 선택하세요.</option>
-									<option th:each="do : ${dongList}" th:value="${do}" th:selected="${dong == do}">[[${do}]]</option>
-								</select>
-							</th:block>
-						</div>
-						<form action="" method="get" id="searchForm">
-							<div class="uk-inline" style="width: 240px;">
-					        	<span class="uk-form-icon" uk-icon="icon: search"></span>
-					        	<input th:if="${search == null}" class="uk-input uk-form-width-long chat" type="text" aria-label="Not clickable icon" placeholder="동네 물품을 검색해주세요!" name="search" id="searchText">
-					        	<input th:if="${search != null}" th:value="${search}" class="uk-input uk-form-width-long chat" type="text" aria-label="Not clickable icon" placeholder="동네 물품을 검색해주세요!" name="search" id="searchText">
-					    	</div>
-						</form>
-					</div>
+				<h3 style="font-weight: 600; font-size: 30px; text-align: center; margin-bottom: 40px;">당근 동네생활</h3>
+				<div class="category-nav">
+					<a th:classappend="${categoryRef == null} ? 'selected'"class="notice-tag" href="/life/view">전체</a>
+					<a th:classappend="${categoryRef == 1} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=1">동네질문</a>
+					<a th:classappend="${categoryRef == 2} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=2">동네사건사고</a>
+					<a th:classappend="${categoryRef == 3} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=3">동네맛집</a>
+					<a th:classappend="${categoryRef == 4} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=4">동네소식</a>
+					<a th:classappend="${categoryRef == 5} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=5">생활정보</a>
+					<a th:classappend="${categoryRef == 6} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=6">취미생활</a>
+					<a th:classappend="${categoryRef == 7} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=7">일상</a>
+					<a th:classappend="${categoryRef == 8} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=8">분실/실종센터</a>
+					<a th:classappend="${categoryRef == 9} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=9">해주세요</a>
+					<a th:classappend="${categoryRef == 10} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=10">동네사진전</a>
 				</div>
+				<th:block th:insert="~{life/selectRegion.html}"></th:block>
 			</div>
-			
+						
+
+			<div style="height: 8000px;"></div>
 			<div class="uk-container" id="viewBox">
 				<div id="slide"></div>
 			</div>
 		</main>
 	</div>
+	<script>
+		let lastItemIdx = 0;
+		const sizeOfPage = 12;
+		let categoryRef = null;
+		let region = null;
+		let gu = null;
+		let dong = null;
+		let search = null;
+		
+		function detail(idx){
+			location.href = "/fleamarketDetail/" + idx;
+		}
+
+		function init(){
+			lastItemIdx = $("#lastItemIdx").val();
+			region = $("#region").val();
+			gu = $("#gu").val();
+			dong = $("#dong").val();
+			search = $("#search").val();
+			categoryRef = $("#categoryRef").val();
+			console.log(region, gu, dong, search, categoryRef)
+			if(region.length == 0){
+				region = null;
+			}
+			if(gu.length == 0) {
+				gu = null;
+			}
+			if(dong.length == 0) {
+				dong = null;
+			}
+			if(search.trim().length == 0){
+				search = null;
+			}
+			getItem();
+		}
+	
+		function findLastItemIdx(){
+			let ukCards = document.querySelectorAll(".uk-card");
+			let lastItem = ukCards[ukCards.length - 1];
+			let value = lastItem.querySelector(".idx").value;
+			lastItemIdx = value;
+		}
+	
+		function getItem(){
+			window.removeEventListener('scroll', handleScroll);
+			axios.post('/life/list', {
+	            'lastItemIdx': lastItemIdx,
+	            'sizeOfPage': sizeOfPage,
+	            'categoryRef': categoryRef,
+	            'region': region,
+	            'gu': gu,
+	            'dong': dong,
+	            'search': search
+	        }).then(res => {
+				let data = res.data;
+				console.log(data);
+				content = "";
+				if(data.length == 0) {
+					window.removeEventListener('scroll', handleScroll);
+					return ;
+				}
+				
+				$("#slide").append(content);
+				findLastItemIdx();
+				window.addEventListener('scroll', handleScroll);
+			})
+		}
+	
+		/** 수를 가격으로 바꿔주는 함수 */
+		function numberFormatter(number){
+			let formattedNumber = new Intl.NumberFormat('ko-KR').format(number) + '원';
+			return formattedNumber;
+		}
+	
+		/** 날짜변경 */
+		function dateFormatter(dateStr){
+			// Moment.js를 사용하여 상대적인 시간 표시 
+			let momentRegDate = moment(dateStr);
+			let now = moment();
+			let diff = now.diff(momentRegDate, 'seconds'); // 차이 구하기
+			var formattedDate;
+			if (diff < 60) {
+			    formattedDate = diff + '초 전';
+			} else if (diff < 3600) {
+			    formattedDate = Math.floor(diff / 60) + '분 전';
+			} else if (diff < 86400) {
+			    formattedDate = Math.floor(diff / 3600) + '시간 전';
+			} else if (diff < 604800) {
+			    formattedDate = Math.floor(diff / 86400) + '일 전';
+			} else {
+			    formattedDate = momentRegDate.format('YYYY.MM.DD');
+			}
+			return formattedDate;
+		}
+	
+		/** 스크롤 이벤트 */
+		function handleScroll() {
+		    if (window.scrollY + window.innerHeight + 100 >= document.documentElement.scrollHeight) {
+		        getItem();
+		    }
+		}
+		
+		$(function(){
+			init();
+			window.addEventListener('scroll', handleScroll);
+			
+			
+			
+			let isScrolled = false; // 스크롤 여부를 저장하는 변수
+			window.addEventListener('scroll', function() {
+			    var scrollPosition = window.scrollY;
+			    var button = document.getElementById('writeButton');
+
+			    // 상단에 위치한 상태인지 확인
+			    if (scrollPosition > 100) {
+			        button.textContent = "+";
+			        button.style.width = "60px";
+			        isScrolled = true; // 스크롤된 상태로 설정
+			    } else {
+			        if (isScrolled) { // 스크롤된 상태에서만 실행
+			            button.style.width = "150px";
+			            setTimeout(() => {
+			                button.textContent = "+ 글쓰기";                  
+			            }, 500);
+			            isScrolled = false; // 스크롤되지 않은 상태로 설정
+			        }
+			    }
+			});
+			
+			$("#writeButton").mouseover(function(){
+				var button = document.getElementById('writeButton');
+				button.style.width = "150px";
+	            setTimeout(() => {
+	                button.textContent = "+ 글쓰기";                  
+	            }, 500);
+			});
+			
+			$("#writeButton").mouseleave(function(){
+				if(isScrolled){
+					var button = document.getElementById('writeButton');
+					button.textContent = "+";
+			        button.style.width = "60px";					
+				}
+			})
+		})
+	</script>
 </body>
 </html>

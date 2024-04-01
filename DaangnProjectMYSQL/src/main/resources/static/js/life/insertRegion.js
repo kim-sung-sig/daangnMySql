@@ -4,9 +4,9 @@ $(function(){
         try {
             const response = await axios.get('/region', {
                 params: {
-                    region: region,
-                    gu: gu,
-                    dong: dong
+                    'region': region,
+                    'gu': gu,
+                    'dong': dong
                 }
             });
             return response.data;

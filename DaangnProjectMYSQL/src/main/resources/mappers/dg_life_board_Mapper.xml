@@ -13,7 +13,7 @@
 		    JOIN
 		        daangn_member dm ON dlb.userRef = dm.idx
 		    JOIN
-		    	daangn_life_category dlc IN dlb.categoryRef = dlc.idx
+		    	daangn_life_category dlc ON dlb.categoryRef = dlc.idx
 		    WHERE
 		        <![CDATA[
 		        	dlb.idx < #{lastItemIdx}

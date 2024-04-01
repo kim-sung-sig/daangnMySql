@@ -1,0 +1,3 @@
+.region {display: flex; gap: 5px;}
+.region .uk-select{width: 180px}
+.navBox{width: 100%;display: flex; justify-content: end; margin-bottom: 15px;}
