@@ -4,7 +4,7 @@
 	<!-- 좋아요 하기 (저장) -->
 	<insert id="insertLifeBoardCommentLike" parameterType="hashmap">
 		INSERT INTO daangn_life_comment_like (userRef, commentRef)
-		SET (#{userRef}, #{commentRef})
+		VALUES (#{userRef}, #{commentRef})
 	</insert>
 	
 	<!-- 좋아요 취소하기 (삭제) -->

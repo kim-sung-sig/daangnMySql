@@ -6,9 +6,11 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -142,7 +144,7 @@ public class LifeController {
 		log.info("lifeDetail/idx 실행 => idx : {}", idx);
 		DaangnLifeBoardVO board = lifeBoardService.selectByIdx(idx);
 		if(board == null) {
-			return "redirect:/life";
+			return "redirect:/life/view";
 		}
 		DaangnMemberVO user = (DaangnMemberVO) request.getSession().getAttribute("user");
 		if(user != null) { // 로그인 상태이면
@@ -202,9 +204,10 @@ public class LifeController {
 	 * @param lifeBoardVO
 	 * @return
 	 */
-	@PostMapping("/board/write/ok")
+	@PostMapping(value = "/board/write/ok", consumes = "multipart/form-data; charset=utf-8")
 	@ResponseBody
-	public String insertLifeBoardOk(MultipartHttpServletRequest request, @RequestBody DaangnLifeBoardVO lifeBoardVO) {
+	@Transactional
+	public String insertLifeBoardOk(MultipartHttpServletRequest request, @ModelAttribute DaangnLifeBoardVO lifeBoardVO) {
 		DaangnMemberVO user = (DaangnMemberVO) request.getSession().getAttribute("user");
 		if(user == null) {
 			return "0";
@@ -213,6 +216,7 @@ public class LifeController {
 		String ipAddress = request.getRemoteAddr(); // 클라이언트의 IP 주소 가져오기
 	    lifeBoardVO.setIp(ipAddress);
 	    lifeBoardService.insertLifeBoard(lifeBoardVO);
+	    log.info("boardIdx => {}", lifeBoardVO.getIdx());
 	    String uploadPath = request.getServletContext().getRealPath("/upload/");
 	    File file2 = new File(uploadPath);
 	    log.info("서버 실제 경로 : " + uploadPath);
@@ -222,6 +226,7 @@ public class LifeController {
 		}
 		
 		List<MultipartFile> list = request.getFiles("file"); // form에 있는 name과 일치
+		log.info("listSize => {}개", list.size());
 		try {
 			if (list != null && list.size() > 0) {
 				for(MultipartFile file :list) {
@@ -238,6 +243,7 @@ public class LifeController {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			return "0"; // 실패시
 		}
 	    return lifeBoardVO.getIdx() + ""; // 생성된 idx리턴
 	}
@@ -326,9 +332,11 @@ public class LifeController {
 	 */
 	@PostMapping(value = "/like")
 	@ResponseBody
-	public int likeLifeBoard(HttpSession session, @RequestParam("boardRef") int boardRef) {
+	public int likeLifeBoard(HttpSession session, @RequestBody ScrollVO sv) {
+		log.info("좋아요 실행 {}", sv.getBoardRef());
 		DaangnMemberVO user = (DaangnMemberVO) session.getAttribute("user");
-		int result = lifeBoardService.incrementLikeCount(boardRef, user.getIdx());
+		int result = lifeBoardService.incrementLikeCount(sv.getBoardRef(), user.getIdx());
+		log.info("result => {}", result);
 		return result;
 	}
 	
@@ -340,9 +348,11 @@ public class LifeController {
 	 */
 	@PostMapping(value = "/unlike")
 	@ResponseBody
-	public int unlikeLifeBoard(HttpSession session, @RequestParam("boardRef") int boardRef) {
+	public int unlikeLifeBoard(HttpSession session, @RequestBody ScrollVO sv) {
+		log.info("좋아요 취소 실행 {}", sv.getBoardRef());
 		DaangnMemberVO user = (DaangnMemberVO) session.getAttribute("user");
-	    int result = lifeBoardService.decrementLikeCount(boardRef, user.getIdx());
+	    int result = lifeBoardService.decrementLikeCount(sv.getBoardRef(), user.getIdx());
+	    log.info("result => {}", result);
 	    return result;
 	}
 	

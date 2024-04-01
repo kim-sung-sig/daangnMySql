@@ -1,11 +1,11 @@
 show tables;
 
-drop table if exists daangn_life_category;
 drop table if exists daangn_life_comment_like;
 drop table if exists daangn_life_comment;
 drop table if exists daangn_life_board_file;
 drop table if exists daangn_life_board_like;
 drop table if exists daangn_life_board;
+drop table if exists daangn_life_category;
 
 
 
@@ -28,9 +28,9 @@ insert into daangn_life_category (categoryName) values ('동네소식');
 insert into daangn_life_category (categoryName) values ('생활정보');
 insert into daangn_life_category (categoryName) values ('취미생활');
 insert into daangn_life_category (categoryName) values ('일상');
-insert into daangn_life_category (categoryName) values ('분실/실종센터');
 insert into daangn_life_category (categoryName) values ('해주세요');
 insert into daangn_life_category (categoryName) values ('동네사진전');
+insert into daangn_life_category (categoryName) values ('분실/실종센터');
 
 
 create table daangn_life_board(

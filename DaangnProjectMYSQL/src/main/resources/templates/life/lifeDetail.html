@@ -18,53 +18,125 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
 	
 	<link rel="stylesheet" href="/css/header.css">
+	<style type="text/css">
+		.uk-container{width: 810px; padding: 0;}
+		.board-category{padding: 5px 10px; background: #ccc; border-radius: 5px; font-size: 14px; font-weight: 400;}
+		#board-like-Btn {transition: 0.5s;}
+		#board-like-Btn:hover {background: #ccc;}
+		#board-like-Btn.active {background: #FF8A3D; color: #fff;}
+	</style>
 </head>
 <body>
+	<input type="hidden" id="boardRef" th:value="${board.idx}">
 	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx}"/>
-	<input type="hidden" id="region" th:value="${region}">
-	<input type="hidden" id="gu" th:value="${gu}">
-	<input type="hidden" id="dong" th:value="${dong}">
-	<input type="hidden" id="search" th:value="${search}">
 	<div id="wrap">
 		<th:block th:insert="~{header.html}"></th:block>
-		<main>
-			<div class="uk-container">
-				<div class="main-top">
-					<h3 style="font-weight: 600; font-size: 30px; text-align: center; margin-bottom: 40px;">중고 물품 목록</h3>
-					<div class="navBox">
-						<div class="region" style="margin-right: 20px;">
-							<select class="uk-select" id="r1">
-								<option th:selected="${region eq null}" value="0">지역을 선택하세요.</option>
-								<option th:each="reg : ${regionList}" th:value="${reg}" th:selected="${region == reg}">[[${reg}]]</option>
-							</select>
-							<th:block th:if="${region != null}">
-								<select class="uk-select" id="r2">
-									<option th:selected="${gu eq null}" value="0">지역을 선택하세요.</option>
-									<option th:each="g : ${guList}" th:value="${g}" th:selected="${gu == g}">[[${g}]]</option>
-								</select>
-							</th:block>
-							<th:block th:if="${gu != null}">
-								<select class="uk-select" id="r3">
-									<option th:selected="${dong eq null}" value="0">지역을 선택하세요.</option>
-									<option th:each="do : ${dongList}" th:value="${do}" th:selected="${dong == do}">[[${do}]]</option>
-								</select>
-							</th:block>
-						</div>
-						<form action="" method="get" id="searchForm">
-							<div class="uk-inline" style="width: 240px;">
-					        	<span class="uk-form-icon" uk-icon="icon: search"></span>
-					        	<input th:if="${search == null}" class="uk-input uk-form-width-long chat" type="text" aria-label="Not clickable icon" placeholder="동네 물품을 검색해주세요!" name="search" id="searchText">
-					        	<input th:if="${search != null}" th:value="${search}" class="uk-input uk-form-width-long chat" type="text" aria-label="Not clickable icon" placeholder="동네 물품을 검색해주세요!" name="search" id="searchText">
-					    	</div>
-						</form>
+		<main style="padding: 76px 0;">
+			<div class="uk-container" style="margin-top: 30px;">
+				<p class="board-category" style="display: inline-block;">[[${board.categoryName}]]</p>
+				<div id="board-info" style="display: flex;">
+					<div th:if="${board.userProfile == null}" id="board-user-profile" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+					<div th:if="${board.userProfile != null}" id="board-user-profile" th:style="'width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url(' + ${board.userProfile} + ') center/cover;'"></div>
+					<div style="margin-left: 20px;">
+						<p style="margin: 0; padding: 0; font-weight: 500;">[[${board.nickName}]]</p>
+						<p style="margin: 0;" id="board-time"></p>
+						<input type="hidden" th:value="${board.createDate}" id="board-time2"/>
 					</div>
 				</div>
-			</div>
-			
-			<div class="uk-container" id="viewBox">
-				<div id="slide"></div>
+				<div style="margin-top: 20px;">
+					<p id="board-title" style="font-size: 24px; font-weight: 600;margin: 5px 0;">[[${board.title}]]</p>
+					<p id="board-content" style="font-size: 20px; font-weight: 400; margin:0;">[[${board.content}]]</p>
+					<p>
+						<span uk-icon="eye"></span> <span style="font-size: 14px;">[[${board.readCount}]]명이 봤어요</span>
+					</p>
+					<button th:if="${session.user == null}" onclick="alert('로그인후 이용가능합니다.'); location.href='/member/login'" class="uk-button" style="border-radius: 50px; padding: 0px 10px; font-weight: 500;"><span uk-icon="icon: heart; ratio: 1.2"></span> 공감하기</button>
+					<button th:if="${session.user != null && board.isLike == 1}" id="board-like-Btn" class="uk-button active" style="border-radius: 50px; padding: 0px 10px; font-weight: 500;"><span uk-icon="icon: heart; ratio: 1.2"></span> 공감하기</button>
+					<button th:if="${session.user != null && board.isLike == 0}" id="board-like-Btn" class="uk-button" style="border-radius: 50px; padding: 0px 10px; font-weight: 500;"><span uk-icon="icon: heart; ratio: 1.2"></span> 공감하기</button>
+					<span id="board-like-count" style="font-size: 14px;">[[${board.likeCount}]]명이 공감했어요</span>
+				</div>
+				<hr />
+				<div>
+					<p id="commentCount"><span style="font-weight: 500; font-size: 20px;">댓글</span> [[${board.commentCount}]]개</p>
+				</div>
+				<hr />
+				<div>
+					<ul id="slide">
+						<li style="display: flex;">
+							<div class="big-left" style="width: 60px; height: 60px;">유저사진자리</div>
+							<div class="big-right">유저정보및 시간및 댓글내용 및 답글갯수및 공감수표시</div>
+							<div>asfasfasf</div>
+						</li>
+					</ul>
+				</div>
+				[[${board}]]
 			</div>
 		</main>
 	</div>
+	
+	<script type="text/javascript">
+		$(function(){
+			let boardTime = dateFormatter($("#board-time2").val());
+			$("#board-time").text(boardTime);
+			
+			$("#board-like-Btn").click(function(){
+				const isActive = $(this).hasClass('active');
+				if(!isActive){ 
+					axios.post('/life/like',{
+						'boardRef' : $("#boardRef").val()
+					})
+					.then(res => {
+						const data = res.data;
+						if(data == '1'){
+							$(this).addClass('active');
+							const likeCount = parseInt($("#board-like-count").text()); // 숫자만 뽑기
+							$("#board-like-count").text(likeCount + 1 + "명이 공감했어요"); // 공감 수 증가
+						} else {
+							alert('문제가 발생했습니다. 잠시후 다시 시도해주세요.');
+							location.reload();
+						}
+					})
+				} else {
+					axios.post('/life/unlike',{
+						'boardRef' : $("#boardRef").val()
+					})
+					.then(res => {
+						const data = res.data;
+						if(data == '1'){
+							$(this).removeClass('active');
+							const likeCount = parseInt($("#board-like-count").text()); // 숫자만 뽑기
+							$("#board-like-count").text(likeCount - 1 + "명이 공감했어요"); // 공감 수 증가
+						} else {
+							alert('문제가 발생했습니다. 잠시후 다시 시도해주세요.');
+							location.reload();
+						}
+					})
+				}
+			})
+			
+			
+			
+		})
+		
+		/** 날짜변경 */
+		function dateFormatter(dateStr){
+			// Moment.js를 사용하여 상대적인 시간 표시 
+			let momentRegDate = moment(dateStr);
+			let now = moment();
+			let diff = now.diff(momentRegDate, 'seconds'); // 차이 구하기
+			var formattedDate;
+			if (diff < 60) {
+			    formattedDate = diff + '초 전';
+			} else if (diff < 3600) {
+			    formattedDate = Math.floor(diff / 60) + '분 전';
+			} else if (diff < 86400) {
+			    formattedDate = Math.floor(diff / 3600) + '시간 전';
+			} else if (diff < 604800) {
+			    formattedDate = Math.floor(diff / 86400) + '일 전';
+			} else {
+			    formattedDate = momentRegDate.format('YYYY.MM.DD');
+			}
+			return formattedDate;
+		}
+	</script>
 </body>
 </html>

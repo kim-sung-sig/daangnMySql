@@ -23,8 +23,8 @@
 	
 	<style type="text/css">
 		main{width: 100%; padding: 110px 0;}
-		.uk-container{width: 982px; padding: 0;}
-		.category-nav{margin-bottom: 24px;}
+		.uk-container{width: 810px; padding: 0;}
+		.category-nav{margin-bottom: 10px; overflow: hidden;}
 		.category-nav a {
 		    display: inline-flex;
 		    -webkit-box-align: center;
@@ -61,6 +61,16 @@
 		#writeButton:active {
 		    background-color: #d97700;
 		}
+		#slide p {margin: 0;}
+		#slide span{font-size: 14px; font-weight: 400;}
+		.board-category{padding: 5px 10px; background: #ccc; border-radius: 5px; font-size: 14px; font-weight: 400;}
+		.list-item{cursor: pointer; border-bottom: 1px solid #ccc;}
+		.list-item:hover{background: #eee;}
+		.list-item .board-title{font-size: 20px; font-weight: 500;}
+		.list-item .board-content{font-size: 16px;}
+		.li1 p{overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 630px;}
+		.li2 p{overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 790px;}
+		
 	</style>
 </head>
 <body>
@@ -70,8 +80,8 @@
 	<input type="hidden" id="dong" th:value="${dong}">
 	<input type="hidden" id="search" th:value="${search}">
 	<input type="hidden" id="categoryRef" th:value="${categoryRef}">
-	<button id="writeButton" style="position: fixed; bottom: 100px; right: 100px;" th:if="${session.user == null}" onclick="alert('로그인이 필요합니다.');">+ 글쓰기</button>
-    <button id="writeButton" style="position: fixed; bottom: 100px; right: 100px;" th:if="${session.user != null}" onclick="location.href='/life/board';">+ 글쓰기</button>
+	<button id="writeButton" style="position: fixed; bottom: 100px; right: 100px;" th:if="${session.user == null}" onclick="alert('로그인이 필요합니다.'); location.href='/member/login'">+ 글쓰기</button>
+    <button id="writeButton" style="position: fixed; bottom: 100px; right: 100px;" th:if="${session.user != null}" onclick="location.href='/life/board/write';">+ 글쓰기</button>
 	<div id="wrap">
 		<th:block th:insert="~{header.html}"></th:block>
 		<main>
@@ -86,17 +96,14 @@
 					<a th:classappend="${categoryRef == 5} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=5">생활정보</a>
 					<a th:classappend="${categoryRef == 6} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=6">취미생활</a>
 					<a th:classappend="${categoryRef == 7} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=7">일상</a>
-					<a th:classappend="${categoryRef == 8} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=8">분실/실종센터</a>
-					<a th:classappend="${categoryRef == 9} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=9">해주세요</a>
-					<a th:classappend="${categoryRef == 10} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=10">동네사진전</a>
+					<a th:classappend="${categoryRef == 8} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=8">해주세요</a>
+					<a th:classappend="${categoryRef == 9} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=9">동네사진전</a>
+					<a th:classappend="${categoryRef == 10} ? 'selected'" class="notice-tag " href="/life/view?categoryRef=10">분실/실종센터</a>
 				</div>
 				<th:block th:insert="~{life/selectRegion.html}"></th:block>
 			</div>
-						
-
-			<div style="height: 8000px;"></div>
-			<div class="uk-container" id="viewBox">
-				<div id="slide"></div>
+			<div class="uk-container" id="viewBox" style="margin-top: 20px;">
+				<ul id="slide"></ul>
 			</div>
 		</main>
 	</div>
@@ -110,7 +117,7 @@
 		let search = null;
 		
 		function detail(idx){
-			location.href = "/fleamarketDetail/" + idx;
+			location.href = "/life/detail/" + idx;
 		}
 
 		function init(){
@@ -153,7 +160,8 @@
 	            'gu': gu,
 	            'dong': dong,
 	            'search': search
-	        }).then(res => {
+	        })
+	        .then(res => {
 				let data = res.data;
 				console.log(data);
 				content = "";
@@ -161,7 +169,38 @@
 					window.removeEventListener('scroll', handleScroll);
 					return ;
 				}
-				
+				data.forEach(board => {
+					lastItemIdx = board.idx;
+				    const isContainedFile = board.fileList?.length != 0 ? true : false;
+				    if(isContainedFile){
+				    	content += `
+				    		<li class="list-item" onclick="detail(${board.idx})">
+								<div class="li1" style="display:flex; justify-content: space-between;height: 170px; padding: 10px;">
+									<div style="width: 630px;">
+										<p class="board-category" style="display: inline-block;">${board.categoryName}</p>
+										<p class="board-title">${board.title}</p>
+										<p class="board-content">${board.content}</p>
+										<span>${dateFormatter(board.createDate)}</span>ㆍ<span>${board.loc1} ${board.loc2} ${board.loc3}</span>ㆍ<span>조회수 ${board.readCount}</span>ㆍ<span>좋아요 ${board.likeCount}</span>ㆍ<span>댓글 ${board.commentCount}</span>
+									</div>
+									<div style="width: 150px; height: 150xp; border-radius: 10px; overflow: hidden; background: url('/upload/${board.fileList[0].saveFileName}') center/cover;"></div>
+								</div>
+							</li>
+				    	`;
+				    } else {
+				    	content += `
+				    		<li class="list-item" onclick="detail(${board.idx})">
+								<div class="li2" style="display:flex; justify-content: space-between;height: 170px; padding: 10px;">
+									<div style="width: 790px;">
+										<p class="board-category" style="display: inline-block;">${board.categoryName}</p>
+										<p class="board-title">${board.title}</p>
+										<p class="board-content">${board.content}</p>
+										<span>${dateFormatter(board.createDate)}</span>ㆍ<span>${board.loc1} ${board.loc2} ${board.loc3}</span>ㆍ<span>조회수 ${board.readCount}</span>ㆍ<span>좋아요 ${board.likeCount}</span>ㆍ<span>댓글 ${board.commentCount}</span>
+									</div>
+								</div>
+							</li>
+				    	`;
+				    }
+				})
 				$("#slide").append(content);
 				findLastItemIdx();
 				window.addEventListener('scroll', handleScroll);
@@ -173,7 +212,7 @@
 			let formattedNumber = new Intl.NumberFormat('ko-KR').format(number) + '원';
 			return formattedNumber;
 		}
-	
+		
 		/** 날짜변경 */
 		function dateFormatter(dateStr){
 			// Moment.js를 사용하여 상대적인 시간 표시 

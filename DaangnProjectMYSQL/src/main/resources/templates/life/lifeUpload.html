@@ -22,17 +22,363 @@
 	<script src="/js/life/insertRegion.js"></script>
 	
 	<style type="text/css">
-		#insert-region{display: flex; gap:30px;}
+		.uk-container{width: 810px; padding: 0;}
+		.category-nav{margin-bottom: 10px; overflow: hidden;}
+		.category-nav span {
+		    display: inline-flex;
+		    -webkit-box-align: center;
+		    align-items: center;
+		    border: 1px solid #eee;
+		    border-radius: 6.25rem;
+		    padding: 0.5rem 0.75rem;
+		    font-size: 0.875rem;
+		    cursor: pointer;
+		}
+		.category-nav span.selected {
+			color: #fff;
+			background: #333;
+		}
+		
+		.input-info{margin: 0; font-weight: 500; padding: 5px 5px;}
+		#content{resize: none; overflow-y: hidden;}
+		
+		#file-drop-area {
+			padding: 30px 30px; border: 1px dashed #8f8f8f;
+			display: flex; align-items: center;justify-content: center;
+		}
+		#file-drop-area.highlight {background: #f1f1f1 !important;}
+		
+		#preview{
+			display: grid;
+		    grid-template-columns: repeat(2, 1fr)
+		}
+		.previewImgBox{
+			width: 100%;
+			position: relative;
+			padding: 0;
+		}
+		.previewImgBox img{width: 250px; height: auto;}
+		.imgCancleBtn{position: absolute; top: 0; right: 0; cursor: pointer; background: #fff;}
+		
+		#summitBtn{
+			border-radius: 10px;
+			padding: 0 20px;
+			background: #FF8A3D;
+		}
+		
+		#homeBtn{
+			border-radius: 10px;
+			padding: 0 20px;
+		}
 	</style>
 </head>
 <body>
 	<div id="wrap">
 		<th:block th:insert="~{header.html}"></th:block>
 		<main style="padding: 76px 0;">
-			<th:block th:insert="~{life/insertRegion.html}"></th:block>
+			<div class="uk-container">
+				<h4 style="font-weight: 600; font-size: 24px; text-align: center; margin-top: 30px;">동네생활 글쓰기</h4>
+				<!-- 카테고리 선택 -->
+				<div class="category-nav">
+					<p class="input-info">카태고리</p>
+					<label for="radio1"><span class="notice-tag selected" id="label1">동네질문</span></label>
+					<label for="radio2"><span class="notice-tag" id="label2">동네사건사고</span></label>
+					<label for="radio3"><span class="notice-tag" id="label3">동네맛집</span></label>
+					<label for="radio4"><span class="notice-tag" id="label4">동네소식</span></label>
+					<label for="radio5"><span class="notice-tag" id="label5">생활정보</span></label>
+					<label for="radio6"><span class="notice-tag" id="label6">취미생활</span></label>
+					<label for="radio7"><span class="notice-tag" id="label7">일상</span></label>
+					<label for="radio8"><span class="notice-tag" id="label8">해주세요</span></label>
+					<label for="radio9"><span class="notice-tag" id="label9">동네사진전</span></label>
+					<label for="radio10"><span class="notice-tag" id="label10">분실/실종센터</span></label>
+					<div style="display: none;">
+						<input type="radio" name="categoryRef" id="radio1" value="1" checked="checked">
+						<input type="radio" name="categoryRef" id="radio2" value="2">
+						<input type="radio" name="categoryRef" id="radio3" value="3">
+						<input type="radio" name="categoryRef" id="radio4" value="4">
+						<input type="radio" name="categoryRef" id="radio5" value="5">
+						<input type="radio" name="categoryRef" id="radio6" value="6">
+						<input type="radio" name="categoryRef" id="radio7" value="7">
+						<input type="radio" name="categoryRef" id="radio8" value="8">
+						<input type="radio" name="categoryRef" id="radio9" value="9">
+						<input type="radio" name="categoryRef" id="radio10" value="10">
+					</div>
+				</div>
+				<!-- 위치입력 -->
+				<div>
+					<p class="input-info">지역 선택</p>
+					<th:block th:insert="~{life/insertRegion.html}"></th:block>
+				</div>
+				<!-- 제목입력 -->
+				<div>
+					<p class="input-info">제목</p>
+					<input type="text" name="title" id="title" placeholder="제목을 입력하세요" required="required" maxlength="100" class="uk-input">
+				</div>
+				<!-- 내용입력 -->
+				<div>
+					<p class="input-info">내용</p>
+					<textarea rows="3" maxlength="2000" name="content" id="content" placeholder="가까이 사는 동네 이웃들에게 궁금한 것을 물어보세요!" required="required" class="uk-textarea" onkeydown="resize(this)" onkeyup="resize(this)"></textarea>
+					<div id="charCount">0 / 2000</div>
+				</div>
+				
+				<!-- 사진추가 기입란 -->
+				<div>
+					<p class="input-info">사진추가 기입란</p>
+					<div id="file-drop-area">
+			            <span uk-icon="icon: cloud-upload"></span>
+			            <span class="uk-text-middle">이곳에 파일을 드롭해주세요. 또는 </span>
+		                <span id="fileBtn" style="cursor: pointer; color: #338BF1;">파일선택하기</span>
+			            <div class="uk-form-custom">
+			                <input type="file" id="fileInput" name="" multiple>
+			            </div>
+		                <span>(최대 5개)</span>
+			        </div>
+			        <div id="preview"></div>
+        			<div id="fileBox" style="display: none;"></div>
+				</div>
+				
+				<div class="uk-margin" style="text-align: right;">
+					<input type="button" id="homeBtn" value="취소하기" class="uk-button uk-button-primary uk-button-large">			
+					<input type="submit" id="summitBtn" class="uk-button uk-button-primary uk-button-large" value="글쓰기"/>
+				</div>
+			</div>
 		</main>
 	</div>
 	
-	
+	<script type="text/javascript">
+		const TEXTAREA_PLACEHOLER = [
+			'가까이 사는 동네 이웃들에게 궁금한 것을 물어보세요!',
+			'동네 사건사고를 이웃에게 공유해보세요!',
+			'좋아하는 동네 맛집에 대한 이야기를 들려주세요!',
+			'근처에 어떤 일이 일어나고 있나요? 소소한 동네소식이나 정보를 공유해보세요!',
+			'우리 동네 세탁소, 병원, 약국, 헬스장, 공방 등 생활에 도움되는 이야기를들려주세요!',
+			'근처 이웃과 취미생활에 대해 이야기를 해보세요!',
+			'근처 이웃과 동네에서의 소소한 일상, 정보를 공유해보세요!',
+			'근처 이웃과 서로 소소한 도움을 주고받아보세요! 금전/물품을 요구하거나 무료로 재능 기부를 요구하는 글은 삭제될 수 있습니다.',
+			'동네에서 볼 수 있는 멋진 풍경과 매력을 이웃과 공유해보세요',
+			'무언가를 잃어버리셨나요? 근처 이웃에게 도움을 요청해보세요'
+		];
+		
+		$(function(){
+			$('input[name="categoryRef"]').change(function() {
+	            var index = $(this).index('input[name="categoryRef"]');
+	            $('.notice-tag').removeClass('selected');
+	            $('#label' + (index + 1)).addClass('selected');
+	            $('#content').attr('placeholder', TEXTAREA_PLACEHOLER[index]);
+	        });
+			
+			
+			// 1. 파일 선택 버튼 클릭시 파일 선택 창 열기
+			$("#fileBtn").click(function () {
+		        $("#fileInput").click();
+		    });
+		    $("#fileInput").change(function(){
+				const files = Array.from($(this)[0].files);
+				insertFiles(files);
+			})
+			// 2. 드래그 앤 드롭 영역 설정
+		    const fileDropArea = document.getElementById('file-drop-area');
+		    
+		    // 3. dragover 이벤트 처리
+		    fileDropArea.addEventListener('dragover', function(e) {
+		        e.preventDefault();
+		        e.stopPropagation();
+		        fileDropArea.classList.add('highlight');
+		    });
+		    // 4. dragleave 이벤트 처리
+		    fileDropArea.addEventListener('dragleave', function(e) {
+		        e.preventDefault();
+		        e.stopPropagation();
+		        fileDropArea.classList.remove('highlight');
+		    });
+		    
+		    // 5. drop 이벤트 처리
+		    fileDropArea.addEventListener('drop', function(e) {
+		        e.preventDefault();
+		        fileDropArea.classList.remove('highlight');
+		        const files = e.dataTransfer.files;
+		        insertFiles(files);
+		    });
+		    /** 파일 최대크기에 도달햇는지 확인하는 함수 */
+		    function getfileCount(){
+				let result = 0;
+				let files = document.querySelectorAll(".inputFile");
+				result = files.length;
+				return result;
+			}
+			/** file이 사진인지 아닌지 판단하는 함수 */
+			function isImage(file) {
+			    return file.type.startsWith('image/');
+			}
+			/** fileBox에 inputfile을 넣어주고 미리보기를 만드는 함수 */
+			function insertFiles(files){
+				const fileBox = document.querySelector("#fileBox");
+				const previewElement = document.querySelector('#preview');
+				let currentFileCount = getfileCount();
+		        for (let i = 0; i < files.length; i++) {
+		            if(currentFileCount + i < 5){
+			            let reader = new FileReader();
+			            // 파일의 내용을 읽어 데이터 URL로 변환
+			            reader.readAsDataURL(files[i]);
+			            // 읽기가 완료된 후 실행되는 콜백 함수
+			            reader.onload = function () {
+							if(isImage(files[i])){
+								const newFile = document.createElement('input');
+					            newFile.setAttribute("type", "file");
+					            newFile.setAttribute("name", "file");
+					            newFile.setAttribute("class", "inputFile");
+							
+					            // 파일을 input에 추가
+					            const fileList = new DataTransfer();
+					            fileList.items.add(files[i]);
+					            newFile.files = fileList.files;
+					            fileBox.appendChild(newFile);
+					            
+				                // 미리보기 이미지를 생성하여 추가
+				                let div = document.createElement('div');
+				                div.classList.add("previewImgBox");
+				                let img = document.createElement('img');
+				                img.src = reader.result;
+				                img.alt = 'Preview';
+				                let span = document.createElement('span');
+				                span.classList.add('imgCancleBtn')
+				                span.setAttribute('uk-icon', 'icon: close');
+				                span.addEventListener('click', function(){
+									let obj = this;
+									removeFile(obj);
+								})
+				                div.appendChild(img);
+				                div.appendChild(span);
+				                previewElement.appendChild(div);					
+							} else {
+								alert("image형식의 파일만 올릴 수 있습니다.");
+							}
+			            };
+					} else {
+						alert('최대 5장까지만 올릴 수 있습니다.');
+						break;
+					}
+		        };
+			};
+			
+			/**
+			 * span을 누른경우 미리보기 사진삭제및 file 삭제하기
+			 */
+			function removeFile(obj){
+				const parentBox = obj.closest('.previewImgBox');
+				const index = Array.from(parentBox.parentNode.children).indexOf(parentBox);
+				const fileBox = document.querySelector("#fileBox");
+				fileBox.removeChild(fileBox.children[index]);
+				parentBox.remove();
+			}
+			
+			$("#content").on('input', function() {
+			    var text = $("#content").val();
+			    var maxLength = parseInt($("#content").attr('maxlength'));
+			    var remaining = maxLength - text.length;
+
+			    if (remaining >= 0) {
+			        $("#charCount").text(`${text.length} / ${maxLength}`);
+			    } else {
+			        $("#content").val(text.substring(0, maxLength));
+			        $("#charCount").text(`${maxLength} / ${maxLength}`);
+			    }
+			});
+			
+			$("#summitBtn").click(function(){
+				if($("#r1").val() == 0){
+					alert('지역을 선택해주세요.');
+					$("#r1").focus();
+					return ;
+				}
+				if($("#r2").val() == 0){
+					alert('지역을 선택해주세요.');
+					$("#r2").focus();
+					return ;
+				}
+				if($("#r3").val() == 0){
+					alert('지역을 선택해주세요.');
+					$("#r3").focus();
+					return ;
+				}
+				if($("#title").val().trim().length == 0){
+					alert("제목을 입력하세요.")
+					$("#title").val('');
+					$("#title").focus();
+					return ;
+				}
+				if($("#content").val().trim().length == 0){
+					alert("내용을 입력하세요.")
+					$("#content").val('');
+					$("#content").focus();
+					$("#charCount").text(`0 / 2000`);
+					return ;
+				}
+				
+				var selectedCategoryRef = $('input[name="categoryRef"]:checked').val();
+				// 폼제출 axios로 제출
+				var formData = new FormData();
+				formData.append('categoryRef', selectedCategoryRef);
+			    formData.append('loc1', $("#r1").val());
+			    formData.append('loc2', $("#r2").val());
+			    formData.append('loc3', $("#r3").val());
+			    formData.append('title', $("#title").val().trim());
+			    formData.append('content', $("#content").val().trim());
+			
+			    // 파일 input 엘리먼트에서 모든 파일을 가져와 FormData에 추가
+			    var files = $('#fileInput')[0].files;
+			    for (var i = 0; i < files.length; i++) {
+			        formData.append('file', files[i]);
+			    }
+				
+			    let axiosConfig = {
+		    	    headers: {
+		    	        "Content-Type": "multipart/form-data; charset=utf-8",
+		    	    }
+		    	};
+			    
+			    // axios로 제출
+			    axios({
+			    	headers: {
+		    	        "Content-Type": "multipart/form-data",
+		    	    },
+		    	    url: '/life/board/write/ok',
+		    	    method: 'post',
+		    	    data: formData
+			    })
+			    .then(res => {
+			    	const data = res.data;
+					if(data == '0'){
+						alert("업로드중 문제가 발생했습니다. 잠시후 다시시도하세요.");
+						location.reload();
+					} else {
+						alert("게시글이 저장되었습니다.");
+						location.href = `/life/detail/${data}`;
+					}
+			    })
+			    .catch(err => {
+			        console.error(error);
+			    });
+			})
+			
+			
+			$("#homeBtn").click(function(){
+				let result = confirm('글쓰기를 취소하시겠습니까?');
+				if(result){
+					location.href = '/life/view';
+				}
+			})
+		})
+		
+		
+		function resize(textarea) {
+			textarea.style.height = 'auto';
+			textarea.style.height = textarea.scrollHeight + 'px';
+		}
+		
+		
+		
+		
+	</script>
 </body>
 </html>
