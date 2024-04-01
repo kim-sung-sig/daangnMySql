@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpSession;
 import kr.ezen.daangn.service.DaangnLifeBoardService;
 import kr.ezen.daangn.vo.DaangnLifeBoardFileVO;
 import kr.ezen.daangn.vo.DaangnLifeBoardVO;
+import kr.ezen.daangn.vo.DaangnLifeCommentLikeVO;
 import kr.ezen.daangn.vo.DaangnLifeCommentVO;
 import kr.ezen.daangn.vo.DaangnMemberVO;
 import kr.ezen.daangn.vo.ScrollVO;
@@ -92,11 +93,11 @@ public class LifeController {
 	}
 	
 	/**
-	 * 동네 생활 게시글에 해당하는 댓글 리턴
+	 * 동네 생활 게시글에 해당하는 댓글 리턴 (lastItemIdx, sizeOfPage, boardRef)
 	 * @param sv
 	 * @return
 	 */
-	@GetMapping(value = "/commentList")
+	@PostMapping(value = "/commentList")
 	@ResponseBody
 	public List<DaangnLifeCommentVO> getLifeCommentList(HttpSession session, @RequestBody ScrollVO sv){
 		log.info("getLifeCommentList 실행 : {}", sv);
@@ -106,8 +107,12 @@ public class LifeController {
 			for(DaangnLifeCommentVO commentVO : list) { // 좋아요했는지 확인
 				int isLike = lifeBoardService.isLifeCommentLike(user.getIdx(), commentVO.getIdx());
 				commentVO.setIsLike(isLike);
+				if(commentVO.getUserRef() == user.getIdx()) {
+					commentVO.setIsYours(1);
+				}
 			}			
 		}
+		log.info("getLifeCommentList 리턴 {}개, {}", list.size(), list);
 		return list;
 	}
 	
@@ -126,8 +131,12 @@ public class LifeController {
 			for(DaangnLifeCommentVO commentVO : list) { // 좋아요했는지 확인
 				int isLike = lifeBoardService.isLifeCommentLike(user.getIdx(), commentVO.getIdx());
 				commentVO.setIsLike(isLike);
+				if(commentVO.getUserRef() == user.getIdx()) {
+					commentVO.setIsYours(1);
+				}
 			}
 		}
+		log.info("getLifeChildCommentList 리턴 {}개, {}", list.size(), list);
 		return list;
 	}
 	
@@ -150,6 +159,9 @@ public class LifeController {
 		if(user != null) { // 로그인 상태이면
 			int isLiked = lifeBoardService.isLifeBoardLike(user.getIdx(), idx);
 			board.setIsLike(isLiked); // 좋아요했는지 확인
+			model.addAttribute("isLogin", true);
+		} else {
+			model.addAttribute("isLogin", false);
 		}
 		// 조회수 증가로직 쿠키 방식
 		Cookie oldCookie = null;
@@ -269,15 +281,15 @@ public class LifeController {
 	 * @param lifeBoardVO
 	 * @return
 	 */
-	@PostMapping("/board/update/ok")
+	@PostMapping(value = "/board/update/ok" , consumes = "multipart/form-data; charset=utf-8")
 	@ResponseBody
-	public String updateLifeBoardOk(MultipartHttpServletRequest request, @RequestBody DaangnLifeBoardVO lifeBoardVO) {
+	@Transactional
+	public String updateLifeBoardOk(MultipartHttpServletRequest request, @ModelAttribute DaangnLifeBoardVO lifeBoardVO) {
 		int result = 0;
 		DaangnMemberVO user = (DaangnMemberVO) request.getSession().getAttribute("user");
 		if(user == null) {
 			return "0";
 		}
-		lifeBoardVO.setUserRef(user.getIdx());
 		String ipAddress = request.getRemoteAddr(); // 클라이언트의 IP 주소 가져오기
 	    lifeBoardVO.setIp(ipAddress);
 	    lifeBoardService.updateLifeBoard(lifeBoardVO);
@@ -320,7 +332,9 @@ public class LifeController {
 	@PostMapping("/board/delete")
 	@ResponseBody
 	public String deleteLifeBoardOk(@RequestBody DaangnLifeBoardVO lifeBoardVO) {
+		log.info("deleteLifeBoardOk 실행 {}", lifeBoardVO.getIdx());
 	    int result = lifeBoardService.deleteLifeBoard(lifeBoardVO.getIdx());
+	    log.info("deleteLifeBoardOk 리턴 {}", result);
 	    return result + ""; // 성공 실패 리턴
 	}
 	
@@ -373,9 +387,12 @@ public class LifeController {
 		if(boardVO.getUserRef() == user.getIdx()) { // 게시글의 주인이 댓글을 작성하면
 			lifeCommentVO.setIsOwner(1);
 		}
+		log.info("writeLifeComment 실행 {}", lifeCommentVO);
 		int result = lifeBoardService.insertLifeBoardComment(lifeCommentVO);
+		log.info("writeLifeComment 리턴 {}", result);
 		return result;
 	}
+	
 	/**
 	 * 동네생활 댓글수정Ok
 	 * @param lifeCommentVO
@@ -384,9 +401,11 @@ public class LifeController {
 	@PostMapping(value = "/updateComment")
 	@ResponseBody
 	public int updateLifeComment(HttpServletRequest request, @RequestBody DaangnLifeCommentVO lifeCommentVO) {
+		log.info("updateLifeComment 실행 {}", lifeCommentVO);
 		String ipAddress = request.getRemoteAddr(); // 클라이언트의 IP 주소 가져오기
 		lifeCommentVO.setIp(ipAddress);
 		int result = lifeBoardService.updateLifeBoardComment(lifeCommentVO);
+		log.info("updateLifeComment 리턴 {}", result);
 		return result;
 	}
 	
@@ -400,7 +419,9 @@ public class LifeController {
 	@PostMapping(value = "/deleteComment")
 	@ResponseBody
 	public int deleteLifeComment(@RequestParam("commentRef") int commentRef, @RequestParam("boardRef") int boardRef, @RequestParam(value = "parentComIdx", required = false) Integer parentComIdx) {
+		log.info("deleteLifeComment 실행 {}, {}, {}", commentRef, boardRef, parentComIdx);
 		int result = lifeBoardService.deleteLifeBoardComment(commentRef, boardRef, parentComIdx);
+		log.info("deleteLifeComment 리턴 {}", result);
 		return result;
 	}
 	
@@ -412,23 +433,29 @@ public class LifeController {
 	 */
 	@PostMapping(value = "/likeComment")
 	@ResponseBody
-	public int likeLifeComment(HttpSession session, @RequestParam("commentRef") int commentRef) {
+	public int likeLifeComment(HttpSession session, @RequestBody DaangnLifeCommentLikeVO lifeCommentLikeVO) {
+		int commentRef = lifeCommentLikeVO.getCommentRef();
+		log.info("likeLifeComment 실행 {}", commentRef);
 		DaangnMemberVO user = (DaangnMemberVO) session.getAttribute("user");
 	    int result = lifeBoardService.incrementCommentLikeCount(user.getIdx(), commentRef);
+	    log.info("likeLifeComment 리턴 {}", result);
 	    return result;
 	}
 	
 	/**
-	 * 동네생활 댓글 좋아요취소
+	 * 동네생활 댓글 좋아요취소 (idx)
 	 * @param session
-	 * @param commentRef
+	 * @param commentRef (idx)로 넘거야함
 	 * @return
 	 */
 	@PostMapping(value = "/unlikeComment")
 	@ResponseBody
-	public int unlikeLifeComment(HttpSession session, @RequestParam("commentRef") int commentRef) {
+	public int unlikeLifeComment(HttpSession session, @RequestBody DaangnLifeCommentLikeVO lifeCommentLikeVO) {
+		int commentRef = lifeCommentLikeVO.getCommentRef();
+		log.info("unlikeLifeComment 실행 {}", commentRef);
 		DaangnMemberVO user = (DaangnMemberVO) session.getAttribute("user");
 	    int result = lifeBoardService.decrementCommentLikeCount(user.getIdx(), commentRef);
+	    log.info("unlikeLifeComment 리턴 {}", result);
 	    return result;
 	}
 }

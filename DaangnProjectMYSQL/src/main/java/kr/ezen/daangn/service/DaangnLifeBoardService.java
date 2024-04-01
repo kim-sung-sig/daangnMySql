@@ -300,7 +300,7 @@ public class DaangnLifeBoardService {
     	int result = 0;
         try {
         	lifeBoardCommentLikeDAO.insertLifeBoardCommentLike(userRef, commentRef); // 댓글 좋아요 저장
-        	lifeBoardCommentDAO.incrementLikeCount(commentRef); // 댓글 좋아요 증가
+        	lifeBoardCommentDAO.incrementLikeCount(commentRef); // 댓글 좋아요 수 증가
         	result = 1;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -319,7 +319,7 @@ public class DaangnLifeBoardService {
     	int result = 0;
     	try {
     		lifeBoardCommentLikeDAO.deleteLifeBoardCommentLike(userRef, commentRef); // 댓글 좋아요 삭제
-    		lifeBoardCommentDAO.decrementLikeCount(commentRef); // 댓글 좋아요 감소
+    		lifeBoardCommentDAO.decrementLikeCount(commentRef); // 댓글 좋아요 수 감소
     		result = 1;
     	} catch (SQLException e) {
     		e.printStackTrace();

@@ -32,4 +32,5 @@ public class DaangnLifeCommentVO {
     private String nickName;
 	private String userProfile;
 	private int isLike;
+	private int isYours;
 }

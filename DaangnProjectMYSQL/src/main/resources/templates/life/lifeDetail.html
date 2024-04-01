@@ -24,10 +24,20 @@
 		#board-like-Btn {transition: 0.5s;}
 		#board-like-Btn:hover {background: #ccc;}
 		#board-like-Btn.active {background: #FF8A3D; color: #fff;}
+		.big-right p {margin: 0;}
+		
+		.comment-nickname{font-size: 16px; font-weight: 400;}
+		.comment-time{font-size: 14px;}
+		.comment-comment{white-space: pre-line;}
+		.comment-like-btn{cursor: pointer;}
+		.comment-more-btn{cursor: pointer;}
+		
+		.comment-like-btn.active path{fill: #FC1A63;}
 	</style>
 </head>
 <body>
 	<input type="hidden" id="boardRef" th:value="${board.idx}">
+	<input type="hidden" id="isLogin" th:value="${isLogin}">
 	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx}"/>
 	<div id="wrap">
 		<th:block th:insert="~{header.html}"></th:block>
@@ -44,40 +54,267 @@
 					</div>
 				</div>
 				<div style="margin-top: 20px;">
+					<!-- 제목 -->
 					<p id="board-title" style="font-size: 24px; font-weight: 600;margin: 5px 0;">[[${board.title}]]</p>
-					<p id="board-content" style="font-size: 20px; font-weight: 400; margin:0;">[[${board.content}]]</p>
+					<!-- 내용 -->
+					<p id="board-content" style="font-size: 20px; font-weight: 400; margin:0; white-space: pre-line;">[[${board.content}]]</p>
+					<!-- 사진! -->
+					<th:block th:if="${not #lists.isEmpty(board.fileList)}">
+						<div style="display:flex; flex-direction:column; gap:20px;">
+							<div th:each="file, vs : ${board.fileList}" style="border-radius: 10px;overflow: hidden;">
+								<img style="width: 100%;" th:src="'/upload/' + ${file.saveFileName}" th:alt="'게시글사진'+${vs.count}" />
+							</div>
+						</div>
+					</th:block>
 					<p>
 						<span uk-icon="eye"></span> <span style="font-size: 14px;">[[${board.readCount}]]명이 봤어요</span>
 					</p>
-					<button th:if="${session.user == null}" onclick="alert('로그인후 이용가능합니다.'); location.href='/member/login'" class="uk-button" style="border-radius: 50px; padding: 0px 10px; font-weight: 500;"><span uk-icon="icon: heart; ratio: 1.2"></span> 공감하기</button>
-					<button th:if="${session.user != null && board.isLike == 1}" id="board-like-Btn" class="uk-button active" style="border-radius: 50px; padding: 0px 10px; font-weight: 500;"><span uk-icon="icon: heart; ratio: 1.2"></span> 공감하기</button>
-					<button th:if="${session.user != null && board.isLike == 0}" id="board-like-Btn" class="uk-button" style="border-radius: 50px; padding: 0px 10px; font-weight: 500;"><span uk-icon="icon: heart; ratio: 1.2"></span> 공감하기</button>
-					<span id="board-like-count" style="font-size: 14px;">[[${board.likeCount}]]명이 공감했어요</span>
+					<div style="display: flex; justify-content: space-between;">
+						<div>
+							<button th:if="${session.user == null}" onclick="alert('로그인후 이용가능합니다.'); location.href='/member/login'" class="uk-button" style="border-radius: 50px; padding: 0px 10px; font-weight: 500;"><span uk-icon="icon: heart; ratio: 1.2"></span> 공감하기</button>
+							<button th:if="${session.user != null && board.isLike == 1}" id="board-like-Btn" class="uk-button active" style="border-radius: 50px; padding: 0px 10px; font-weight: 500;"><span uk-icon="icon: heart; ratio: 1.2"></span> 공감하기</button>
+							<button th:if="${session.user != null && board.isLike == 0}" id="board-like-Btn" class="uk-button" style="border-radius: 50px; padding: 0px 10px; font-weight: 500;"><span uk-icon="icon: heart; ratio: 1.2"></span> 공감하기</button>
+							<span id="board-like-count" style="font-size: 14px;">[[${board.likeCount}]]명이 공감했어요</span>
+						</div>
+						<!-- 글쓴이라면 수정하기 버튼보이기 -->
+						<th:block th:if="${session.user != null && session.user.idx == board.userRef}">
+							<div>
+								<form action="/life/board/update" method="post">
+									<input type="hidden" name="idx" th:value="${board.idx}">
+									<input type="submit" id="board-update-Btn" class="uk-button" style="background: #17B75E;color:#fff; border-radius: 50px; padding: 0px 10px;" value="수정하기"/>
+								</form>
+							</div>
+						</th:block>
+					</div>
+				</div>
+				<!-- 이후 댓글영역 -->
+				<hr />
+				<div>
+					<div style="display: flex; justify-content: space-between;">
+						<p id="commentCount" style="margin: 0;"><span style="font-weight: 500; font-size: 20px;">댓글</span> [[${board.commentCount}]]개</p>
+						<span id="write-comment-view-btn" style="cursor: pointer;">댓글달기</span>
+					</div>
+					<div id="write-comment-form" style="display: none; flex-direction: column; margin-top: 10px;">
+						<th:block th:if="${session.user != null}">
+							<textarea id="commentContent" class="uk-textarea" rows="3" maxlength="200" style="resize: none; overflow-y: hidden;" placeholder="댓글을 입력해주세요."></textarea>
+							<span id="write-comment-btn" style="align-self: flex-end;cursor: pointer;">저장</span>						
+						</th:block>
+						<th:block th:if="${session.user == null}">
+							<textarea id="commentContent" class="uk-textarea" rows="3" maxlength="200" style="resize: none; overflow-y: hidden;" placeholder="로그인 후 이용가능합니다." disabled="disabled"></textarea>				
+						</th:block>
+					</div>
+				</div>
+				<div th:if="${board.commentCount == 0}" style="height: 150px; display: flex; align-items: center; justify-content: center;">
+					<p style="text-align: center;">아직 댓글이 없어요.<br />가장먼저 댓글을 남겨보세요.</p>
 				</div>
 				<hr />
 				<div>
-					<p id="commentCount"><span style="font-weight: 500; font-size: 20px;">댓글</span> [[${board.commentCount}]]개</p>
-				</div>
-				<hr />
-				<div>
-					<ul id="slide">
+					<ul id="slide" style="display: flex; flex-direction: column; gap:10px;">
+						<!-- 
 						<li style="display: flex;">
-							<div class="big-left" style="width: 60px; height: 60px;">유저사진자리</div>
-							<div class="big-right">유저정보및 시간및 댓글내용 및 답글갯수및 공감수표시</div>
-							<div>asfasfasf</div>
+							<div class="big-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+							<div class="big-right" style="margin-left: 20px; width: 100%;">
+								<div><span class="comment-nickname">유저이름</span> <span class="comment-time">언제</span></div>
+								<p class="comment-comment">ㅁㅁㄴㄻㄴㄻㄴㄻㄴㄹ내용
+								asfasf
+								</p>
+								<div style="display: flex;justify-content: space-between;">
+									<div>
+										<p class="comment-like-btn" style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 1</p>
+										<p class="comment-more-btn" style="display: inline-block;"><span uk-icon="icon: comments; ratio: 0.7;"></span> 답글 n개</p>
+									</div>
+									<div>
+										<span>수정</span>ㆍ<span>삭제</span>ㆍ<span>답글달기</span>
+									</div>
+								</div>
+								<ul style="margin-top: 10px; display: flex; flex-direction: column; gap:10px;">
+									<li style="display: flex;">
+										<div class="smaill-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+										<div class="smaill-right" style="margin-left: 20px;">
+											<p><span class="comment-nickname">유저이름</span> <span class="comment-time">언제</span></p>
+											<p class="comment-comment">ㅁㅁㄴㄻㄴㄻㄴㄻㄴㄹ내용</p>
+											<p class="comment-like-btn" style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 1</p>
+										</div>
+									</li>
+									<li style="display: flex;">
+										<div class="smaill-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+										<div class="smaill-right" style="margin-left: 20px;">
+											<p><span class="comment-nickname">유저이름</span> <span class="comment-time">언제</span></p>
+											<p class="comment-comment">ㅁㅁㄴㄻㄴㄻㄴㄻㄴㄹ내용
+											asfasf
+											asf</p>
+											<p class="comment-like-btn" style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 1</p>
+										</div>
+									</li>
+									<li style="display: flex;">
+										<div class="smaill-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+										<div class="smaill-right" style="margin-left: 20px;">
+											<p><span class="comment-nickname">유저이름</span> <span class="comment-time">언제</span></p>
+											<p class="comment-comment">ㅁㅁㄴㄻㄴㄻㄴㄻㄴㄹ내용
+											asfasf
+											asf</p>
+											<p class="comment-like-btn" style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 1</p>
+										</div>
+									</li>
+									<li style="display: flex;">
+										<div class="smaill-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+										<div class="smaill-right" style="margin-left: 20px;">
+											<p><span class="comment-nickname">유저이름</span> <span class="comment-time">언제</span></p>
+											<p class="comment-comment">ㅁㅁㄴㄻㄴㄻㄴㄻㄴㄹ내용
+											asfasf
+											asf</p>
+											<p class="comment-like-btn" style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 1</p>
+										</div>
+									</li>
+								</ul>
+							</div>
 						</li>
+						 -->
 					</ul>
 				</div>
-				[[${board}]]
 			</div>
 		</main>
 	</div>
 	
 	<script type="text/javascript">
+		let lastItemIdx = 0;
+		const sizeOfPage = 12;
+		let isLogin = false;
+		function init(){
+			lastItemIdx = $("#lastItemIdx").val();
+			isLogin = ($("#isLogin").val() === 'true');
+			getItem();
+			window.addEventListener('scroll', handleScroll);
+		}
+		
+		/** 날짜변경 */
+		function dateFormatter(dateStr){
+			// Moment.js를 사용하여 상대적인 시간 표시 
+			let momentRegDate = moment(dateStr);
+			let now = moment();
+			let diff = now.diff(momentRegDate, 'seconds'); // 차이 구하기
+			var formattedDate;
+			if (diff < 60) {
+			    formattedDate = diff + '초 전';
+			} else if (diff < 3600) {
+			    formattedDate = Math.floor(diff / 60) + '분 전';
+			} else if (diff < 86400) {
+			    formattedDate = Math.floor(diff / 3600) + '시간 전';
+			} else if (diff < 604800) {
+			    formattedDate = Math.floor(diff / 86400) + '일 전';
+			} else {
+			    formattedDate = momentRegDate.format('YYYY.MM.DD');
+			}
+			return formattedDate;
+		}
+		
+		function getItem(){
+			window.removeEventListener('scroll', handleScroll);
+			axios.post('/life/commentList', {
+	            'lastItemIdx': lastItemIdx,
+	            'sizeOfPage': sizeOfPage,
+	            'boardRef': $("#boardRef").val(),
+	        })
+	        .then(res => {
+				let data = res.data;
+				console.log(data);
+				if(data.length == 0) {
+					window.removeEventListener('scroll', handleScroll);
+					return ;
+				}
+				content = "";
+				data.forEach(cm => {
+					lastItemIdx = cm.idx;
+					const isLike = cm.isLike == 0 ? `<p class="comment-like-btn" onclick='commentLike(this, ${cm.idx})' style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 ${cm.likeCount}</p>` : `<p class="comment-like-btn active" onclick='commentLike(this, ${cm.idx})' style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 ${cm.likeCount}</p>`;
+					const hasChild = cm.childCommentCount == 0 ? ``: `<p class="comment-more-btn" style="display: inline-block;"><span uk-icon="icon: comments; ratio: 0.7;"></span> 답글 ${cm.childCommentCount}개 더보기</p>`;
+					const isYours = cm.isYours == 0 ? `` : `<span style="cursor: pointer">수정</span>ㆍ<span style="cursor: pointer">삭제</span>ㆍ`;
+					const isOwner = cm.isOwner == 0 ? `` : `<span style="background:#ccc; color:#fff; font-size:12px; padding:0px 3px;border-radius: 5px">작성자</span> `;
+					content += `
+						<li style="display: flex;">
+							<div class="big-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+							<div class="big-right" style="margin-left: 20px; width: 730px;">
+								<div>${isOwner}<span class="comment-nickname">${cm.nickName}</span> <span class="comment-time">${dateFormatter(cm.createDate)}</span></div>
+								<p class="comment-comment">${cm.comment}</p>
+								<div style="display: flex;justify-content: space-between;">
+									<div>
+										${isLike}
+										${hasChild}
+									</div>
+									<div>
+										${isYours}<span class='reply-btn' style="cursor: pointer">답글달기</span>
+									</div>
+								</div>
+							</div>
+						</li>
+					`;
+				})
+				$("#slide").append(content);
+				window.addEventListener('scroll', handleScroll);
+			})
+		}
+		
+		/** 스크롤 이벤트 */
+		function handleScroll() {
+		    if (window.scrollY + window.innerHeight + 100 >= document.documentElement.scrollHeight) {
+		        getItem();
+		    }
+		}
+		
+		
+		function checkNumberOfLines(textarea) {
+	        var lines = textarea.value.split('\n').length;
+	        if (lines > 3) {
+	            textarea.value = textarea.value.split('\n').slice(0, 3).join('\n');
+	        }
+	    }
+		
+		function commentLike(obj, commentIdx){
+			if(!isLogin){
+				alert('로그인 후 이용가능합니다.', commentIdx);
+				location.href = '/member/login';
+				return ;
+			}
+			if(!obj.classList.contains('active')){ // 좋아요하기
+				axios.post('/life/likeComment', {
+					'commentRef' : commentIdx
+				})
+				.then(res => {
+					const data = res.data;
+					if(data == '1'){ // 좋아요 성공
+						obj.classList.add('active'); // 버튼에 active 클래스 추가
+		                const likeCount = parseInt(obj.innerText.match(/\d+/)[0]); // 좋아요 수 추출
+		                obj.innerHTML = `<span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 ${likeCount + 1}`; // 좋아요 수 증가하여 버튼 내용 변경
+					} else {
+						alert("오류가 발생했습니다. 잠시후 다시 시도해주세요.");
+						location.reload();
+					}
+				})
+			} else { // 좋아요취소하기
+				axios.post('/life/unlikeComment', {
+		            'commentRef' : commentIdx
+		        })
+		        .then(res => {
+		            const data = res.data;
+		            if(data == '1'){ // 좋아요 취소 성공
+		                obj.classList.remove('active'); // 버튼에서 active 클래스 제거
+		                const likeCount = parseInt(obj.innerText.match(/\d+/)[0]); // 좋아요 수 추출
+		                obj.innerHTML = `<span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 ${likeCount - 1}`; // 좋아요 수 감소하여 버튼 내용 변경
+		            } else {
+		                alert("오류가 발생했습니다. 잠시후 다시 시도해주세요.");
+		                location.reload();
+		            }
+		        })				
+			}
+		}
+		
+		
 		$(function(){
 			let boardTime = dateFormatter($("#board-time2").val());
 			$("#board-time").text(boardTime);
 			
+			init();
+			
+			// 게시글 좋아요 이벤트
 			$("#board-like-Btn").click(function(){
 				const isActive = $(this).hasClass('active');
 				if(!isActive){ 
@@ -114,29 +351,52 @@
 			})
 			
 			
+			// 댓글 쓰기 보이기
+			$("#write-comment-view-btn").click(function(){
+				$("#write-comment-view-btn").css('display', 'none');
+				$("#write-comment-form").css('display', 'flex');
+			})
 			
+			// 댓글 저장하기버튼이벤트
+			$("#write-comment-btn").click(function(){
+				if($("#commentContent").val().trim().length == 0){
+					alert('내용을 입력해주세요.');
+					$("#commentCount").val('');
+					$("#commentContent").focus();
+					return ;
+				}
+				axios.post("/life/writeComment", {
+					'boardRef': $("#boardRef").val(),
+					'comment': $("#commentContent").val().trim(),
+				})
+				.then(res => {
+					const data = res.data;
+					console.log(data);
+					if(data == '1'){
+						alert('댓글이 작성되었습니다.');
+					} else {
+						alert('오류가 발생했습니다. 잠시후 다시시도해 주세요.');
+					}
+					location.reload(); // 새로고침
+				})
+				.catch(err=>{
+					console.log(err);
+				})
+			})
+			
+			// 댓글 글라인수 제한
+			const commentContent = document.getElementById('commentContent');
+		    commentContent.addEventListener('input', function() {
+		        const lineHeight = parseInt(window.getComputedStyle(this).lineHeight);
+		        const paddingTop = parseInt(window.getComputedStyle(this).paddingTop);
+		        const paddingBottom = parseInt(window.getComputedStyle(this).paddingBottom);
+		        const scrollHeight = this.scrollHeight - paddingTop - paddingBottom;
+
+		        if (scrollHeight > lineHeight * 3) {
+		            this.value = this.value.slice(0, -1);
+		        }
+		    });
 		})
-		
-		/** 날짜변경 */
-		function dateFormatter(dateStr){
-			// Moment.js를 사용하여 상대적인 시간 표시 
-			let momentRegDate = moment(dateStr);
-			let now = moment();
-			let diff = now.diff(momentRegDate, 'seconds'); // 차이 구하기
-			var formattedDate;
-			if (diff < 60) {
-			    formattedDate = diff + '초 전';
-			} else if (diff < 3600) {
-			    formattedDate = Math.floor(diff / 60) + '분 전';
-			} else if (diff < 86400) {
-			    formattedDate = Math.floor(diff / 3600) + '시간 전';
-			} else if (diff < 604800) {
-			    formattedDate = Math.floor(diff / 86400) + '일 전';
-			} else {
-			    formattedDate = momentRegDate.format('YYYY.MM.DD');
-			}
-			return formattedDate;
-		}
 	</script>
 </body>
 </html>

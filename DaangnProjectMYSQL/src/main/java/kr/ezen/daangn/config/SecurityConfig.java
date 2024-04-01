@@ -35,9 +35,9 @@ public class SecurityConfig {
 					// 지역 리턴
 					.requestMatchers("/region/**").permitAll()
 					// 동네생활
-					.requestMatchers("/life/view/**", "/life/list", "/life/commentlist", "/life/detail/**").permitAll()
+					.requestMatchers("/life/view/**", "/life/list", "/life/detail/**").permitAll()
 					// 동네생활댓글얻기
-					.requestMatchers("/life/commentlist").permitAll()
+					.requestMatchers("/life/commentList", "/life/childCommentList").permitAll()
 					// 공지사항
 					.requestMatchers("/notice/**").permitAll()
 					// 중고거래 리스트 사이트!

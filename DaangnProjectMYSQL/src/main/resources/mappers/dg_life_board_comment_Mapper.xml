@@ -60,7 +60,7 @@
         VALUES
         	(
         		#{userRef},
-        		#{categoryRef},
+        		#{boardRef},
         		<if test="parentComIdx != null">
 	        		#{parentComIdx},
         		</if>
@@ -90,28 +90,28 @@
     
     <!-- 댓글 좋아요 수 증가 -->
     <update id="incrementLikeCount" parameterType="int">
-        UPDATE daangn_life_board
+        UPDATE daangn_life_comment
         SET likeCount = likeCount + 1
         WHERE idx = #{idx}
     </update>
 
     <!-- 댓글 좋아요 수 감소 -->
     <update id="decrementLikeCount" parameterType="int">
-        UPDATE daangn_life_board
+        UPDATE daangn_life_comment
         SET likeCount = likeCount - 1
         WHERE idx = #{idx}
     </update>
     
     <!-- 댓글 대댓글 수 증가 -->
     <update id="incrementChildCommentCount" parameterType="int">
-        UPDATE daangn_life_board
+        UPDATE daangn_life_comment
         SET childCommentCount = childCommentCount + 1
         WHERE idx = #{idx}
     </update>
 
     <!-- 댓글 대댓글 수 감소 -->
     <update id="decrementChildCommentCount" parameterType="int">
-        UPDATE daangn_life_board
+        UPDATE daangn_life_comment
         SET childCommentCount = childCommentCount - 1
         WHERE idx = #{idx}
     </update>
