@@ -25,7 +25,21 @@ public interface DaangnLifeBoardCommentDAO {
 			@Param("boardRef") int boardRef
 		) throws SQLException;
 	
+	/**
+	 * 동네생활 댓글에 해당하는 자식댓글 조회
+	 * @param commentRef
+	 * @return
+	 * @throws SQLException
+	 */
 	List<DaangnLifeCommentVO> selectLifeBoardChildComments(int commentRef) throws SQLException;
+	
+	/**
+	 * 댓글 한개 얻기
+	 * @param idx
+	 * @return
+	 * @throws SQLException
+	 */
+	DaangnLifeCommentVO selectCommentByIdx(int idx) throws SQLException;
 	
 	/**
 	 * 최대 idx 얻기

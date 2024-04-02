@@ -16,8 +16,10 @@ import kr.ezen.daangn.vo.DaangnLifeBoardFileVO;
 import kr.ezen.daangn.vo.DaangnLifeBoardVO;
 import kr.ezen.daangn.vo.DaangnLifeCommentVO;
 import kr.ezen.daangn.vo.ScrollVO;
+import lombok.extern.slf4j.Slf4j;
 
 @Service("daangnLifeBoardService")
+@Slf4j
 public class DaangnLifeBoardService {
 
     @Autowired
@@ -80,6 +82,21 @@ public class DaangnLifeBoardService {
 			e.printStackTrace();
 		}
     	return boardVO;
+    }
+    
+    /**
+     * 동네생활 게시글 한개 얻기
+     * @param idx
+     * @return
+     */
+    public DaangnLifeCommentVO selectCommentByIdx(int idx) {
+    	DaangnLifeCommentVO lifeCommentVO = null;
+    	try {
+    		lifeCommentVO = lifeBoardCommentDAO.selectCommentByIdx(idx);
+    	} catch (SQLException e) {
+    		e.printStackTrace();
+    	}
+    	return lifeCommentVO;
     }
     
     /**
@@ -231,7 +248,7 @@ public class DaangnLifeBoardService {
     }
     
     /**
-     * 동네생활 게시글 댓글 쓰기
+     * 동네생활 게시글 댓글 쓰기 (boardRef, comment, parentComIdx[null])
      * @param lifeCommentVO
      * @return
      */
@@ -252,7 +269,7 @@ public class DaangnLifeBoardService {
     }
     
     /**
-     * 동네생활 게시글 댓글 수정
+     * 동네생활 게시글 댓글 수정 (idx, comment)
      * @param lifeCommentVO
      * @return
      */
@@ -277,12 +294,24 @@ public class DaangnLifeBoardService {
     public int deleteLifeBoardComment(int commentRef, int boardRef, Integer parentComIdx) {
     	int result = 0;
         try {
-        	lifeBoardCommentDAO.deleteLifeBoardComment(commentRef); // 댓글 삭제
-        	lifeBoardDAO.decrementCommentCount(boardRef); // 댓글 수 감소
-        	if(parentComIdx != null) { // 대댓글인 경우
-        		lifeBoardCommentDAO.decrementChildCommentCount(parentComIdx); // 댓글의 대댓글 수 감소
-        	}
-        	result = 1;
+        	// 삭제할 댓글의 정보를 가져온다.
+            DaangnLifeCommentVO deletedComment = lifeBoardCommentDAO.selectCommentByIdx(commentRef);
+            lifeBoardCommentDAO.deleteLifeBoardComment(commentRef); // 댓글 삭제
+
+            // 대댓글인 경우
+            if (parentComIdx != null) {
+            	// 댓글의 대댓글 수 감소
+            	lifeBoardCommentDAO.decrementChildCommentCount(parentComIdx);
+            }
+            
+            // 게시물의 댓글 수 감소
+            int commentCount = 1; // 삭제될 댓글 자체의 수
+            if (deletedComment.getChildCommentCount() > 0) {
+                commentCount += deletedComment.getChildCommentCount(); // 자식 댓글 수
+            }
+            log.info("commentCount ====> {}", commentCount);
+            lifeBoardDAO.decrementCommentCount(boardRef, commentCount); // 게시물 댓글수 감소
+            result = 1;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -363,6 +392,11 @@ public class DaangnLifeBoardService {
     	return result;
     }
     
+    /**
+     * 동네생활 게시물 사진 저장
+     * @param lifeBoardFileVO
+     * @return
+     */
     public int insertLifeBoardFile(DaangnLifeBoardFileVO lifeBoardFileVO) {
     	int result = 0;
     	try {
@@ -374,6 +408,11 @@ public class DaangnLifeBoardService {
     	return result;
     }
     
+    /**
+     * 동네생활 게시물 사진 삭제(게시글에 해당하는)
+     * @param boardRef
+     * @return
+     */
     public int deleteLifeBoardFile(int boardRef) {
     	int result = 0;
     	try {

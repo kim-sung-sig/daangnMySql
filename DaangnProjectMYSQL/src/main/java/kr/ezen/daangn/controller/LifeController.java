@@ -117,13 +117,14 @@ public class LifeController {
 	}
 	
 	/**
-	 * 동네 생활 댓글에 해당하는 대댓글 리턴
-	 * @param commentRef
+	 * 동네 생활 댓글에 해당하는 대댓글 리턴 (parentComIdx)
+	 * @param parentComIdx
 	 * @return
 	 */
-	@GetMapping(value = "/childCommentList")
+	@PostMapping(value = "/childCommentList")
 	@ResponseBody
-	public List<DaangnLifeCommentVO> getLifeChildCommentList(HttpSession session, @RequestParam(value = "commentRef") int commentRef){
+	public List<DaangnLifeCommentVO> getLifeChildCommentList(HttpSession session, @RequestBody DaangnLifeCommentVO lifeCommentVO){
+		int commentRef = lifeCommentVO.getParentComIdx();
 		log.info("getLifeChildCommentList 실행 : {}", commentRef);
 		List<DaangnLifeCommentVO> list = lifeBoardService.selectLifeBoardChildComments(commentRef);
 		DaangnMemberVO user = (DaangnMemberVO) session.getAttribute("user");
@@ -394,7 +395,7 @@ public class LifeController {
 	}
 	
 	/**
-	 * 동네생활 댓글수정Ok
+	 * 동네생활 댓글수정Ok (idx, comment)
 	 * @param lifeCommentVO
 	 * @return
 	 */
@@ -410,7 +411,7 @@ public class LifeController {
 	}
 	
 	/**
-	 * 동네생활 댓글삭제Ok
+	 * 동네생활 댓글삭제Ok (commentRef, boardRef, parentComIdx)
 	 * @param commentRef
 	 * @param boardRef
 	 * @param parentComIdx
@@ -418,7 +419,10 @@ public class LifeController {
 	 */
 	@PostMapping(value = "/deleteComment")
 	@ResponseBody
-	public int deleteLifeComment(@RequestParam("commentRef") int commentRef, @RequestParam("boardRef") int boardRef, @RequestParam(value = "parentComIdx", required = false) Integer parentComIdx) {
+	public int deleteLifeComment(@RequestBody DaangnLifeCommentVO lifeCommentVO) {
+		int commentRef = lifeCommentVO.getIdx();
+		int boardRef = lifeCommentVO.getBoardRef();
+		Integer parentComIdx = lifeCommentVO.getParentComIdx();
 		log.info("deleteLifeComment 실행 {}, {}, {}", commentRef, boardRef, parentComIdx);
 		int result = lifeBoardService.deleteLifeBoardComment(commentRef, boardRef, parentComIdx);
 		log.info("deleteLifeComment 리턴 {}", result);
@@ -426,7 +430,7 @@ public class LifeController {
 	}
 	
 	/**
-	 * 동네생활 댓글 좋아요
+	 * 동네생활 댓글 좋아요 (commentRef)
 	 * @param session
 	 * @param commentRef
 	 * @return
@@ -443,9 +447,9 @@ public class LifeController {
 	}
 	
 	/**
-	 * 동네생활 댓글 좋아요취소 (idx)
+	 * 동네생활 댓글 좋아요취소 (commentRef)
 	 * @param session
-	 * @param commentRef (idx)로 넘거야함
+	 * @param commentRef
 	 * @return
 	 */
 	@PostMapping(value = "/unlikeComment")
@@ -457,5 +461,14 @@ public class LifeController {
 	    int result = lifeBoardService.decrementCommentLikeCount(user.getIdx(), commentRef);
 	    log.info("unlikeLifeComment 리턴 {}", result);
 	    return result;
+	}
+	
+	@PostMapping(value = "/getComment/{idx}")
+	@ResponseBody
+	public DaangnLifeCommentVO getDaangnLifeCommentByIdx(@PathVariable(value = "idx") int idx) {
+		log.info("getDaangnLifeCommentByIdx 실행 {}", idx);
+		DaangnLifeCommentVO lifeCommentVO = lifeBoardService.selectCommentByIdx(idx);
+		log.info("getDaangnLifeCommentByIdx 리턴 {}", lifeCommentVO);
+		return lifeCommentVO;
 	}
 }

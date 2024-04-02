@@ -116,9 +116,9 @@
     </update>
     
     <!-- 동네생활 게시물 댓글 수 감소 -->
-    <update id="decrementCommentCount" parameterType="int">
+    <update id="decrementCommentCount" parameterType="hashmap">
         UPDATE daangn_life_board
-        SET commentCount = commentCount - 1
+        SET commentCount = commentCount - #{commentCount}
         WHERE idx = #{idx}
     </update>
 </mapper>

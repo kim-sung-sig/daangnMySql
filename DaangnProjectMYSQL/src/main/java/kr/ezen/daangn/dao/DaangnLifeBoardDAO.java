@@ -89,7 +89,9 @@ public interface DaangnLifeBoardDAO {
     /**
      * 동네생활 게시글 댓글 수 감소
      * @param idx
+     * @param commentCount
+     * @throws SQLException
      */
-    void decrementCommentCount(int idx) throws SQLException;
+    void decrementCommentCount(@Param("idx") int idx, @Param("commentCount") int commentCount) throws SQLException;
 }
 

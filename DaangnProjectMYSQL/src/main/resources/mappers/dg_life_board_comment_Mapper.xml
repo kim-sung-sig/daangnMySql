@@ -38,6 +38,19 @@
 	        dlc.idx
     </select>
     
+	<!-- 동네생활 댓글한개 얻기 -->
+    <select id="selectCommentByIdx" parameterType="int" resultType="DaangnLifeCommentVO">
+	    SELECT
+	        dlc.*,
+	        dm.nickName AS nickName
+	    FROM
+	        daangn_life_comment dlc
+	    JOIN
+	        daangn_member dm ON dlc.userRef = dm.idx 
+	    WHERE
+	    	dlc.idx = #{idx}
+    </select>
+    
     <select id="getLastIdx" resultType="int">
         SELECT COALESCE(MAX(idx), 0) FROM daangn_life_comment
 	</select>

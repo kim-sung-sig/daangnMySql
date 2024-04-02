@@ -109,71 +109,21 @@
 				</div>
 				<hr />
 				<div>
-					<ul id="slide" style="display: flex; flex-direction: column; gap:10px;">
-						<!-- 
-						<li style="display: flex;">
-							<div class="big-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
-							<div class="big-right" style="margin-left: 20px; width: 100%;">
-								<div><span class="comment-nickname">유저이름</span> <span class="comment-time">언제</span></div>
-								<p class="comment-comment">ㅁㅁㄴㄻㄴㄻㄴㄻㄴㄹ내용
-								asfasf
-								</p>
-								<div style="display: flex;justify-content: space-between;">
-									<div>
-										<p class="comment-like-btn" style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 1</p>
-										<p class="comment-more-btn" style="display: inline-block;"><span uk-icon="icon: comments; ratio: 0.7;"></span> 답글 n개</p>
-									</div>
-									<div>
-										<span>수정</span>ㆍ<span>삭제</span>ㆍ<span>답글달기</span>
-									</div>
-								</div>
-								<ul style="margin-top: 10px; display: flex; flex-direction: column; gap:10px;">
-									<li style="display: flex;">
-										<div class="smaill-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
-										<div class="smaill-right" style="margin-left: 20px;">
-											<p><span class="comment-nickname">유저이름</span> <span class="comment-time">언제</span></p>
-											<p class="comment-comment">ㅁㅁㄴㄻㄴㄻㄴㄻㄴㄹ내용</p>
-											<p class="comment-like-btn" style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 1</p>
-										</div>
-									</li>
-									<li style="display: flex;">
-										<div class="smaill-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
-										<div class="smaill-right" style="margin-left: 20px;">
-											<p><span class="comment-nickname">유저이름</span> <span class="comment-time">언제</span></p>
-											<p class="comment-comment">ㅁㅁㄴㄻㄴㄻㄴㄻㄴㄹ내용
-											asfasf
-											asf</p>
-											<p class="comment-like-btn" style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 1</p>
-										</div>
-									</li>
-									<li style="display: flex;">
-										<div class="smaill-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
-										<div class="smaill-right" style="margin-left: 20px;">
-											<p><span class="comment-nickname">유저이름</span> <span class="comment-time">언제</span></p>
-											<p class="comment-comment">ㅁㅁㄴㄻㄴㄻㄴㄻㄴㄹ내용
-											asfasf
-											asf</p>
-											<p class="comment-like-btn" style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 1</p>
-										</div>
-									</li>
-									<li style="display: flex;">
-										<div class="smaill-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
-										<div class="smaill-right" style="margin-left: 20px;">
-											<p><span class="comment-nickname">유저이름</span> <span class="comment-time">언제</span></p>
-											<p class="comment-comment">ㅁㅁㄴㄻㄴㄻㄴㄻㄴㄹ내용
-											asfasf
-											asf</p>
-											<p class="comment-like-btn" style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 1</p>
-										</div>
-									</li>
-								</ul>
-							</div>
-						</li>
-						 -->
-					</ul>
+					<ul id="slide" style="display: flex; flex-direction: column; gap:10px;"></ul>
 				</div>
 			</div>
 		</main>
+	</div>
+	<div id="viewPopup" style="display: none;">
+		<div id="commentPopup-bg" style="position: fixed; width: 100vw; height: 100vh; top: 0; left: 0; background: rgba(0,0,0,0.3); z-index: 995;"></div>
+		<div class="popup" id="commentPopup" style="padding:20px; border-radius:20px; position: fixed; width: 810px; top:50%; left: 50%; background: #fff; z-index:996; transform: translate(-50%, -50%);">
+		    <h2>댓글 수정</h2>
+		    <input type="hidden" id="updateCommentIdx" value="0">
+		    <textarea id="commentUpdateText" rows="3" oninput="checkNumberOfLines(this)" class="uk-textarea" placeholder="수정할 댓글을 입력해주세요" style="resize: none; overflow-y: hidden;"></textarea>
+		    <div style="display: flex; justify-content: end;">
+			    <span id="updateCommentCancle" style="cursor: pointer;">취소</span>ㆍ<span id="updateCommentSubmit" style="cursor: pointer;">수정</span>
+		    </div>
+		</div>
 	</div>
 	
 	<script type="text/javascript">
@@ -208,6 +158,7 @@
 			return formattedDate;
 		}
 		
+		/** 댓글 목록 가져오는 함수 */
 		function getItem(){
 			window.removeEventListener('scroll', handleScroll);
 			axios.post('/life/commentList', {
@@ -226,24 +177,28 @@
 				data.forEach(cm => {
 					lastItemIdx = cm.idx;
 					const isLike = cm.isLike == 0 ? `<p class="comment-like-btn" onclick='commentLike(this, ${cm.idx})' style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 ${cm.likeCount}</p>` : `<p class="comment-like-btn active" onclick='commentLike(this, ${cm.idx})' style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 ${cm.likeCount}</p>`;
-					const hasChild = cm.childCommentCount == 0 ? ``: `<p class="comment-more-btn" style="display: inline-block;"><span uk-icon="icon: comments; ratio: 0.7;"></span> 답글 ${cm.childCommentCount}개 더보기</p>`;
-					const isYours = cm.isYours == 0 ? `` : `<span style="cursor: pointer">수정</span>ㆍ<span style="cursor: pointer">삭제</span>ㆍ`;
+					const hasChild = cm.childCommentCount == 0 ? ``: `<p class="comment-more-btn" onclick="childCommentView(this, ${cm.idx})" style="display: inline-block;"><span uk-icon="icon: comments; ratio: 0.7;"></span> 답글 ${cm.childCommentCount}개 더보기</p>`;
+					const isYours = cm.isYours == 0 ? `` : `<span onclick="commentUpdateView(${cm.idx})" style="cursor: pointer">수정</span>ㆍ<span onclick="commentDelete(${cm.idx})" style="cursor: pointer">삭제</span>ㆍ`;
 					const isOwner = cm.isOwner == 0 ? `` : `<span style="background:#ccc; color:#fff; font-size:12px; padding:0px 3px;border-radius: 5px">작성자</span> `;
+
 					content += `
 						<li style="display: flex;">
 							<div class="big-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
 							<div class="big-right" style="margin-left: 20px; width: 730px;">
 								<div>${isOwner}<span class="comment-nickname">${cm.nickName}</span> <span class="comment-time">${dateFormatter(cm.createDate)}</span></div>
 								<p class="comment-comment">${cm.comment}</p>
-								<div style="display: flex;justify-content: space-between;">
-									<div>
-										${isLike}
-										${hasChild}
-									</div>
-									<div>
-										${isYours}<span class='reply-btn' style="cursor: pointer">답글달기</span>
+								<div class="comment-val">
+									<div style="display: flex;justify-content: space-between;">
+										<div>
+											${isLike}
+											${hasChild}
+										</div>
+										<div>
+											${isYours}<span onclick="insertCommentReplyView(this, ${cm.idx})" class='reply-view-btn' style="cursor: pointer">답글달기</span>
+										</div>
 									</div>
 								</div>
+								<div class="childCommentBox"></div>
 							</div>
 						</li>
 					`;
@@ -260,14 +215,19 @@
 		    }
 		}
 		
-		
+		/** 댓글쓰기 3줄만 제한 */
 		function checkNumberOfLines(textarea) {
-	        var lines = textarea.value.split('\n').length;
-	        if (lines > 3) {
-	            textarea.value = textarea.value.split('\n').slice(0, 3).join('\n');
+			const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight);
+	        const paddingTop = parseInt(window.getComputedStyle(textarea).paddingTop);
+	        const paddingBottom = parseInt(window.getComputedStyle(textarea).paddingBottom);
+	        const scrollHeight = textarea.scrollHeight - paddingTop - paddingBottom;
+
+	        if (scrollHeight > lineHeight * 3) {
+	        	textarea.value = textarea.value.slice(0, -1);
 	        }
 	    }
 		
+		/** 댓글 좋아요 */
 		function commentLike(obj, commentIdx){
 			if(!isLogin){
 				alert('로그인 후 이용가능합니다.', commentIdx);
@@ -307,8 +267,145 @@
 			}
 		}
 		
+		/** 답글 달기가 보이는 함수 */
+		function insertCommentReplyView(obj, parentComIdx){
+			if(!isLogin){
+				alert('로그인 후 이용가능합니다.');
+				location.href = '/member/login';
+				return ;
+			}
+			$(".commentReplyForm").remove();
+			let commentVal = $(obj).closest('.comment-val');
+			if (commentVal.children('.commentReply').length > 0) {
+		        return;
+		    }
+			const commentReplyForm = `
+		        <div class="commentReplyForm" style="margin-top: 10px;">
+		            <textarea type="text" class="uk-textarea replyForm" rows="3" oninput="checkNumberOfLines(this)" style="resize: none; overflow-y: hidden;" placeholder="답글을 입력해주세요." id="reply-input-${parentComIdx}" maxlength="100"/></textarea>
+		            <span class="reply-insert-btn" style="cursor: pointer" onclick="saveCommentReply(${parentComIdx})">저장</span>
+		        </div>
+		    `;
+		    commentVal.append(commentReplyForm);
+		}
+		
+		/** 답글 저장 시키는 함수 */
+		function saveCommentReply(parentComIdx){
+			// boardRef , comment, parentComIdx
+			let comment = $(`#reply-input-${parentComIdx}`).val();
+			if(comment.trim().length == 0){
+				alert('답글을 입력해주세요.');
+				$(`#reply-input-${parentComIdx}`).val('');
+				$(`#reply-input-${parentComIdx}`).focus();
+				return ;
+			}
+			
+			axios.post("/life/writeComment", {
+				'boardRef': $("#boardRef").val(),
+				'comment' : $(`#reply-input-${parentComIdx}`).val().trim(),
+				'parentComIdx' : parentComIdx
+			})
+			.then(res => {
+				const data = res.data;
+				if(data == '1'){
+					alert('답글을 저장했습니다.');
+				} else {
+					alert('오류가 발생했습니다. 잠시후 다시 시도해주세요.');
+				}
+				location.reload();
+			})
+			.catch(err => {
+				console.log(err);
+			})
+		}
+		
+		/** 댓글 수정란이 보이게 만들어주는 함수 이거는 팝업으로 띄울까 고민중..*/ 
+		function commentUpdateView(commentIdx){
+			let result = confirm('댓글을 수정하시겠습니까?');
+			if(result){
+				// 댓글 내용 조회 (idx, comment)나 채워넣기
+				axios.post(`/life/getComment/${commentIdx}`)
+				.then(res => {
+					const cm = res.data;
+					$("#updateCommentIdx").val(commentIdx);
+					$("#commentUpdateText").val(cm.comment);
+					// 팝업 띄우기
+					$("#viewPopup").show();
+				})
+				.catch(err => {
+					console.log(err);
+				})
+			}
+		}
+		
+		/** 댓글 삭제요청 한개 (parentComIdx [null])*/
+		function commentDelete(commentIdx, parentComIdx){ // 머머 받아야하지?
+			let result = confirm('삭제하시겠습니까?');
+			if(result){
+				axios.post("/life/deleteComment", {
+					'idx' : commentIdx,
+					'boardRef': $("#boardRef").val(),
+					'parentComIdx' : parentComIdx
+				})
+				.then(res => {
+					const data = res.data;
+					if(data == '1'){
+						alert('삭제되었습니다.');
+					} else {
+						alert('오류가 발생했습니다. 잠시후 다시 시도해주세요.');
+					}
+					location.reload();
+				})
+			}
+		}
+		
+		/** 대댓글 가져오기 요청 */
+		function childCommentView(obj, commentIdx){
+			console.log(obj);
+			console.log(commentIdx);
+			let childCommentBox = $(obj).closest('.big-right').find(".childCommentBox");
+			$(obj).remove();
+			axios.post("/life/childCommentList", {
+				'parentComIdx': commentIdx
+			})
+			.then(res => {
+				const data = res.data;
+				console.log(data);
+				content = `<ul style="margin-top: 20px; display: flex; flex-direction: column; gap:10px;">`;
+				data.forEach(cm => {
+					const isLike = cm.isLike == 0 ? `<p class="comment-like-btn" onclick='commentLike(this, ${cm.idx})' style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 ${cm.likeCount}</p>` : `<p class="comment-like-btn active" onclick='commentLike(this, ${cm.idx})' style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 ${cm.likeCount}</p>`;
+					const isYours = cm.isYours == 0 ? `` : `<span onclick="commentUpdateView(${cm.idx})" style="cursor: pointer">수정</span>ㆍ<span onclick="commentDelete(${cm.idx}, ${commentIdx})" style="cursor: pointer">삭제</span>`;
+					const isOwner = cm.isOwner == 0 ? `` : `<span style="background:#ccc; color:#fff; font-size:12px; padding:0px 3px;border-radius: 5px">작성자</span> `;
+					content += `
+						<li style="display: flex; width: 100%;">
+							<div class="smaill-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+							<div class="smaill-right" style="margin-left: 20px; width: 650px;">
+								<p>${isOwner}<span class="comment-nickname">${cm.nickName}</span> <span class="comment-time">${dateFormatter(cm.createDate)}</span></p>
+								<p class="comment-comment">${cm.comment}</p>
+								<div class="comment-val">
+									<div style="display: flex;justify-content: space-between;">
+										<div>
+											${isLike}
+										</div>
+										<div>
+											${isYours}
+										</div>
+									</div>
+								</div>
+							</div>
+						</li>
+					`;
+				});
+				content += `</ul>`;
+				childCommentBox.append(content);
+			})
+			.catch(err => {
+				console.log(err);
+			})
+		}
+		
 		
 		$(function(){
+			// 게시글 시간 변경
 			let boardTime = dateFormatter($("#board-time2").val());
 			$("#board-time").text(boardTime);
 			
@@ -396,6 +493,43 @@
 		            this.value = this.value.slice(0, -1);
 		        }
 		    });
+		    
+		    $("#updateCommentCancle").click(function(){
+		    	$("#viewPopup").hide();
+		    	$("#updateCommentIdx").val('0');
+		    	$("#commentUpdateText").val('');
+		    })
+		    $("#commentPopup-bg").click(function(){
+		    	$("#updateCommentCancle").click()
+		    })
+		    
+		    $("#updateCommentSubmit").click(function(){
+		    	let comment = $("#commentUpdateText").val();
+		    	if(comment.trim().length == 0){
+		    		alert("내용을 입력해주세요.");
+		    		$("#commentUpdateText").val('');
+		    		$("#commentUpdateText").focus();
+		    		return ;
+		    	}
+		    	
+		    	axios.post("/life/updateComment", {
+		    		'idx': $("#updateCommentIdx").val(),
+		    		'comment': $("#commentUpdateText").val()
+		    	})
+		    	.then(res => {
+		    		const data = res.data;
+		    		if(data == '1'){
+		    			alert('수정되었습니다.');
+		    		} else {
+		    			alert('오류가 발생했습니다. 잠시후 다시시도해 주세요.');
+		    		}
+		    		location.reload();
+		    	})
+		    	.catch(err => {
+		    		console.log(err);
+		    	})
+		    	
+		    })
 		})
 	</script>
 </body>
