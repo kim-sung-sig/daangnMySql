@@ -73,7 +73,7 @@ create table daangn_life_comment(
 	boardRef int not null,
 	constraint dg_life_cm_boardRef foreign key (boardRef) references daangn_life_board(idx) on delete cascade,
 	parentComIdx int null,
-	constraint dg_life_cm_parentComIdx foreign key (parentComIdx) references daangn_life_comment(idx) on delete cascade, -- 부모댓이 사라지면 같이 제거 or 부모댓이 사라지면 제거 x null
+	constraint dg_life_cm_parentComIdx foreign key (parentComIdx) references daangn_life_comment(idx) on delete cascade,
 	comment varchar(500) not null,
 	likeCount int default 0,
 	childCommentCount int default 0,

@@ -46,7 +46,7 @@
 				<p class="board-category" style="display: inline-block;">[[${board.categoryName}]]</p>
 				<div id="board-info" style="display: flex;">
 					<div th:if="${board.userProfile == null}" id="board-user-profile" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
-					<div th:if="${board.userProfile != null}" id="board-user-profile" th:style="'width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url(' + ${board.userProfile} + ') center/cover;'"></div>
+					<div th:if="${board.userProfile != null}" id="board-user-profile" th:style="'width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url(\'/upload/' + ${board.userProfile} + '\') center/cover;'"></div>
 					<div style="margin-left: 20px;">
 						<p style="margin: 0; padding: 0; font-weight: 500;">[[${board.nickName}]]</p>
 						<p style="margin: 0;" id="board-time"></p>
@@ -180,10 +180,11 @@
 					const hasChild = cm.childCommentCount == 0 ? ``: `<p class="comment-more-btn" onclick="childCommentView(this, ${cm.idx})" style="display: inline-block;"><span uk-icon="icon: comments; ratio: 0.7;"></span> 답글 ${cm.childCommentCount}개 더보기</p>`;
 					const isYours = cm.isYours == 0 ? `` : `<span onclick="commentUpdateView(${cm.idx})" style="cursor: pointer">수정</span>ㆍ<span onclick="commentDelete(${cm.idx})" style="cursor: pointer">삭제</span>ㆍ`;
 					const isOwner = cm.isOwner == 0 ? `` : `<span style="background:#ccc; color:#fff; font-size:12px; padding:0px 3px;border-radius: 5px">작성자</span> `;
+					const userProfileStyle = (cm.userProfile !== null && cm.userProfile !== undefined) ? `/upload/${cm.userProfile}` : '/img/user.png';
 
 					content += `
 						<li style="display: flex;">
-							<div class="big-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+							<div class="big-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('${userProfileStyle}') center/cover;"></div>
 							<div class="big-right" style="margin-left: 20px; width: 730px;">
 								<div>${isOwner}<span class="comment-nickname">${cm.nickName}</span> <span class="comment-time">${dateFormatter(cm.createDate)}</span></div>
 								<p class="comment-comment">${cm.comment}</p>
@@ -372,12 +373,14 @@
 				console.log(data);
 				content = `<ul style="margin-top: 20px; display: flex; flex-direction: column; gap:10px;">`;
 				data.forEach(cm => {
+					console.log(cm);
 					const isLike = cm.isLike == 0 ? `<p class="comment-like-btn" onclick='commentLike(this, ${cm.idx})' style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 ${cm.likeCount}</p>` : `<p class="comment-like-btn active" onclick='commentLike(this, ${cm.idx})' style="display: inline-block; margin-right: 10px;"><span uk-icon="icon: heart; ratio: 0.7;"></span> 공감 ${cm.likeCount}</p>`;
 					const isYours = cm.isYours == 0 ? `` : `<span onclick="commentUpdateView(${cm.idx})" style="cursor: pointer">수정</span>ㆍ<span onclick="commentDelete(${cm.idx}, ${commentIdx})" style="cursor: pointer">삭제</span>`;
 					const isOwner = cm.isOwner == 0 ? `` : `<span style="background:#ccc; color:#fff; font-size:12px; padding:0px 3px;border-radius: 5px">작성자</span> `;
+					const userProfileStyle = (cm.userProfile !== null && cm.userProfile !== undefined) ? `/upload/${cm.userProfile}` : '/img/user.png';
 					content += `
 						<li style="display: flex; width: 100%;">
-							<div class="smaill-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+							<div class="smaill-left" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('${userProfileStyle}') center/cover;"></div>
 							<div class="smaill-right" style="margin-left: 20px; width: 650px;">
 								<p>${isOwner}<span class="comment-nickname">${cm.nickName}</span> <span class="comment-time">${dateFormatter(cm.createDate)}</span></p>
 								<p class="comment-comment">${cm.comment}</p>

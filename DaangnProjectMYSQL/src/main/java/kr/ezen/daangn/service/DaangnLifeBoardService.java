@@ -12,6 +12,8 @@ import kr.ezen.daangn.dao.DaangnLifeBoardCommentLikeDAO;
 import kr.ezen.daangn.dao.DaangnLifeBoardDAO;
 import kr.ezen.daangn.dao.DaangnLifeBoardFileDAO;
 import kr.ezen.daangn.dao.DaangnLifeBoardLikeDAO;
+import kr.ezen.daangn.dao.DaangnUserFileDAO;
+import kr.ezen.daangn.vo.DaangnFileVO;
 import kr.ezen.daangn.vo.DaangnLifeBoardFileVO;
 import kr.ezen.daangn.vo.DaangnLifeBoardVO;
 import kr.ezen.daangn.vo.DaangnLifeCommentVO;
@@ -34,12 +36,16 @@ public class DaangnLifeBoardService {
     @Autowired
     private DaangnLifeBoardCommentLikeDAO lifeBoardCommentLikeDAO;
     
+    @Autowired
+    private DaangnUserFileDAO daangnUserFileDAO;
+    
     /**
      * 동네생활 게시글 목록 얻기 (lastItemIdx, sizeOfPage, categoryRef, region, gu, dong, search, userRef)
      * @param sv
      * @return
      */
     public List<DaangnLifeBoardVO> selectPagedLifeBoards(ScrollVO sv) {
+    	log.info("selectPagedLifeBoards 실행 (lastItemIdx, sizeOfPage, categoryRef, region, gu, dong, search) => ({}, {}, {}, {}, {}, {}, {})",sv.getLastItemIdx(), sv.getSizeOfPage(), sv.getCategoryRef(), sv.getRegion(), sv.getGu(), sv.getDong(), sv.getSearch());
     	List<DaangnLifeBoardVO> list = null;
     	try {
     		list = lifeBoardDAO.selectPagedLifeBoards(sv.getLastItemIdx(), sv.getSizeOfPage(), sv.getCategoryRef(), sv.getRegion(), sv.getGu(), sv.getDong(), sv.getSearch(), sv.getUserRef());
@@ -49,6 +55,7 @@ public class DaangnLifeBoardService {
     	} catch (SQLException e) {
             e.printStackTrace();
         }
+    	log.info("selectPagedLifeBoards 리턴 {}개, {}", list.size(), list);
     	return list;
     }
     
@@ -72,30 +79,38 @@ public class DaangnLifeBoardService {
      * @return
      */
     public DaangnLifeBoardVO selectByIdx(int idx) {
+    	log.info("selectByIdx 실행 idx => {}", idx);
     	DaangnLifeBoardVO boardVO = null;
 		try {
 			boardVO = lifeBoardDAO.selectByIdx(idx);
 			if(boardVO != null) {
-				boardVO.setFileList(lifeBoardFileDAO.selectLifeBoardFileByBoardRef(idx));				
+				boardVO.setFileList(lifeBoardFileDAO.selectLifeBoardFileByBoardRef(idx));
+				DaangnFileVO userFileVO = daangnUserFileDAO.selectFileByUserIdx(boardVO.getUserRef());
+				if(userFileVO != null) {
+					boardVO.setUserProfile(userFileVO.getSaveFileName());					
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		log.info("selectByIdx 리턴 {}", boardVO);
     	return boardVO;
     }
     
     /**
-     * 동네생활 게시글 한개 얻기
+     * 동네생활 댓글 한개 얻기 (댓글 수정용)
      * @param idx
      * @return
      */
     public DaangnLifeCommentVO selectCommentByIdx(int idx) {
+    	log.info("selectCommentByIdx 실행 idx => {}", idx);
     	DaangnLifeCommentVO lifeCommentVO = null;
     	try {
     		lifeCommentVO = lifeBoardCommentDAO.selectCommentByIdx(idx);
     	} catch (SQLException e) {
     		e.printStackTrace();
     	}
+    	log.info("selectCommentByIdx 리턴 {}", lifeCommentVO);
     	return lifeCommentVO;
     }
     
@@ -105,6 +120,7 @@ public class DaangnLifeBoardService {
      * @return
      */
     public int insertLifeBoard(DaangnLifeBoardVO lifeBoardVO) {
+    	log.info("insertLifeBoard 실행 {}", lifeBoardVO);
         int result = 0;
         try {
         	lifeBoardDAO.insertLifeBoard(lifeBoardVO);
@@ -112,6 +128,7 @@ public class DaangnLifeBoardService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        log.info("insertLifeBoard 리턴 => {}", result);
         return result;
     }
     
@@ -121,6 +138,7 @@ public class DaangnLifeBoardService {
      * @return
      */
     public int updateLifeBoard(DaangnLifeBoardVO lifeBoardVO) {
+    	log.info("updateLifeBoard 실행 {}", lifeBoardVO);
         int result = 0;
         try {
         	lifeBoardDAO.updateLifeBoard(lifeBoardVO);
@@ -128,6 +146,7 @@ public class DaangnLifeBoardService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        log.info("updateLifeBoard 리턴 => {}", result);
         return result;
     }
     
@@ -137,6 +156,7 @@ public class DaangnLifeBoardService {
      * @return
      */
     public int deleteLifeBoard(int idx) {
+    	log.info("deleteLifeBoard 실행 {}", idx);
     	int result = 0;
         try {
         	lifeBoardDAO.deleteLifeBoard(idx);
@@ -144,6 +164,7 @@ public class DaangnLifeBoardService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        log.info("deleteLifeBoard 리턴 => {}", result);
         return result;
     }
     
@@ -209,12 +230,20 @@ public class DaangnLifeBoardService {
      * @return
      */
     public List<DaangnLifeCommentVO> selectPagedLifeBoardComments(ScrollVO sv){
+    	log.info("selectPagedLifeBoardComments 실행 (lastItemIdx, sizeOfPage, boardRef) => ({}, {}, {})", sv.getLastItemIdx(), sv.getSizeOfPage(), sv.getBoardRef());
     	List<DaangnLifeCommentVO> list = null;
     	try {
     		list = lifeBoardCommentDAO.selectPagedLifeBoardComments(sv.getLastItemIdx(), sv.getSizeOfPage(), sv.getBoardRef());
+    		for(DaangnLifeCommentVO lifeCommentVO : list) {
+    			DaangnFileVO userFileVO = daangnUserFileDAO.selectFileByUserIdx(lifeCommentVO.getUserRef());
+    			if(userFileVO != null) {
+    				lifeCommentVO.setUserProfile(userFileVO.getSaveFileName());					
+    			}
+    		}
     	} catch (SQLException e) {
             e.printStackTrace();
         }
+    	log.info("selectPagedLifeBoardComments 결과 {}개, {}", list.size(), list);
     	return list;
     }
     
@@ -224,12 +253,20 @@ public class DaangnLifeBoardService {
      * @return
      */
     public List<DaangnLifeCommentVO> selectLifeBoardChildComments(int commentRef){
+    	log.info("selectLifeBoardChildComments 실행 commentRef => {}", commentRef);
     	List<DaangnLifeCommentVO> list = null;
     	try {
     		list = lifeBoardCommentDAO.selectLifeBoardChildComments(commentRef);
+    		for(DaangnLifeCommentVO lifeCommentVO : list) {
+    			DaangnFileVO userFileVO = daangnUserFileDAO.selectFileByUserIdx(lifeCommentVO.getUserRef());
+    			if(userFileVO != null) {
+    				lifeCommentVO.setUserProfile(userFileVO.getSaveFileName());					
+    			}
+    		}
     	} catch (SQLException e) {
     		e.printStackTrace();
     	}
+    	log.info("selectLifeBoardChildComments 결과 {}개, {}", list.size(), list);
     	return list;
     }
     
@@ -254,6 +291,7 @@ public class DaangnLifeBoardService {
      */
     @Transactional
     public int insertLifeBoardComment(DaangnLifeCommentVO lifeCommentVO) {
+    	log.info("insertLifeBoardComment 실행 {}", lifeCommentVO);
     	int result = 0;
         try {
         	lifeBoardCommentDAO.insertLifeBoardComment(lifeCommentVO); // 댓글 저장
@@ -265,6 +303,7 @@ public class DaangnLifeBoardService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        log.info("insertLifeBoardComment 리턴 => {}", result);
         return result;
     }
     
@@ -274,6 +313,7 @@ public class DaangnLifeBoardService {
      * @return
      */
     public int updateLifeBoardComment(DaangnLifeCommentVO lifeCommentVO) {
+    	log.info("updateLifeBoardComment 실행 {}", lifeCommentVO);
     	int result = 0;
     	try {
     		lifeBoardCommentDAO.updateLifeBoardComment(lifeCommentVO);
@@ -281,6 +321,7 @@ public class DaangnLifeBoardService {
     	} catch (SQLException e) {
     		e.printStackTrace();
     	}
+    	log.info("updateLifeBoardComment 리턴 => {}", result);
     	return result;
     }
     
@@ -292,6 +333,7 @@ public class DaangnLifeBoardService {
      */
     @Transactional
     public int deleteLifeBoardComment(int commentRef, int boardRef, Integer parentComIdx) {
+    	log.info("deleteLifeBoardComment 실행 (commentRef, boardRef, parentComIdx) => ({}, {}, {})", commentRef, boardRef, parentComIdx);
     	int result = 0;
         try {
         	// 삭제할 댓글의 정보를 가져온다.
@@ -315,6 +357,7 @@ public class DaangnLifeBoardService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        log.info("deleteLifeBoardComment 리턴 => {}", result);
         return result;
     }
     

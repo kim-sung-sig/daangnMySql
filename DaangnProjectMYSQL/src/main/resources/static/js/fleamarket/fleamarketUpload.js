@@ -205,13 +205,6 @@ $(function() {
 			return false;
 		}
 		
-		if(value.search(/[\{\}\[\]\/?;:|\)*`^\-_+<>@\#$%&\\=('"]/gi) >= 0){
-			alert('제목에는 특수문자는 사용할 수 없습니다.');
-			$("#subject").val("");
-			$("#subject").focus();
-			return false;
-		}
-		
 		value = $("#price").val();
 		const maxValue = 2147483647; // 자바의 최대정수
 		if (parseInt(value) > maxValue) {
@@ -224,13 +217,6 @@ $(function() {
 		value = $("#content").val();
 		if(value.trim().length == 0){
 			alert('내용을 입력해주세요.');
-			$("#content").val("");
-			$("#content").focus();
-			return false;
-		}
-		
-		if(value.search(/[\{\}\[\]\/?;:|\)*`^\-_+<>@\#$%&\\=('"]/gi) >= 0){
-			alert('내용에는 특수문자는 사용할 수 없습니다.');
 			$("#content").val("");
 			$("#content").focus();
 			return false;
@@ -259,4 +245,18 @@ $(function() {
 			location.href='/fleamarket';
 		}
 	})
+	
+	
+	$("#content").on('input', function() {
+	    var text = $("#content").val();
+	    var maxLength = parseInt($("#content").attr('maxlength'));
+	    var remaining = maxLength - text.length;
+
+	    if (remaining >= 0) {
+	        $("#charCount").text(`${text.length} / ${maxLength}`);
+	    } else {
+	        $("#content").val(text.substring(0, maxLength));
+	        $("#charCount").text(`${maxLength} / ${maxLength}`);
+	    }
+	});
 });

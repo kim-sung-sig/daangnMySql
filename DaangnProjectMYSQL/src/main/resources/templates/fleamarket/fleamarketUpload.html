@@ -42,7 +42,7 @@
 			<div class="uk-margin">
 				<h4>제목</h4>
 				<div class="uk-inline">
-					<input type="text" name="subject" id="subject" class="uk-input" placeholder="제목을 입력해주세요" autocomplete='off' required="required">				
+					<input type="text" name="subject" id="subject" class="uk-input" placeholder="제목을 입력해주세요" autocomplete='off' required="required" maxlength="100">				
 				</div>
 			</div>
 			<div class="uk-margin">
@@ -74,8 +74,9 @@
 			</div>
 			<div class="uk-margin">
 				<h4>자세한 설명</h4>
-				<div class="uk-inline">
-					<textarea id="content" class="uk-textarea" name="content" style="resize: none; height: 200px" required="required"></textarea>
+				<div class="uk-inline" style="flex-direction: column;">
+					<textarea id="content" class="uk-textarea" name="content" style="resize: none; height: 200px; overflow-y: hidden;" required="required" maxlength="1000"></textarea>
+					<div id="charCount">0 / 1000</div>
 				</div>
 			</div>
 			<div class="uk-margin">
