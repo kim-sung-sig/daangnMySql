@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>내 물품 팔기</title>
+<title>당근-내 물품 팔기(수정)</title>
 <!--제이쿼리 추가-->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <!-- UIkit CSS -->
@@ -13,7 +13,7 @@
 <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <!-- 카카오맵 api -->
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=fa04a00338cccad468f169754f5e7cc6&libraries=services"></script>
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=fa04a00338cccad468f169754f5e7cc6&libraries=services"></script>
 
 <link rel="stylesheet" href="/css/fleamarket/fleamarketUpload.css">
 <script src="/js/fleamarket/fleamarketUpdate.js"></script>
@@ -22,6 +22,7 @@
 	<div class="uk-container uk-container-xsmall">
 		<h2 class="form-heading" style="text-align: center;"><img src="https://i.namu.wiki/i/urKu84c6cV1U3tmZqPiopxkCnQOn96j3gA6Wf730iSTzz41XDOeqypSusjBVPXeHxGe8RJAOjMY11uywzcDqSA.svg" alt="logo" /></h2>
 		<h2>내 물품 팔기(수정)</h2>
+		<span style="font-size: 14px; font-weight: 300;">(수정시 기존에 있던 파일은 사라집니다. 기존사진이 있다면 재입력해주시기 바랍니다.)</span>
 		<form action="/fleamarketUpdateOk" method="post" enctype="multipart/form-data" id="uploadForm">
 			<input type="hidden" id="latitude" name="latitude" th:value="${board.latitude}"/>
 			<input type="hidden" id="longitude" name="longitude" th:value="${board.longitude}"/>
