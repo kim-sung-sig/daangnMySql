@@ -2,27 +2,48 @@ function detail(idx){
     window.open('/fleamarketDetail/' + idx, '_blank');
 }
 
-$(function(){
-	let statusNum = $("#boardStatusNum").val();
-	console.log(statusNum);
-	// 카카오 지도 뿌리기
-	var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
-	    mapOption = { 
-	        center: new kakao.maps.LatLng($("#latitude").val(), $("#longitude").val()), // 지도의 중심좌표
-	        level: 3 // 지도의 확대 레벨
-	    };
+function initializeMap() {
+	let latitude = $("#latitude").val();
+	let longitude = $("#longitude").val();
+    console.log("지도 초기화 및 기타 작업 실행");
+    
+    // 카카오 지도 뿌리기
+	let mapContainer = document.getElementById('map'); 
+	let mapOption = { 
+        center: new kakao.maps.LatLng(latitude, longitude),
+        level: 3 // 지도의 확대 레벨
+    };
+	var map = new kakao.maps.Map(mapContainer, mapOption);
 	
-	var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+	var markerPosition  = new kakao.maps.LatLng(latitude, longitude); 
 	
-	// 마커가 표시될 위치입니다 
-	var markerPosition  = new kakao.maps.LatLng($("#latitude").val(), $("#longitude").val()); 
-	
-	// 마커를 생성합니다
 	var marker = new kakao.maps.Marker({
 	    position: markerPosition
 	});
+	marker.setMap(map);
+}
+
+
+$(function(){
 	
-	// 마커가 지도 위에 표시되도록 설정합니다
+	initializeMap();
+	
+	let statusNum = $("#boardStatusNum").val();
+	console.log(statusNum);
+	
+	// 카카오 지도 뿌리기
+	let mapContainer = document.getElementById('map'); 
+	let mapOption = { 
+        center: new kakao.maps.LatLng($("#latitude").val(), $("#longitude").val()),
+        level: 3 // 지도의 확대 레벨
+    };
+	var map = new kakao.maps.Map(mapContainer, mapOption);
+	
+	var markerPosition  = new kakao.maps.LatLng($("#latitude").val(), $("#longitude").val()); 
+	
+	var marker = new kakao.maps.Marker({
+	    position: markerPosition
+	});
 	marker.setMap(map);
 	
 	
