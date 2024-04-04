@@ -23,13 +23,37 @@ function initializeMap() {
 	marker.setMap(map);
 }
 
+/** 날짜변경 */
+function dateFormatter(dateStr){
+	// Moment.js를 사용하여 상대적인 시간 표시 
+	let momentRegDate = moment(dateStr);
+	let now = moment();
+	let diff = now.diff(momentRegDate, 'seconds'); // 차이 구하기
+	var formattedDate;
+	if (diff < 60) {
+	    formattedDate = diff + '초 전';
+	} else if (diff < 3600) {
+	    formattedDate = Math.floor(diff / 60) + '분 전';
+	} else if (diff < 86400) {
+	    formattedDate = Math.floor(diff / 3600) + '시간 전';
+	} else if (diff < 604800) {
+	    formattedDate = Math.floor(diff / 86400) + '일 전';
+	} else {
+	    formattedDate = momentRegDate.format('YYYY.MM.DD');
+	}
+	return formattedDate;
+}
+
 
 $(function(){
 	
+	let boardTime = dateFormatter($("#board-time2").val());
+	console.log(boardTime);
+	$("#board-time").text(boardTime);
+	
 	initializeMap();
 	
-	let statusNum = $("#boardStatusNum").val();
-	console.log(statusNum);
+	// let statusNum = $("#boardStatusNum").val();
 	
 	// 카카오 지도 뿌리기
 	let mapContainer = document.getElementById('map'); 
@@ -58,7 +82,6 @@ $(function(){
 			})
 			.then(function (res) {
 				data = res.data;
-				console.log(data);
 				if(data==1){
 					$("#likeHeart > a").removeClass("active");
 					$("#countLike").text('관심 ' + (Number($("#countLike").text().substring(3)) - 1));
@@ -86,29 +109,6 @@ $(function(){
 			.catch(function (err) {
 				console.log(err);
 			});
-		}
-	})
-	
-	// 시간 바꾸기!
-	let times = document.querySelectorAll(".regDate")
-	times.forEach(time => {
-		let postedDateObj = new Date(time.innerHTML);
-		let currentDateObj = new Date();
-		let timeDiff = Math.abs(currentDateObj.getTime() - postedDateObj.getTime());
-		let diffDays = Math.floor(timeDiff / (1000 * 3600 * 24));
-		if (diffDays < 1) {
-            let diffHours = Math.floor(timeDiff / (1000 * 3600));
-            if (diffHours < 1) {
-                let diffMinutes = Math.floor(timeDiff / (1000 * 60));
-                console.log( diffMinutes + "분 전");
-                time.innerHTML = diffMinutes + "분 전";
-            } else {
-				time.innerHTML = diffHours + "시간 전";
-            }
-        } else if (diffDays < 7) {
-			time.innerHTML = diffDays + "일 전";
-        } else {
-			time.innerHTML = diffDays + "일 전"
 		}
 	})
 	

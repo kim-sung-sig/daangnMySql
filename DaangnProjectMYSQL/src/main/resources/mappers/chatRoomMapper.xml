@@ -3,7 +3,7 @@
 <mapper namespace="kr.ezen.daangn.dao.DaangnChatRoomDAO">
 
 	<select id="selectChatRoomByIdx" parameterType="int" resultType="ChatRoomVO">
-		select * from chatroom where roomIdx = #{roomIdx}
+		select * from chatRoom where roomIdx = #{roomIdx}
 	</select>
 	
 	<insert id="createChatRoom" parameterType="ChatRoomVO">

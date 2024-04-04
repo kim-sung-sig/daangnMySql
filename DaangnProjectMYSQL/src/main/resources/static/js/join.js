@@ -8,6 +8,11 @@ $(function() {
 			$("#usernameCk").val(0);
 			return ;
 		}
+		if(username != username.toLowerCase()){
+			$("#message").html("대문자는 입력할 수 없습니다.").css('color', 'red');
+			$("#usernameCk").val(0);
+			return ;
+		}
 		if(username.search(/[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi) >= 0){
 			$("#message").html("특수문자는 입력할 수 없습니다.").css('color', 'red');
 			$("#usernameCk").val(0);
@@ -24,7 +29,7 @@ $(function() {
 			} else {
 				// Ajax를 호출하여 처리 한다.
 				axios.post('/member/login/useridcheck',{
-					'username': username
+					'username': username.toLowerCase()
 				})
 				.then(function(response) {
 					if (response.data * 1 == 0) {
@@ -90,26 +95,41 @@ $(function() {
 		if(password.indexOf(" ") != -1){
 			$("#pwmessage").html("공백은 포함할 수 없습니다.").css('color', 'red');
 			$("#pwmessageCk").val(0);
+			$("#password2").val('');
+			$("#pwmessage2").html("비밀번호가 일치하지 않습니다.").css('color', 'red');
+			$("#pwmessage2Ck").val(0);
 			return ;			
 		}
 		if(password.search(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g) >=0) {
 			$("#pwmessage").html("한글은 사용할 수 없습니다.").css('color', 'red');
 			$("#pwmessageCk").val(0);
+			$("#password2").val('');
+			$("#pwmessage2").html("비밀번호가 일치하지 않습니다.").css('color', 'red');
+			$("#pwmessage2Ck").val(0);
 			return ;
 		}
 		if(password.search(/[0-9]/g) < 0){
 			$("#pwmessage").html("숫자를 포함해주세요.").css('color', 'red');
 			$("#pwmessageCk").val(0);
+			$("#password2").val('');
+			$("#pwmessage2").html("비밀번호가 일치하지 않습니다.").css('color', 'red');
+			$("#pwmessage2Ck").val(0);
 			return ;
 		}
 		if(password.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi) < 0){
 			$("#pwmessage").html("특수문자를 포함해주세요.").css('color', 'red');
 			$("#pwmessageCk").val(0);
+			$("#password2").val('');
+			$("#pwmessage2").html("비밀번호가 일치하지 않습니다.").css('color', 'red');
+			$("#pwmessage2Ck").val(0);
 			return ;
 		}
 		if(password.length < 8 || 20 < password.length ){
 			$("#pwmessage").html("8~20자 이내로 작성해주세요.").css('color', 'red');
 			$("#pwmessageCk").val(0);
+			$("#password2").val('');
+			$("#pwmessage2").html("비밀번호가 일치하지 않습니다.").css('color', 'red');
+			$("#pwmessage2Ck").val(0);
 			return ;
 		}
 		$("#pwmessage").html("사용가능한 비밀번호입니다.").css('color', 'blue');
