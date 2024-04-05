@@ -21,7 +21,7 @@ public interface DaangnMemberDAO {
 	/** 중복확인을 위한 코드 */
 	int selectCountByNickName(String nickName) throws SQLException;
 	/** email에 해당하는 username 리턴 */
-	String selectUserNameByEmail(String email) throws SQLException;
+	List<String> selectUserNameByEmail(String email) throws SQLException;
 	
 	
 	// 마이페이지 및 관리자 페이지용

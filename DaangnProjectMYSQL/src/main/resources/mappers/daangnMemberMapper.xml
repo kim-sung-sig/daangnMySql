@@ -10,7 +10,7 @@
 
 	<!-- userDetails -->
 	<select id="selectByUsername" parameterType="string" resultType="DaangnMemberVO">
-		select * from daangn_member where username = #{username}
+		SELECT * FROM daangn_member WHERE CAST(username AS BINARY) = #{username}
 	</select>
 	
 	<!-- idx로 유저 얻기 -->
@@ -20,15 +20,16 @@
 	
 	<!-- 중복확인을 위한 코드 -->
 	<select id="selectCountByUsername" parameterType="string" resultType="int">
-		select count(*) from daangn_member where username = #{username}
+		select count(*) from daangn_member where CAST(username AS BINARY) = #{username}
 	</select>
 	
 	<select id="selectCountByNickName" parameterType="string" resultType="int">
-		select count(*) from daangn_member where nickName = #{nickName}
+		select count(*) from daangn_member where CAST(nickName AS BINARY) = #{nickName}
 	</select>
 	
+	<!-- 이메일에 해당하는 username 리턴 -->
 	<select id="selectUserNameByEmail" parameterType="string" resultType="string">
-		select username from daangn_member where email = #{email}
+		select username from daangn_member where CAST(email AS BINARY) = #{email}
 	</select>
 	
 	<!-- 마이페이지 및 관리자페이지용 -->	

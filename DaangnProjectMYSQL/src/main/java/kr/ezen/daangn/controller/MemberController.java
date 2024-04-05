@@ -1,7 +1,9 @@
 package kr.ezen.daangn.controller;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,23 +146,25 @@ public class MemberController {
     /** 회원 찾기중 email의 해당하는 username 주는 주소 */
     @PostMapping(value = "/findUserName")
     @ResponseBody
-    public String findUserName(@RequestBody DaangnMemberVO memberVO) {
-    	String result = null;
-    	String userName = daangnMemberService.selectUserNameByEmail(memberVO.getEmail());
-    	if( userName != null) {
-            StringBuffer sb = new StringBuffer();
-            for(int i = 0; i < userName.length(); i++) {
-                if (2 <=i && i < 6) {
-                    sb.append("*");
-                } else {
-                	if(10<=i && i <14) {
-                		sb.append("*");
-                	} else {
-                		sb.append(userName.charAt(i));	                		
-                	}
-                }
-            }
-            result = sb.toString();
+    public List<String> findUserName(@RequestBody DaangnMemberVO memberVO) {
+    	List<String> result = new ArrayList<>();
+    	List<String> userNames = daangnMemberService.selectUserNameByEmail(memberVO.getEmail());
+    	if(userNames != null) {
+    		for(String userName : userNames) {
+    			StringBuffer sb = new StringBuffer();
+    			for(int i = 0; i < userName.length(); i++) {
+    				if (2 <=i && i < 6) {
+    					sb.append("*");
+    				} else {
+    					if(10<=i && i <14) {
+    						sb.append("*");
+    					} else {
+    						sb.append(userName.charAt(i));	                		
+    					}
+    				}
+    			}
+    			result.add(sb.toString());
+    		}
     	}
     	return result;
     }
@@ -171,12 +175,10 @@ public class MemberController {
     public String checkEmailAndUsername(@RequestBody DaangnMemberVO memberVO) {
     	log.info("checkEmailAndUsername : {}", memberVO);
     	int result = 0;
-    	String userName = daangnMemberService.selectUserNameByEmail(memberVO.getEmail());
-    	log.info("username => {}", userName);
-    	if(userName != null) {
-    		if(memberVO.getUsername().equals(userName)) {
-    			result = 1;
-    		}
+    	List<String> userNames = daangnMemberService.selectUserNameByEmail(memberVO.getEmail());
+    	log.info("username => {}", userNames);
+    	if(userNames != null && userNames.contains(memberVO.getUsername())) {
+			result = 1;
     	}
     	return result + "";
     }

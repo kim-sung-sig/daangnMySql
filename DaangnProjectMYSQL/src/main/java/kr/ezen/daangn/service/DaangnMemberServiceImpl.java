@@ -170,8 +170,8 @@ public class DaangnMemberServiceImpl implements DaangnMemberService{
 	
 	/** 아이디 찾기 => email을 받아 있으면 userName 리턴 */
 	@Override
-	public String selectUserNameByEmail(String email) {
-		String result = null;
+	public List<String> selectUserNameByEmail(String email) {
+		List<String> result = null;
 		try {
 			result = daangnMemberDAO.selectUserNameByEmail(email);
 		} catch (SQLException e) {

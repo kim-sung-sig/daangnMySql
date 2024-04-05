@@ -1,5 +1,7 @@
 package kr.ezen.daangn.service;
 
+import java.util.List;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import kr.ezen.daangn.vo.CommonVO;
@@ -39,7 +41,7 @@ public interface DaangnMemberService extends UserDetailsService{
 	int checkPasswordMatch(DaangnMemberVO sessionUser, String password);
 	
 	// email로 userName 찾기
-	String selectUserNameByEmail(String email);
+	List<String> selectUserNameByEmail(String email);
 	//=========================================================
 	int updatePasswordByUsername(String username, String password);
 	

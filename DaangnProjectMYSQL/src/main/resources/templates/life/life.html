@@ -243,11 +243,9 @@
 		
 		$(function(){
 			init();
-			window.addEventListener('scroll', handleScroll);
-			
-			
 			
 			let isScrolled = false; // 스크롤 여부를 저장하는 변수
+			let timeout; // 딜레이를 위한 타임아웃 변수
 			window.addEventListener('scroll', function() {
 			    var scrollPosition = window.scrollY;
 			    var button = document.getElementById('writeButton');
@@ -260,29 +258,34 @@
 			    } else {
 			        if (isScrolled) { // 스크롤된 상태에서만 실행
 			            button.style.width = "150px";
-			            setTimeout(() => {
+			            clearTimeout(timeout); // 기존 타임아웃 제거
+			            timeout = setTimeout(() => {
 			                button.textContent = "+ 글쓰기";                  
 			            }, 500);
 			            isScrolled = false; // 스크롤되지 않은 상태로 설정
 			        }
 			    }
 			});
-			
+
 			$("#writeButton").mouseover(function(){
-				var button = document.getElementById('writeButton');
-				button.style.width = "150px";
-	            setTimeout(() => {
-	                button.textContent = "+ 글쓰기";                  
-	            }, 500);
+			    var button = document.getElementById('writeButton');
+			    button.style.width = "150px";
+			    clearTimeout(timeout); // 기존 타임아웃 제거
+			    timeout = setTimeout(() => {
+			        button.textContent = "+ 글쓰기";                  
+			    }, 500);
 			});
-			
+
 			$("#writeButton").mouseleave(function(){
-				if(isScrolled){
-					var button = document.getElementById('writeButton');
-					button.textContent = "+";
-			        button.style.width = "60px";					
-				}
-			})
+			    var button = document.getElementById('writeButton');
+			    if(isScrolled){
+			    	clearTimeout(timeout);
+			        button.textContent = "+";
+			        button.style.width = "60px";                  
+			    } else {
+			        clearTimeout(timeout);
+			    }
+			});
 		})
 	</script>
 </body>

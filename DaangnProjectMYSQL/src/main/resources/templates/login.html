@@ -97,7 +97,7 @@
             </div>
             <div id="UserNameModalResult" style="display: none;">
             	<p id="UserNameResultText" style="margin: 5px 0;"></p>
-            	<input style="margin-top:10px" type="text" id="UserNameResult" class="uk-input" readonly="readonly" disabled="disabled" placeholder="등록된 회원이 없습니다.">
+            	<input style="margin-top:10px" type="text" id="UserNameResult" class="uk-input" readonly="readonly" placeholder="등록된 회원이 없습니다.">
             </div>
 			<div class="modalBtns">
 				<input style="width: 100%;" type="button" class="uk-button cancleBtn" value="취소"/>
@@ -118,7 +118,7 @@
                 <option selected value="0">이메일을 선택하세요.</option>
                 <option value="naver.com">naver.com</option>
                 <option value="google.com">gmail.com</option>
-            </select>
+            </select> 
             <div style="width:100%;text-align: right; margin-top: 10px;">
 	            <input type="button" id="sendEmail2" class="uk-button uk-button-default" value="메일 인증">
             </div>
@@ -282,9 +282,9 @@
     				})
     				.then(res => {
     					const data = res.data;
-    					if(data){
+    					if(data && data.length > 0){
     						$("#UserNameModalResult").css('display','block');
-    						$("#UserNameResult").val(data);
+    						$("#UserNameResult").val(data.join(', '));
     						$("#UserNameResultText").html('회원조회 성공');
     					} else {
     						$("#UserNameModalResult").css('display','block');

@@ -54,12 +54,14 @@ $(function() {
 		let nickName = $("#nickName").val();
 		if(nickName.search(/[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi) >= 0){
 			$("#ninkNameMessage").html("특수문자는 입력할 수 없습니다.").css('color', 'red');
+			$("#nickName").val('');
 			$("#nickNameCk").val(0);
 			return ;
 		}
 		if(nickName.indexOf(" ") != -1){
 			alert("공백은 포함할수 없어요")
 			$("#ninkNameMessage").val("");
+			$("#nickName").val('');
 			$("#nickNameCk").val(0);		
 			return ;
 		}
@@ -90,7 +92,7 @@ $(function() {
 	})
 	
 	// 비밀번호 체크
-	$("#password").blur(function(){
+	$("#password").on('input', function(){
 		let password = $("#password").val();
 		if(password.indexOf(" ") != -1){
 			$("#pwmessage").html("공백은 포함할 수 없습니다.").css('color', 'red');
@@ -134,6 +136,9 @@ $(function() {
 		}
 		$("#pwmessage").html("사용가능한 비밀번호입니다.").css('color', 'blue');
 		$("#pwmessageCk").val(1);
+		$("#password2").val('');
+		$("#pwmessage2").html("비밀번호가 일치하지 않습니다.").css('color', 'red');
+		$("#pwmessage2Ck").val(0);
 	})
 	// 비밀번호 이중 체크
 	$("#password2").keyup(function(){
@@ -256,14 +261,14 @@ $(function() {
 		$("#newEmail").val($("#email").val() + "@" + $("#emailAddress").val());
 		const selectedEmailOkValue = document.querySelector('input[name="emailOk"]:checked').value;
 		axios.post('/member/joinok', {
-		    username: $("#username").val(),
-		    password: $("#password").val(),
-		    name: $("#name").val(),
-		    nickName: $("#nickName").val(),
-		    email: $("#newEmail").val(),
+		    username: $("#username").val().trim(),
+		    password: $("#password").val().trim(),
+		    name: $("#name").val().trim(),
+		    nickName: $("#nickName").val().trim(),
+		    email: $("#newEmail").val().trim(),
 		    emailOk: selectedEmailOkValue,
-		    stAddress: $("#addr1").val(),
-		    dtAddress: $("#addr2").val(),
+		    stAddress: $("#addr1").val().trim(),
+		    dtAddress: $("#addr2").val().trim(),
 		})
 		.then(res => {
 			const data = res.data;
