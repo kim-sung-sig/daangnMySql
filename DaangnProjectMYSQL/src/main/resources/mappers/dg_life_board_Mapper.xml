@@ -7,11 +7,14 @@
 		    SELECT
 		        dlb.*,
 		        dlc.categoryName AS categoryName,
-		        dm.nickName AS nickName
+		        dm.nickName AS nickName,
+		        duf.saveFileName as userProfile
 		    FROM
 		        daangn_life_board dlb
 		    JOIN
 		        daangn_member dm ON dlb.userRef = dm.idx
+		    LEFT JOIN
+				daangn_user_file duf on dlb.userRef = duf.ref
 		    JOIN
 		    	daangn_life_category dlc ON dlb.categoryRef = dlc.idx
 		    WHERE
@@ -48,16 +51,19 @@
 	<!-- 동네생활 게시물 1개 얻기 -->
 	<select id="selectByIdx" parameterType="int" resultType="DaangnLifeBoardVO">
 		SELECT
-	        dlb.*,
-	        dlc.categoryName AS categoryName,
-	        dm.nickName AS nickName
-	    FROM
-	        daangn_life_board dlb
-	    JOIN
-	        daangn_member dm ON dlb.userRef = dm.idx
-	    JOIN
-	    	daangn_life_category dlc ON dlb.categoryRef = dlc.idx
-	    WHERE
+		    dlb.*,
+		    dlc.categoryName AS categoryName,
+		    dm.nickName AS nickName,
+		    duf.saveFileName as userProfile
+		FROM
+		    daangn_life_board dlb
+		JOIN
+		    daangn_member dm ON dlb.userRef = dm.idx
+		LEFT JOIN
+			daangn_user_file duf on dlb.userRef = duf.ref
+		JOIN
+			daangn_life_category dlc ON dlb.categoryRef = dlc.idx
+		WHERE
         	dlb.idx = #{idx}
 	</select>
 	

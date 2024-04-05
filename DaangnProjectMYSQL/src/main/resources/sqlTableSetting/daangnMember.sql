@@ -38,7 +38,7 @@ VALUES ('testuser4', '123456', 'ROLE_USER', '테스트유저4', 'devel당근', '
 INSERT INTO daangn_member (username, password, role, name, nickName, email, emailOk, signUpDate, lastLoginDate, stAddress, dtAddress) 
 VALUES ('testuser5', '123456', 'ROLE_USER', '테스트유저5', '당근Hunter', ' ', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ' ', ' ');
 INSERT INTO daangn_member (username, password, role, name, nickName, email, emailOk, signUpDate, lastLoginDate, stAddress, dtAddress) 
-VALUES ('testuser6', '123456', 'ROLE_USER', '테스트유저6', '중고보물찾기', ' ', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ' ', ' ');
+VALUES ('testuser6', '123456', 'ROLE_USER', '테스트유저6', '중고보물', ' ', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ' ', ' ');
 INSERT INTO daangn_member (username, password, role, name, nickName, email, emailOk, signUpDate, lastLoginDate, stAddress, dtAddress) 
 VALUES ('testuser7', '123456', 'ROLE_USER', '테스트유저7', '믿음직한구매자', ' ', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ' ', ' ');
 INSERT INTO daangn_member (username, password, role, name, nickName, email, emailOk, signUpDate, lastLoginDate, stAddress, dtAddress) 

@@ -12,8 +12,6 @@ import kr.ezen.daangn.dao.DaangnLifeBoardCommentLikeDAO;
 import kr.ezen.daangn.dao.DaangnLifeBoardDAO;
 import kr.ezen.daangn.dao.DaangnLifeBoardFileDAO;
 import kr.ezen.daangn.dao.DaangnLifeBoardLikeDAO;
-import kr.ezen.daangn.dao.DaangnUserFileDAO;
-import kr.ezen.daangn.vo.DaangnFileVO;
 import kr.ezen.daangn.vo.DaangnLifeBoardFileVO;
 import kr.ezen.daangn.vo.DaangnLifeBoardVO;
 import kr.ezen.daangn.vo.DaangnLifeCommentVO;
@@ -35,9 +33,6 @@ public class DaangnLifeBoardService {
     private DaangnLifeBoardCommentDAO lifeBoardCommentDAO;
     @Autowired
     private DaangnLifeBoardCommentLikeDAO lifeBoardCommentLikeDAO;
-    
-    @Autowired
-    private DaangnUserFileDAO daangnUserFileDAO;
     
     /**
      * 동네생활 게시글 목록 얻기 (lastItemIdx, sizeOfPage, categoryRef, region, gu, dong, search, userRef)
@@ -85,10 +80,6 @@ public class DaangnLifeBoardService {
 			boardVO = lifeBoardDAO.selectByIdx(idx);
 			if(boardVO != null) {
 				boardVO.setFileList(lifeBoardFileDAO.selectLifeBoardFileByBoardRef(idx));
-				DaangnFileVO userFileVO = daangnUserFileDAO.selectFileByUserIdx(boardVO.getUserRef());
-				if(userFileVO != null) {
-					boardVO.setUserProfile(userFileVO.getSaveFileName());					
-				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -234,12 +225,6 @@ public class DaangnLifeBoardService {
     	List<DaangnLifeCommentVO> list = null;
     	try {
     		list = lifeBoardCommentDAO.selectPagedLifeBoardComments(sv.getLastItemIdx(), sv.getSizeOfPage(), sv.getBoardRef());
-    		for(DaangnLifeCommentVO lifeCommentVO : list) {
-    			DaangnFileVO userFileVO = daangnUserFileDAO.selectFileByUserIdx(lifeCommentVO.getUserRef());
-    			if(userFileVO != null) {
-    				lifeCommentVO.setUserProfile(userFileVO.getSaveFileName());					
-    			}
-    		}
     	} catch (SQLException e) {
             e.printStackTrace();
         }
@@ -257,12 +242,6 @@ public class DaangnLifeBoardService {
     	List<DaangnLifeCommentVO> list = null;
     	try {
     		list = lifeBoardCommentDAO.selectLifeBoardChildComments(commentRef);
-    		for(DaangnLifeCommentVO lifeCommentVO : list) {
-    			DaangnFileVO userFileVO = daangnUserFileDAO.selectFileByUserIdx(lifeCommentVO.getUserRef());
-    			if(userFileVO != null) {
-    				lifeCommentVO.setUserProfile(userFileVO.getSaveFileName());					
-    			}
-    		}
     	} catch (SQLException e) {
     		e.printStackTrace();
     	}

@@ -143,13 +143,6 @@
 			getItem();
 		}
 	
-		function findLastItemIdx(){
-			let ukCards = document.querySelectorAll(".uk-card");
-			let lastItem = ukCards[ukCards.length - 1];
-			let value = lastItem.querySelector(".idx").value;
-			lastItemIdx = value;
-		}
-	
 		function getItem(){
 			window.removeEventListener('scroll', handleScroll);
 			axios.post('/life/list', {
@@ -202,7 +195,6 @@
 				    }
 				})
 				$("#slide").append(content);
-				findLastItemIdx();
 				window.addEventListener('scroll', handleScroll);
 			})
 		}

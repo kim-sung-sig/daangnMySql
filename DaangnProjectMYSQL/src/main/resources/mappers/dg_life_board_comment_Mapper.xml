@@ -6,11 +6,14 @@
     <select id="selectPagedLifeBoardComments" parameterType="hashmap" resultType="DaangnLifeCommentVO">
 	    SELECT
 	        dlc.*,
-	        dm.nickName AS nickName
+	        dm.nickName AS nickName,
+	        duf.saveFileName as userProfile
 	    FROM
 	        daangn_life_comment dlc
 	    JOIN
-	        daangn_member dm ON dlc.userRef = dm.idx 
+	        daangn_member dm ON dlc.userRef = dm.idx
+	    LEFT JOIN
+			daangn_user_file duf on dlc.userRef = duf.ref
 	    WHERE
 	        <![CDATA[
 	        	dlc.idx < #{lastItemIdx}
@@ -26,11 +29,14 @@
     <select id="selectLifeBoardChildComments" parameterType="int" resultType="DaangnLifeCommentVO">
 	    SELECT
 	        dlc.*,
-	        dm.nickName AS nickName
+	        dm.nickName AS nickName,
+	        duf.saveFileName as userProfile
 	    FROM
 	        daangn_life_comment dlc
 	    JOIN
-	        daangn_member dm ON dlc.userRef = dm.idx 
+	        daangn_member dm ON dlc.userRef = dm.idx
+	    LEFT JOIN
+			daangn_user_file duf on dlc.userRef = duf.ref
 	    WHERE
         	dlc.parentComIdx IS NOT NULL
            	AND dlc.parentComIdx = #{commentRef}
@@ -42,11 +48,14 @@
     <select id="selectCommentByIdx" parameterType="int" resultType="DaangnLifeCommentVO">
 	    SELECT
 	        dlc.*,
-	        dm.nickName AS nickName
+	        dm.nickName AS nickName,
+	        duf.saveFileName as userProfile
 	    FROM
 	        daangn_life_comment dlc
 	    JOIN
-	        daangn_member dm ON dlc.userRef = dm.idx 
+	        daangn_member dm ON dlc.userRef = dm.idx
+	    LEFT JOIN
+			daangn_user_file duf on dlc.userRef = duf.ref
 	    WHERE
 	    	dlc.idx = #{idx}
     </select>
