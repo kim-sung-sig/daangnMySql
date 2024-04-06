@@ -44,6 +44,7 @@ CREATE TABLE daangn_usedmarket_board(
 	userRef INT NOT NULL,
 	categoryRef INT NOT NULL,
 	statusRef INT DEFAULT 1,
+	thumbnail VARCHAR(500) NOT NULL,
 	title VARCHAR(100) NOT NULL,
 	content VARCHAR(2000) NOT NULL,
 	price INT NOT NULL,
@@ -54,7 +55,11 @@ CREATE TABLE daangn_usedmarket_board(
 	loc3 VARCHAR(200) NOT NULL,
 	location VARCHAR(200) NOT NULL,
 	readCount INT DEFAULT 0,
-	regDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	likeCount INT DEFAULT 0,
+	chatRoomCount INT DEFAULT 0,
+	createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updateDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	ip VARCHAR(200) NOT NULL,
 	CONSTRAINT fk_dub_userRef FOREIGN KEY (userRef) REFERENCES daangn_member(idx) ON DELETE CASCADE,
 	CONSTRAINT fk_dub_stRef FOREIGN KEY (categoryRef) REFERENCES daangn_usedmarket_category(categoryIdx) ON DELETE CASCADE,
 	CONSTRAINT fk_dub_ctRef FOREIGN KEY (statusRef) REFERENCES daangn_usedmarket_status(statusIdx) ON DELETE CASCADE
@@ -63,9 +68,9 @@ CREATE TABLE daangn_usedmarket_board(
 -- 중고마켓 사진
 CREATE TABLE daangn_usedmarket_board_file(
     idx INT PRIMARY KEY AUTO_INCREMENT, 
-    ref INT NOT NULL,
+    boardRef INT NOT NULL,
     saveFileName VARCHAR(1000) NOT NULL,
-    CONSTRAINT fk_dubf_ref FOREIGN KEY (ref) REFERENCES daangn_usedmarket_board(idx) ON DELETE CASCADE
+    CONSTRAINT fk_dubf_ref FOREIGN KEY (boardRef) REFERENCES daangn_usedmarket_board(idx) ON DELETE CASCADE
 );
 
 
@@ -86,6 +91,7 @@ CREATE TABLE daangn_usedmarket_board_chatRoom(
 	lastUpdateDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	deleted1 INT DEFAULT 0, -- userRef 삭제했는지.. 삭제 1
 	deleted2 INT DEFAULT 0, -- boardUserRef 삭제했는지.. 삭제 1
+	isActivate INT DEFAULT 1,
 	CONSTRAINT fk_dubcr_userRef FOREIGN KEY (userRef) REFERENCES daangn_member(idx) ON DELETE CASCADE,
 	CONSTRAINT fk_dubcr_boardRef FOREIGN KEY (boardRef) REFERENCES daangn_usedmarket_board(idx) ON DELETE CASCADE,
 	CONSTRAINT fk_dubcr_boardUserRef FOREIGN KEY (boardUserRef) REFERENCES daangn_member(idx) ON DELETE CASCADE
@@ -102,14 +108,17 @@ CREATE TABLE daangn_usedmarket_board_chatMessage(
 	readed INT DEFAULT 2,
 	deleted1 INT DEFAULT 0, -- userRef 삭제했는지.. 삭제 1
 	deleted2 INT DEFAULT 0, -- boardUserRef 삭제했는지.. 삭제 1
+	ip VARCHAR(200) NOT NULL,
 	CONSTRAINT fk_dubcm_chatRoomRef FOREIGN KEY (chatRoomRef) REFERENCES daangn_usedmarket_board_chatRoom(roomIdx) ON DELETE CASCADE,
 	CONSTRAINT fk_dubcm_sender_userRef FOREIGN KEY (sender) REFERENCES daangn_member(idx) ON DELETE CASCADE
 );
 
+-- 예약 테이블
 CREATE TABLE daangn_usedmarket_board_reserve(
     idx INT PRIMARY KEY AUTO_INCREMENT,
     boardRef INT NOT NULL,
     userRef INT NOT NULL,
+    reserveDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     interaction INT NOT NULL,
     CONSTRAINT fk_dubr_boardRef FOREIGN KEY (boardRef) REFERENCES daangn_usedmarket_board(idx) ON DELETE CASCADE,
     CONSTRAINT fk_dubr_userRef FOREIGN KEY (userRef) REFERENCES daangn_member(idx) ON DELETE CASCADE

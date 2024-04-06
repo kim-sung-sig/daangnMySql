@@ -27,7 +27,6 @@ public interface DaangnLifeBoardFileDAO {
 	/**
 	 * 동네생활 게시글에 대한 사진 삭제(수정때 사용)
 	 * @param boardRef
-	 * @return List<DaangnLifeBoardFileVO>
 	 * @throws SQLException
 	 */
 	void deleteLifeBoardFileByBoardRef(int boardRef) throws SQLException;

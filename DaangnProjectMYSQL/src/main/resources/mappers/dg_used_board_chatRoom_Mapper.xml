@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd">
+<mapper namespace="kr.ezen.daangn.dao.DaangnUsedmarketBoardChatRoomDAO">
+    
+    <!-- 마지막으로 활성화된 시간 체크 (수정)-->
+    <update id="updateLastUpdateDate" parameterType="int">
+        UPDATE daangn_usedmarket_board_chatRoom 
+        SET lastUpdateDate = CURRENT_TIMESTAMP 
+        WHERE roomIdx = #{roomIdx}
+    </update>
+    
+    <!-- 채팅방 생성 (저장)-->
+    <insert id="createChatRoom" parameterType="DaangnUsedmarketChatRoomVO" useGeneratedKeys="true" keyProperty="roomIdx">
+        INSERT INTO daangn_usedmarket_board_chatRoom (userRef, boardRef, boardUserRef) 
+        VALUES (#{userRef}, #{boardRef}, #{boardUserRef})
+    </insert>
+    
+    <!-- 이미 고유 채팅방이 있는지 확인 (조회)-->
+    <select id="checkUniqueChatRoom" parameterType="hashmap" resultType="int">
+        SELECT
+		    CASE 
+		        WHEN (SELECT count(*) FROM daangn_usedmarket_board_chatRoom WHERE (userRef = #{userRef} AND boardRef = #{boardRef})) = 1 THEN
+		            (SELECT roomIdx FROM daangn_usedmarket_board_chatRoom WHERE (userIdx = #{userRef} AND boardIdx = #{boardRef}))
+		        ELSE
+		            0
+		    END AS roomIdx
+    </select>
+    
+    <!-- 채팅방 목록 얻기 유저에 해당하는 (조회)-->
+    <select id="getChatRoomsByUserRef" parameterType="int" resultType="DaangnUsedmarketChatRoomVO">
+        select
+			*
+		from
+			daangn_usedmarket_board_chatRoom
+		where
+			(userRef = #{userRef} AND deleted1 = 0)
+			OR (boardUserRef = #{userRef} AND deleted2 = 0)
+		ORDER BY
+			lastUpdateDate DESC
+    </select>
+    
+    <!-- 게시글에 해당하는 채팅방에 참가한 유저 찾기(조회) -->
+    <select id="getChatRoomByboardRef" parameterType="int" resultType="DaangnUsedmarketChatRoomVO">
+        SELECT *
+        FROM daangn_usedmarket_board_chatRoom 
+        WHERE boardRef = #{boardRef}
+        ORDER BY lastUpdateDate DESC
+    </select>
+    
+    <!-- 채팅방 활성화 하기 (수정)-->
+    <update id="activateChatRoom" parameterType="int">
+        UPDATE daangn_usedmarket_board_chatRoom 
+        SET deleted1 = 0, deleted2 = 0 
+        WHERE roomIdx = #{roomIdx}
+    </update>
+    
+    <!-- 채팅방 비활성화 (유저1 or 유저2에 해당하는 채팅방 delete 수정하기) (수정)-->
+    <update id="deactivateChatRoom" parameterType="hashmap">
+        UPDATE daangn_usedmarket_board_chatRoom 
+        SET 
+        	<if test="delted1 != null">
+        		deleted1 = 1
+        	</if>
+        	<if test="delted2 != null">
+        		deleted2 = 1
+        	</if>
+        WHERE roomIdx = #{roomIdx}
+    </update>
+    
+    <update id="deactivateChatRoomCompletely" parameterType="int">
+    	UPDATE daangn_usedmarket_board_chatRoom
+    	SET isActivated = 0
+    	WHERE roomIdx = #{rommIdx}
+    </update>
+    
+    <!-- 채팅방 삭제하기 (완벽삭제) -->
+    <delete id="deleteChatRoom" parameterType="int">
+        DELETE FROM daangn_usedmarket_board_chatRoom 
+        WHERE roomIdx = #{roomIdx}
+    </delete>
+</mapper>

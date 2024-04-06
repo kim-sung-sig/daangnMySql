@@ -2,8 +2,8 @@ package kr.ezen.daangn.service;
 
 import java.util.List;
 
-import kr.ezen.daangn.vo.DaangnLifeBoardVO;
 import kr.ezen.daangn.vo.DaangnMainBoardVO;
+import kr.ezen.daangn.vo.DaangnUsedmarketBoardFileVO;
 import kr.ezen.daangn.vo.ScrollVO;
 import kr.ezen.daangn.vo.TestVO;
 
@@ -14,7 +14,7 @@ public interface DaangnUsedmarketService {
 	 * @param sv
 	 * @return
 	 */
-	List<TestVO> slectPagedUsedmarketBoards(ScrollVO sv);
+	List<TestVO> selectPagedUsedmarketBoards(ScrollVO sv);
 	
 	/**
 	 * 중고거래 게시글 가장 큰 idx 얻기
@@ -101,4 +101,26 @@ public interface DaangnUsedmarketService {
 	 * @return
 	 */
 	int getBoardCountByUserIdxAndStatusRef(ScrollVO sv);
+	
+	/**
+	 * 중고거래 게시물 좋아요 확인
+	 * @param userRef
+	 * @param boardRef
+	 * @return
+	 */
+	int isUsedmarketBoardLike(int userRef, int boardRef);
+	
+	/**
+	 * 중고거래 게시물 사진 저장
+	 * @param usedmarketBoardFileVO
+	 * @return
+	 */
+	int insertUsedmarketBoardFile(DaangnUsedmarketBoardFileVO usedmarketBoardFileVO);
+	
+	/**
+	 * 중고거래 게시물 사진 삭제(게시글에 해당하는)
+	 * @param boardRef
+	 * @return
+	 */
+	int deleteUsedmarketBoardFile(int boardRef);
 }

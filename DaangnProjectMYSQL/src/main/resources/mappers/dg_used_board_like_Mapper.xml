@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.dao.DaangnUsedmarketBoardLikeDAO">
+	<!-- 좋아요 하기 (저장) -->
+	<insert id="insertUsedmarketBoardLike" parameterType="hashmap">
+		INSERT INTO daangn_usedmarket_board_like (userRef, boardRef)
+		VALUES (#{userRef}, #{boardRef})
+	</insert>
+	
+	<!-- 좋아요 취소하기 (삭제) -->
+	<delete id="deleteUsedmarketBoardLike" parameterType="hashmap">
+		DELETE FROM daangn_usedmarket_board_like
+		WHERE userRef = #{userRef} AND boardRef = #{boardRef}
+	</delete>
+	
+	<!-- 좋아요 했는지 확인하기 (조회) -->
+	<select id="selectUsedmarketBoardLike" parameterType="hashmap" resultType="int">
+		SELECT count(*)
+		FROM daangn_usedmarket_board_like
+		WHERE userRef = #{userRef} AND boardRef = #{boardRef}
+	</select>
+</mapper>

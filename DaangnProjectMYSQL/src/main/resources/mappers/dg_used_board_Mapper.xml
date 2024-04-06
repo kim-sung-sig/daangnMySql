@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.dao.DaangnUsedmarketBoardDAO">
+	
+	<!-- 중고 거래 목록 뿌리기 -->
+	<select id="selectPagedLifeBoards" parameterType="hashmap" resultType="DaangnUsedmarketBoardVO">
+		select
+			dub.*,
+			duc.categoryName AS categoryName,
+			dus.statusName AS statusName,
+			dubf.saveFileName as boardFile
+		from
+			daangn_usedmarket_board dub
+		JOIN
+		    daangn_usedmarket_category duc ON dub.categoryRef = duc.categoryIdx
+		JOIN
+		    daangn_usedmarket_status dus ON dub.statusRef = dus.statusIdx
+		LEFT JOIN
+			(
+		        SELECT
+		            boardRef,
+		            saveFileName
+		        FROM
+		            daangn_usedmarket_board_file
+		        WHERE
+		            idx IN (SELECT MIN(idx) FROM daangn_usedmarket_board_file GROUP BY boardRef)
+		    ) dubf ON dubf.boardRef = dub.idx
+		where
+			<![CDATA[
+				dub.idx < #{lastItemIdx}
+			]]>
+			<if test="userRef != null">
+				and dub.userRef = #{userRef}
+			</if>
+            <if test="statusRef != null">
+                and dub.statusRef = #{statusRef}
+            </if>
+            <if test="statusRef == null">
+                AND <![CDATA[ dub.statusRef <> 3]]>
+            </if>
+			<if test="categoryRef != null">
+                and dub.categoryRef = #{categoryRef}
+            </if>
+			<if test="search != null">
+                AND dub.title LIKE CONCAT('%', #{search}, '%')
+            </if>
+            <if test="region != null">
+                AND dub.loc1 LIKE CONCAT('%', #{region}, '%')
+            </if>
+            <if test="gu != null">
+                AND dub.loc2 LIKE CONCAT('%', #{gu}, '%')
+            </if>
+            <if test="dong != null">
+                AND dub.loc3 LIKE CONCAT('%', #{dong}, '%')
+            </if>
+            <if test="boardRef != null">
+            	AND <![CDATA[dub.idx <> #{boardRef}]]>
+            </if>
+		order by
+			dub.idx DESC
+		LIMIT #{sizeOfPage}
+	</select>
+	
+	<!-- 최대 idx 얻기 -->
+	<select id="getLastIdx" resultType="int">
+		SELECT COALESCE(MAX(idx), 0) FROM daangn_usedmarket_board
+	</select>
+	
+	<!-- 중고거래 게시물 1개 얻기 -->
+	<select id="selectByIdx" parameterType="int" resultType="DaangnUsedmarketBoardVO">
+		SELECT
+		    dub.*,
+		    c.categoryName AS categoryName,
+		    s.statusName AS statusName,
+		    COALESCE(dlt.countLike, 0) AS countLike,
+		    COALESCE(cr.chatRoomCount, 0) AS chatRoomCount,
+		    dm.nickName AS nickName,
+		    duf.saveFileName as userProfile,
+		    duc.userVal AS userVal
+		FROM
+		    daangn_usedmarket_board dub
+		JOIN
+		    daangn_member dm ON dub.userRef = dm.idx
+		LEFT JOIN
+			daangn_user_file dmf on dub.userRef = dmf.ref
+		JOIN
+		    daangn_usedmarket_category duc ON dub.categoryRef = duc.categoryIdx
+		JOIN
+		    daangn_usedmarket_status dus ON dub.statusRef = dus.statusIdx
+		LEFT JOIN
+		    (
+		        SELECT 
+		            userIdx,
+		            AVG(score) AS userVal
+		        FROM 
+		            daangn_comment
+		        GROUP BY 
+		            userIdx
+		    ) duc ON duc.userIdx = dub.userRef
+		WHERE
+			dub.idx = #{idx}
+	</select>
+	
+	<!-- 중고거래 게시물 저장 -->
+	<insert id="insertUsedmarketBoard" parameterType="DaangnUsedmarketBoardVO" useGeneratedKeys="true" keyProperty="idx">
+		INSERT INTO daangn_usedmarket_board (userRef, categoryRef, thumbnail, title, content, price, latitude, longitude, loc1, loc2, loc3, location, ip)
+		VALUES (#{userRef}, #{categoryRef}, #{thumbnail}, #{title}, #{content}, #{price}, #{latitude}, #{longitude}, #{loc1}, #{loc2}, #{loc3}, #{location}, #{ip})
+	</insert>
+	
+	<!-- 중고거래 게시물 내용 수정하기 -->
+	<update id="updateUsedmarketBoard" parameterType="DaangnUsedmarketBoardVO">
+		UPDATE daangn_usedmarket_board
+		SET
+			categoryRef = #{categoryRef},
+			thumbnail = #{thumbnail},
+			title = #{title},
+			content = #{content},
+			price = #{price},
+			latitude = #{latitude},
+			longitude = #{longitude},
+			loc1 = #{loc1},
+			loc2 = #{loc2},
+			loc3 = #{loc3},
+			location = #{location},
+			ip = #{ip}
+			updateDate = current_timestamp
+		WHERE
+			idx = #{idx}
+	</update>
+	
+	<!-- 중고거래 게시물 삭제 -->
+	<delete id="deleteUsedmarketBoard" parameterType="int">
+		DELETE FROM daangn_usedmarket_board WHERE idx = #{idx}
+	</delete>
+	
+	<!-- 중고거래 게시물 조회수 증가 -->
+	<update id="incrementReadCount" parameterType="int">
+		UPDATE daangn_usedmarket_board
+		SET readCount = readCount + 1
+		WHERE idx = #{idx}
+	</update>
+	
+	<!-- 중고거래 게시물 좋아요 수 증가 -->
+    <update id="incrementLikeCount" parameterType="int">
+        UPDATE daangn_usedmarket_board
+        SET likeCount = likeCount + 1
+        WHERE idx = #{idx}
+    </update>
+    
+    <!-- 중고거래 게시물 좋아요 수 감소 -->
+    <update id="decrementLikeCount" parameterType="int">
+        UPDATE daangn_usedmarket_board
+        SET likeCount = likeCount - 1
+        WHERE idx = #{idx}
+    </update>
+    
+	<!-- 중고거래 게시물 채팅방 수 증가 -->
+    <update id="incrementChatRoomCount" parameterType="int">
+        UPDATE daangn_usedmarket_board
+        SET chatRoomCount = chatRoomCount + 1
+        WHERE idx = #{idx}
+    </update>
+    
+    <!-- 중고거래 게시물 채팅방 수 감소 -->
+    <update id="decrementChatRoomCount" parameterType="int">
+        UPDATE daangn_usedmarket_board
+        SET chatRoomCount = chatRoomCount - 1
+        WHERE idx = #{idx}
+    </update>
+	
+	<!-- 게시물 상태 변경하기 (판매중, 예약중, 판매완료) -->
+	<update id="updateUsedmarketBoardStatus" parameterType="hashmap">
+		UPDATE daangn_usedmarket_board
+		SET 
+			statusRef = #{statusRef}
+		WHERE idx = #{idx}
+	</update>
+</mapper>
