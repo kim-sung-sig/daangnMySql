@@ -2,4 +2,89 @@
 <!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
 <mapper namespace="kr.ezen.daangn.dao.DaangnUsedmarketBoardChatMessageDAO">
 	
+	<!-- 메시지 얻기 -->
+	<select id="selectPagedChatMessageByChatRoomRef" parameterType="hashmap" resultType="DaangnUsedmarketChatMessageVO">
+		SELECT
+			dubcm.*,
+			dm.nickName AS nickName,
+			duf.saveFileName AS userProfile
+		FROM
+			daangn_usedmarket_board_chatMessage dubcm
+		JOIN
+			daangn_member dm ON dubcm.sender = dm.idx
+		LEFT JOIN
+			daangn_user_file AS duf ON dubcm.sender = duf.ref
+		WHERE
+			<![CDATA[
+				dubcm.idx < #{lastItemIdx}
+			]]>
+			AND dubcm.chatRoomRef = #{chatRoomRef}
+			<if test="deleted1 != null">
+				dubcm.deleted1 = 0
+			</if>
+			<if test="deleted2 != null">
+				dubcm.deleted2 = 0
+			</if>
+		ORDER BY
+			dubcm.idx DESC
+		LIMIT #{sizeOfPage}
+	</select>
+	
+	<!-- 최대 idx 얻기 -->
+	<select id="getLastIdx" resultType="int">
+		SELECT 
+	        CASE 
+	            WHEN MAX(dubcm.idx) IS NULL THEN 0
+	            ELSE MAX(dubcm.idx)
+	        END
+	    FROM daangn_usedmarket_board_chatMessage dubcm
+	</select>
+	
+	<!-- 저장 -->
+	<insert id="insertChat" parameterType="DaangnUsedmarketChatMessageVO">
+		insert into daangn_usedmarket_board_chatMessage (chatRoomRef, typeRef, sender, content)
+		values (#{chatRoomRef}, #{typeRef}, #{sender}, #{content})
+	</insert>
+	
+	<!-- 읽기 -->
+	<update id="updateChat" parameterType="int">
+		UPDATE chatMessage
+		SET readed = readed - 1
+		WHERE idx = #{idx}
+	</update>
+	
+	<!-- 한번에 읽기처리하기 -->
+	<update id="updateAllChat" parameterType="hashmap">
+	    <![CDATA[
+	        UPDATE daangn_usedmarket_board_chatMessage
+	        SET readed = 0
+	        WHERE chatRoomRef = #{chatRoomRef} and sender <> #{sender}
+	    ]]>
+	</update>
+
+	<!-- 안읽은 갯수 얻기 -->
+	<select id="unreadCount" parameterType="hashmap">
+		SELECT
+			count(*)
+		FROM
+			daangn_usedmarket_board_chatMessage
+		WHERE
+			<![CDATA[
+				chatRoomRef = #{chatRoomRef} AND sender <> #{sender} AND readed = 1			
+			]]>
+	</select>
+	
+	<!-- 유저에서만 삭제하기(숨기기) 채팅방 삭제를 진행할때 실행 -->
+	<update id="deactiveteChatMessage" parameterType="hashmap">
+		UPDATE daangn_usedmarket_board_chatMessage
+		SET
+			<if test="deleted1 != null">
+				deleted1 = 1
+			</if>
+			<if test="deleted2 != null">
+				deleted2 = 1
+			</if>
+		WHERE
+			chatRoomRef = #{chatRoomRef}
+	</update>
 </mapper>

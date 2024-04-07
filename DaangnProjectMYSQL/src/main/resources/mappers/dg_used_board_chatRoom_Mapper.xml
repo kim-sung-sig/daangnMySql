@@ -10,7 +10,7 @@
     </update>
     
     <!-- 채팅방 생성 (저장)-->
-    <insert id="createChatRoom" parameterType="DaangnUsedmarketChatRoomVO" useGeneratedKeys="true" keyProperty="roomIdx">
+    <insert id="createChatRoom" parameterType="hashmap" useGeneratedKeys="true" keyProperty="roomIdx">
         INSERT INTO daangn_usedmarket_board_chatRoom (userRef, boardRef, boardUserRef) 
         VALUES (#{userRef}, #{boardRef}, #{boardUserRef})
     </insert>

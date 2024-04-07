@@ -7,24 +7,13 @@
 		select
 			dub.*,
 			duc.categoryName AS categoryName,
-			dus.statusName AS statusName,
-			dubf.saveFileName as boardFile
+			dus.statusName AS statusName
 		from
 			daangn_usedmarket_board dub
 		JOIN
 		    daangn_usedmarket_category duc ON dub.categoryRef = duc.categoryIdx
 		JOIN
 		    daangn_usedmarket_status dus ON dub.statusRef = dus.statusIdx
-		LEFT JOIN
-			(
-		        SELECT
-		            boardRef,
-		            saveFileName
-		        FROM
-		            daangn_usedmarket_board_file
-		        WHERE
-		            idx IN (SELECT MIN(idx) FROM daangn_usedmarket_board_file GROUP BY boardRef)
-		    ) dubf ON dubf.boardRef = dub.idx
 		where
 			<![CDATA[
 				dub.idx < #{lastItemIdx}
@@ -103,8 +92,28 @@
 	
 	<!-- 중고거래 게시물 저장 -->
 	<insert id="insertUsedmarketBoard" parameterType="DaangnUsedmarketBoardVO" useGeneratedKeys="true" keyProperty="idx">
-		INSERT INTO daangn_usedmarket_board (userRef, categoryRef, thumbnail, title, content, price, latitude, longitude, loc1, loc2, loc3, location, ip)
-		VALUES (#{userRef}, #{categoryRef}, #{thumbnail}, #{title}, #{content}, #{price}, #{latitude}, #{longitude}, #{loc1}, #{loc2}, #{loc3}, #{location}, #{ip})
+		INSERT INTO daangn_usedmarket_board
+			(
+				userRef,
+				categoryRef,
+				thumbnail,
+				title, content,
+				price,
+				latitude, longitude,
+				loc1, loc2, loc3, location,
+				ip
+			)
+		VALUES
+			(
+				#{userRef},
+				#{categoryRef},
+				#{thumbnail},
+				#{title}, #{content},
+				#{price},
+				#{latitude}, #{longitude},
+				#{loc1}, #{loc2}, #{loc3}, #{location},
+				#{ip}
+			)
 	</insert>
 	
 	<!-- 중고거래 게시물 내용 수정하기 -->

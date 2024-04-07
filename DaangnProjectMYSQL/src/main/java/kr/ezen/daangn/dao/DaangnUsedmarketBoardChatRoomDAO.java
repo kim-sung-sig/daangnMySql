@@ -16,13 +16,17 @@ public interface DaangnUsedmarketBoardChatRoomDAO {
 	 * 마지막으로 활성화된 시간 수정
 	 * @param roomIdx
 	 */
-    void updateLastUpdateDate(int roomIdx);
+    void updateLastUpdateDate(int roomIdx) throws SQLException;
     
     /**
-     * 채팅방 만들기
+     * 채팅방 만들기 (userRef, boardRef, boardUserRef)
      * @param chatRoomVO
      */
-    void createChatRoom(DaangnUsedmarketChatRoomVO chatRoomVO);
+    void createChatRoom(
+    		@Param("userRef") int userRef,
+    		@Param("boardRef") int boardRef,
+    		@Param("boardUserRef") int boardUserRef
+    	) throws SQLException;
     
     /**
      * 이미 채팅방이 있는지 확인 (없으면 0, 있으면 idx)
@@ -30,21 +34,21 @@ public interface DaangnUsedmarketBoardChatRoomDAO {
      * @param boardRef
      * @return
      */
-    int checkUniqueChatRoom(@Param("userRef") int userRef, @Param("boardRef") int boardRef);
+    int checkUniqueChatRoom(@Param("userRef") int userRef, @Param("boardRef") int boardRef) throws SQLException;
     
     /**
      * 유저에 해당하는 채팅방 얻기 (활성화된 채팅방만)
      * @param userRef
      * @return
      */
-    List<DaangnUsedmarketChatRoomVO> getChatRoomsByUserRef(int userRef);
+    List<DaangnUsedmarketChatRoomVO> getChatRoomsByUserRef(int userRef) throws SQLException;
     
     /**
      * 게시글에 해당하는 채팅방 얻기
      * @param boardRef
      * @return
      */
-    List<DaangnUsedmarketChatRoomVO> getChatRoomByboardRef(int boardRef);
+    List<DaangnUsedmarketChatRoomVO> getChatRoomByboardRef(int boardRef) throws SQLException;
     
     /**
      * 채팅방 활성화(유저에서)
@@ -58,7 +62,11 @@ public interface DaangnUsedmarketBoardChatRoomDAO {
      * @param deleted1 
      * @param deleted2
      */
-    void deactivateChatRoom(@Param("roomIdx") int roomIdx, @Param("deleted1") Integer deleted1, @Param("deleted2") Integer deleted2);
+    void deactivateChatRoom(
+    		@Param("roomIdx") int roomIdx,
+    		@Param("deleted1") Integer deleted1,
+    		@Param("deleted2") Integer deleted2
+    	) throws SQLException;
     
     /**
      * 채팅방 완전 비활성화 하기
