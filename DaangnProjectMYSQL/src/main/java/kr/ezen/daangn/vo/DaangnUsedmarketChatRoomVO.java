@@ -15,4 +15,13 @@ public class DaangnUsedmarketChatRoomVO {
 	private Integer deleted1; // userRef가 삭제했는지
 	private Integer deleted2; // boardUserRef가 삭제했는지
 	private Integer isActivate; // 활성중 / 비활성중
+	// end - DB setting
+	
+	private DaangnUsedmarketBoardVO board;
+	
+	private String nickName;
+	private String userProfile;
+	
+	private int unreadCount;
+	private DaangnUsedmarketChatMessageVO lastMessage;
 }

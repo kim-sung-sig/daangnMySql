@@ -221,7 +221,9 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	// 채팅관련
 	//=========================================================================
 	/**
-	 * (채팅방 만들기)
+	 * 채팅방 입장하기
+	 * 1. 없으면 만들고 있으면 번호리턴
+	 * 2. 상대방의 채팅을 모두 읽음 처리하기
 	 * @param chatRoomVO
 	 * @return 생성된 채팅방의 인덱스 or 기존 채팅방 인덱스
 	 */
@@ -232,7 +234,9 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	}
 	
 	/**
-	 * 채팅방 목록 보기
+	 * 1. 채팅방 목록 보기 (LastUpdateDate 기준)
+	 * 2. 안읽은 채팅 메시지 수 가져오기(userRef, chatRoomRef) 채팅방에 해당
+	 * 3. 마지막 채팅, 어떤 board, 어느 유저랑
 	 * @param userRef
 	 * @return
 	 */
@@ -241,7 +245,43 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	/**
+     * 채팅방 삭제하기
+     * @param chatRoomRef 채팅방 인덱스
+     * @return 삭제된 채팅방 수
+     */
+	@Override
+	public int deleteChatRoom(int chatRoomRef, Integer deleted1, Integer deleted2) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
+	/**
+     * 1. 채팅메시지 저장
+     * 2. 채팅방 LastUpdateDate를 업데이트
+     * @param chatMessageVO
+     */
+	@Override
+	public void insertMessage(DaangnUsedmarketChatMessageVO chatMessageVO) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	// 날라온 idx로 readed--
+	@Override
+	public void updateReadCount(int idx) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	// 안읽은 채팅 메시지 수 가져오기(userRef) 모든 채팅방의 총합
+	@Override
+	public int getUnReadCountByUserRef(int userRef) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 	/**
      * 채팅메시지 가져오기
      * @param sizeOfPage 한 페이지에 표시할 채팅메시지 수
@@ -258,34 +298,9 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	}
 	
 	/**
-     * 채팅방 삭제하기
-     * @param chatRoomRef 채팅방 인덱스
-     * @return 삭제된 채팅방 수
+     * 채팅메시지 가장 큰 idx
+     * @return
      */
-	@Override
-	public int deleteChatRoom(int chatRoomRef, Integer deleted1, Integer deleted2) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void insertMessage(DaangnUsedmarketChatMessageVO chatMessageVO) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void updateReadCount(int idx) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public int getUnReadCountByUserRef(int userRef) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 	@Override
 	public int getChatMessageLastIdx() {
 		// TODO Auto-generated method stub
