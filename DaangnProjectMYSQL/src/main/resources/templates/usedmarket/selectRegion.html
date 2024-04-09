@@ -1,0 +1,24 @@
+<div class="navBox">
+	<div class="region" style="margin-right: 20px;">
+		<select class="uk-select" id="r1">
+			<option value="0">도를 선택하세요.</option>
+		</select>
+		<th:block th:if="${region != null}">
+			<select class="uk-select" id="r2">
+				<option th:selected="${gu eq null}" value="0">구를 선택하세요.</option>
+			</select>
+		</th:block>
+		<th:block th:if="${gu != null}">
+			<select class="uk-select" id="r3">
+				<option th:selected="${dong eq null}" value="0">동을 선택하세요.</option>
+			</select>
+		</th:block>
+	</div>
+	<form action="" method="get" id="searchForm">
+		<div class="uk-inline" style="width: 240px;">
+        	<span class="uk-form-icon" uk-icon="icon: search"></span>
+        	<input th:if="${search == null}" class="uk-input uk-form-width-long chat" type="text" aria-label="Not clickable icon" placeholder="검색어를 입력하세요!" name="search" id="searchText">
+        	<input th:if="${search != null}" th:value="${search}" class="uk-input uk-form-width-long chat" type="text" aria-label="Not clickable icon" placeholder="동네 물품을 검색해주세요!" name="search" id="searchText">
+    	</div>
+	</form>
+</div>

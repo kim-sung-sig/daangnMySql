@@ -61,10 +61,8 @@
 		    dub.*,
 		    c.categoryName AS categoryName,
 		    s.statusName AS statusName,
-		    COALESCE(dlt.countLike, 0) AS countLike,
-		    COALESCE(cr.chatRoomCount, 0) AS chatRoomCount,
 		    dm.nickName AS nickName,
-		    duf.saveFileName as userProfile,
+		    dmf.saveFileName as userProfile,
 		    duc.userVal AS userVal
 		FROM
 		    daangn_usedmarket_board dub
@@ -73,9 +71,9 @@
 		LEFT JOIN
 			daangn_user_file dmf on dub.userRef = dmf.ref
 		JOIN
-		    daangn_usedmarket_category duc ON dub.categoryRef = duc.categoryIdx
+		    daangn_usedmarket_category c ON dub.categoryRef = c.categoryIdx
 		JOIN
-		    daangn_usedmarket_status dus ON dub.statusRef = dus.statusIdx
+		    daangn_usedmarket_status s ON dub.statusRef = s.statusIdx
 		LEFT JOIN
 		    (
 		        SELECT 

@@ -85,7 +85,7 @@ public interface DaangnUsedmarketService {
 	 * @param sv
 	 * @return
 	 */
-	List<DaangnUsedmarketBoardVO> selectListByUserIdxAndNotBoardIdx(ScrollVO sv);
+	List<DaangnUsedmarketBoardVO> selectListByUserIdxAndNotBoardIdx(int userRef, int boardRef);
 	
 	/**
 	 * 중고거래 게시물 사진 저장

@@ -1,5 +1,6 @@
 package kr.ezen.daangn.service;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +43,17 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public List<DaangnUsedmarketBoardVO> getUsedmarketBoards(ScrollVO sv) {
-		// TODO Auto-generated method stub
-		return null;
+		log.info("selectPagedLifeBoards 실행 (lastItemIdx, sizeOfPage, categoryRef, region, gu, dong, search) => ({}, {}, {}, {}, {}, {}, {})",sv.getLastItemIdx(), sv.getSizeOfPage(), sv.getCategoryRef(), sv.getRegion(), sv.getGu(), sv.getDong(), sv.getSearch());
+		List<DaangnUsedmarketBoardVO> list = null;
+		try {
+			list = boardDAO.selectPagedLifeBoards(
+					sv.getLastItemIdx(), sv.getSizeOfPage(),
+					sv.getCategoryRef(), null,
+					sv.getRegion(), sv.getGu(), sv.getDong(), sv.getSearch(), sv.getUserRef(), sv.getBoardRef());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
 	
 	/**
@@ -52,8 +62,13 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int getBoardLastIdx() {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = 0;
+		try {
+			result = boardDAO.getLastIdx();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	/**
@@ -63,8 +78,18 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public DaangnUsedmarketBoardVO selectByIdx(int idx) {
-		// TODO Auto-generated method stub
-		return null;
+		log.info("selectByIdx 실행 idx => {}", idx);
+		DaangnUsedmarketBoardVO boardVO = null;
+		try {
+			boardVO = boardDAO.selectByIdx(idx);
+			if(boardVO != null) {
+				boardVO.setBoardFileList(boardFileDAO.selectUsedmarketBoardFileByBoardRef(idx));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		log.info("selectByIdx 리턴 {}", boardVO);
+		return boardVO;
 	}
 	
 	/**
@@ -74,8 +99,16 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int insertUsedmarketBoard(DaangnUsedmarketBoardVO boardVO) {
-		// TODO Auto-generated method stub
-		return 0;
+		log.info("insertUsedmarketBoard 실행 {}", boardVO);
+		int result = 0;
+		try {
+			boardDAO.insertUsedmarketBoard(boardVO);
+			result = 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		log.info("insertUsedmarketBoard 리턴 => {}", result);
+		return result;
 	}
 	
 	/**
@@ -85,8 +118,16 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int updateUsedmarketBoard(DaangnUsedmarketBoardVO boardVO) {
-		// TODO Auto-generated method stub
-		return 0;
+		log.info("updateUsedmarketBoard 실행 {}", boardVO);
+		int result = 0;
+        try {
+        	boardDAO.updateUsedmarketBoard(boardVO);
+        	result = 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        log.info("updateUsedmarketBoard 리턴 => {}", result);
+        return result;
 	}
 	
 	/**
@@ -96,8 +137,16 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int deleteUsedmarketBoard(int idx) {
-		// TODO Auto-generated method stub
-		return 0;
+		log.info("deleteUsedmarketBoard 실행 {}", idx);
+    	int result = 0;
+        try {
+        	boardDAO.deleteUsedmarketBoard(idx);
+        	result = 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        log.info("deleteUsedmarketBoard 리턴 => {}", result);
+        return result;
 	}
 	
 	/**
@@ -107,8 +156,14 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int incrementReadCount(int idx) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = 0;
+        try {
+        	boardDAO.incrementReadCount(idx);
+        	result = 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
 	}
 	
 	/**
@@ -119,8 +174,14 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int updateStatus(int boardRef, int statusRef) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = 0;
+        try {
+        	boardDAO.updateUsedmarketBoardStatus(boardRef, statusRef);
+        	result = 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
 	}
 	
 	/**
@@ -130,7 +191,12 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public List<DaangnUsedmarketBoardVO> getUsedmarketBoardsByUserRef(ScrollVO sv) {
-		// TODO Auto-generated method stub
+		List<DaangnUsedmarketBoardVO> list = null;
+		try {
+			list = boardDAO.selectPagedLifeBoards(sv.getLastItemIdx(), sv.getSizeOfPage(), null, sv.getStatusRef(), null, null, null, null, sv.getUserRef(), null);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 	
@@ -141,7 +207,8 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int getBoardCountByUserIdxAndStatusRef(ScrollVO sv) {
-		// TODO Auto-generated method stub
+		int result = 0;
+		// result = boardDAO.
 		return 0;
 	}
 	
@@ -151,9 +218,14 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 * @return
 	 */
 	@Override
-	public List<DaangnUsedmarketBoardVO> selectListByUserIdxAndNotBoardIdx(ScrollVO sv) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<DaangnUsedmarketBoardVO> selectListByUserIdxAndNotBoardIdx(int userRef, int boardRef) {
+		List<DaangnUsedmarketBoardVO> list = null;
+		try {
+			list = boardDAO.selectPagedLifeBoards(boardDAO.getLastIdx() + 1, 2, null, null, null, null, null, null, userRef, boardRef);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
 	
 	/**
@@ -163,8 +235,14 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int insertUsedmarketBoardFile(DaangnUsedmarketBoardFileVO usedmarketBoardFileVO) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = 0;
+		try {
+			boardFileDAO.insertUsedmarketBoardFile(usedmarketBoardFileVO);
+			result = 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	/**
@@ -174,8 +252,14 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int deleteUsedmarketBoardFile(int boardRef) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = 0;
+		try {
+			boardFileDAO.deleteUsedmarketBoardFileByBoardRef(boardRef);
+			result = 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	//=========================================================================
@@ -189,8 +273,14 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int incrementLikeCount(int boardRef, int userRef) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = 0;
+		try {
+			boardLikeDAO.insertUsedmarketBoardLike(userRef, boardRef);
+			result = 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	/**
@@ -201,8 +291,14 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int decrementLikeCount(int boardRef, int userRef) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = 0;
+		try {
+			boardLikeDAO.deleteUsedmarketBoardLike(userRef, boardRef);
+			result = 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	/**
@@ -213,8 +309,13 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 */
 	@Override
 	public int isUsedmarketBoardLike(int userRef, int boardRef) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = 0;
+		try {
+			result = boardLikeDAO.selectUsedmarketBoardLike(userRef, boardRef);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	//=========================================================================

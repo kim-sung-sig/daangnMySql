@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>당근 중고거래</title>
+	<!--제이쿼리 추가-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<!-- UIkit CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css" />
+	<!-- UIkit JS -->
+	<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<!-- axios -->
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<!-- moment.js -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+	
+	<link rel="stylesheet" href="/css/header.css">
+	<link rel="stylesheet" href="/css/life/selectRegion.css">
+	<script src="/js/usedmarket/selectRegion.js"></script>
+	
+	<style type="text/css">
+		main{width: 100%; padding: 110px 0;}
+		.uk-container{width: 982px; padding: 0;}
+		.category-nav{margin-bottom: 10px; overflow: hidden;}
+		.category-nav a {
+		    display: inline-flex;
+		    -webkit-box-align: center;
+		    align-items: center;
+		    border: 1px solid #eee;
+		    border-radius: 6.25rem;
+		    padding: 0.5rem 0.75rem;
+		    font-size: 0.875rem;
+		    cursor: pointer;
+		}
+		.category-nav a.selected {
+			color: #fff;
+			background: #333;
+		}
+		
+		#writeButton {
+		    display: inline-block;
+		    width: 150px;
+		    height: 60px;
+		    background-color: #ff8300;
+		    color: #ffffff;
+		    border: none;
+		    border-radius: 900px;
+		    font-size: 24px;
+		    cursor: pointer;
+		    transition: width 1s, background-color 0.5s; /* 트랜지션을 추가합니다 */
+		}
+		
+		#writeButton:hover {
+		    background-color: #e67e00;
+		    width: 150px;
+		}
+		
+		#writeButton:active {
+		    background-color: #d97700;
+		}
+		
+		#slide p {margin: 0;}
+		#slide span{font-size: 14px; font-weight: 400;}
+		.board-category{padding: 5px 10px; background: #ccc; border-radius: 5px; font-size: 14px; font-weight: 400;}
+		#slide{gap:30px;display: grid; grid-template-columns:repeat(4,1fr);}
+
+		.reserved{border-radius: 5px; background: #4a9975; padding: 3px 6px; font-size: 13px; font-weight: 500; color: #fff;}
+		.sold{border-radius: 5px; background: #DEE1E5; padding: 3px 6px; font-size: 13px; font-weight: 600;}
+		
+		select:focus {outline: none;}
+		.uk-card {cursor: pointer; width: 223px; margin-bottom: 56px;}
+		.uk-card-media-top {
+			height: 223px; overflow: hidden;
+			border-radius: 12px; background-color: #F8F9FA;
+			box-shadow: 3px 5px 4px rgba(0, 0, 0, 0.15);
+		} 
+		.uk-card-title {font-size:16px;color:#212529; white-space:nowrap;text-overflow:ellipsis; margin: 0 !important}
+		.uk-card-body {display: flex; flex-direction: column; justify-content: center;padding: 0;margin-top: 12px;}
+		.uk-card-body > .price {font-size: 15px; margin: 0;font-weight: 700;}
+		.uk-card-body > .regDate {font-size: 12px;margin: 0;}
+		.uk-card-body > .city {font-size: 13px; margin: 0;}
+		.uk-card-body > .like {font-size: 14px; margin: 0;}
+	</style>
+</head>
+<body>
+	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx}"/>
+	<input type="hidden" id="region" th:value="${region}">
+	<input type="hidden" id="gu" th:value="${gu}">
+	<input type="hidden" id="dong" th:value="${dong}">
+	<input type="hidden" id="search" th:value="${search}">
+	<input type="hidden" id="categoryRef" th:value="${categoryRef}">
+	<button id="writeButton" style="position: fixed; bottom: 100px; right: 100px;" th:if="${session.user == null}" onclick="alert('로그인이 필요합니다.'); location.href='/member/login'">+ 글쓰기</button>
+    <button id="writeButton" style="position: fixed; bottom: 100px; right: 100px;" th:if="${session.user != null}" onclick="location.href='/used-market/board/write';">+ 글쓰기</button>
+	<div id="wrap">
+		<th:block th:insert="~{header.html}"></th:block>
+		<main>
+			<div class="uk-container">
+				<h3 style="font-weight: 600; font-size: 30px; text-align: center; margin-bottom: 40px;">당근 중고거래</h3>
+				<div class="category-nav">
+					<a th:classappend="${categoryRef == null} ? 'selected'"class="notice-tag" href="/used-market/view">전체</a>
+					<a th:classappend="${categoryRef == 1} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=1">디지털/가전</a>
+					<a th:classappend="${categoryRef == 2} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=2">가구/인테리어</a>
+					<a th:classappend="${categoryRef == 3} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=3">유아동/유아도서</a>
+					<a th:classappend="${categoryRef == 4} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=4">생활/가공식품</a>
+					<a th:classappend="${categoryRef == 5} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=5">스포츠/레저</a>
+					<a th:classappend="${categoryRef == 6} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=6">여성잡화</a>
+					<a th:classappend="${categoryRef == 7} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=7">여성의류</a>
+					<a th:classappend="${categoryRef == 8} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=8">남성패션/잡화</a>
+					<a th:classappend="${categoryRef == 9} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=9">게임/취미</a>
+					<a th:classappend="${categoryRef == 10} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=10">뷰티/미용</a>
+					<a th:classappend="${categoryRef == 11} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=11">반려동물용품</a>
+					<a th:classappend="${categoryRef == 12} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=12">도서/티켓/음반</a>
+					<a th:classappend="${categoryRef == 13} ? 'selected'" class="notice-tag " href="/used-market/view?categoryRef=13">기타</a>
+				</div>
+				<th:block th:insert="~{usedmarket/selectRegion.html}"></th:block>
+			</div>
+			<div class="uk-container" id="viewBox" style="margin-top: 20px;">
+				<ul id="slide"></ul>
+			</div>
+		</main>
+	</div>
+	<script>
+		let lastItemIdx = 0;
+		const sizeOfPage = 12;
+		let categoryRef = null;
+		let region = null;
+		let gu = null;
+		let dong = null;
+		let search = null;
+		
+		function detail(idx){
+			location.href = "/used-market/detail/" + idx;
+		}
+
+		function init(){
+			lastItemIdx = $("#lastItemIdx").val();
+			region = $("#region").val();
+			gu = $("#gu").val();
+			dong = $("#dong").val();
+			search = $("#search").val();
+			categoryRef = $("#categoryRef").val();
+			console.log(region, gu, dong, search, categoryRef)
+			if(region.length == 0){
+				region = null;
+			}
+			if(gu.length == 0) {
+				gu = null;
+			}
+			if(dong.length == 0) {
+				dong = null;
+			}
+			if(search.trim().length == 0){
+				search = null;
+			}
+			getItem();
+		}
+	
+		function getItem(){
+			window.removeEventListener('scroll', handleScroll);
+			axios.post('/used-market/list', {
+	            'lastItemIdx': lastItemIdx,
+	            'sizeOfPage': sizeOfPage,
+	            'categoryRef': categoryRef,
+	            'region': region,
+	            'gu': gu,
+	            'dong': dong,
+	            'search': search
+	        })
+	        .then(res => {
+				let data = res.data;
+				console.log(data);
+				content = "";
+				if(data.length == 0) {
+					window.removeEventListener('scroll', handleScroll);
+					return ;
+				}
+				data.forEach(board => {
+					lastItemIdx = board.idx;
+			    	content += `
+			    		<article class="uk-card" onclick="detail(${board.idx})">
+							<input type="hidden" class="idx" value="${board.idx}">
+							<div class="uk-card-media-top" style="background: url('/upload/${board.thumbnail}') center/cover;"></div>
+							<div class="uk-card-body">
+								<h4 class="uk-card-title">${board.statusRef==1 ? '' : board.statusRef==2 ? '<span class="reserved">예약중</span>' : '<span class="sold">판매완료</span>'}${board.title}</h4>
+								<p class="price">${numberFormatter(board.price)}</p>
+								<span class="city">${board.loc1} ${board.loc2} ${board.loc3}</span>
+								<p class="like"><span>관심 ${board.likeCount}</span>ㆍ<span>채팅 ${board.chatRoomCount}</span>ㆍ<span>조회수 ${board.readCount}</span></p>
+								<p class="regDate">게시일 ${dateFormatter(board.createDate)}</p>
+							</div>
+						</article>
+			    	`;
+				})
+				$("#slide").append(content);
+				window.addEventListener('scroll', handleScroll);
+			})
+		}
+	
+		/** 수를 가격으로 바꿔주는 함수 */
+		function numberFormatter(number){
+			let formattedNumber = new Intl.NumberFormat('ko-KR').format(number) + '원';
+			return formattedNumber;
+		}
+		
+		/** 날짜변경 */
+		function dateFormatter(dateStr){
+			// Moment.js를 사용하여 상대적인 시간 표시 
+			let momentRegDate = moment(dateStr);
+			let now = moment();
+			let diff = now.diff(momentRegDate, 'seconds'); // 차이 구하기
+			var formattedDate;
+			if (diff < 60) {
+			    formattedDate = diff + '초 전';
+			} else if (diff < 3600) {
+			    formattedDate = Math.floor(diff / 60) + '분 전';
+			} else if (diff < 86400) {
+			    formattedDate = Math.floor(diff / 3600) + '시간 전';
+			} else if (diff < 604800) {
+			    formattedDate = Math.floor(diff / 86400) + '일 전';
+			} else {
+			    formattedDate = momentRegDate.format('YYYY.MM.DD');
+			}
+			return formattedDate;
+		}
+	
+		/** 스크롤 이벤트 */
+		function handleScroll() {
+		    if (window.scrollY + window.innerHeight + 100 >= document.documentElement.scrollHeight) {
+		        getItem();
+		    }
+		}
+		
+		$(function(){
+			init();
+			
+			let isScrolled = false; // 스크롤 여부를 저장하는 변수
+			let timeout; // 딜레이를 위한 타임아웃 변수
+			window.addEventListener('scroll', function() {
+			    var scrollPosition = window.scrollY;
+			    var button = document.getElementById('writeButton');
+
+			    // 상단에 위치한 상태인지 확인
+			    if (scrollPosition > 100) {
+			        button.textContent = "+";
+			        button.style.width = "60px";
+			        isScrolled = true; // 스크롤된 상태로 설정
+			    } else {
+			        if (isScrolled) { // 스크롤된 상태에서만 실행
+			            button.style.width = "150px";
+			            clearTimeout(timeout); // 기존 타임아웃 제거
+			            timeout = setTimeout(() => {
+			                button.textContent = "+ 글쓰기";                  
+			            }, 500);
+			            isScrolled = false; // 스크롤되지 않은 상태로 설정
+			        }
+			    }
+			});
+
+			$("#writeButton").mouseover(function(){
+			    var button = document.getElementById('writeButton');
+			    button.style.width = "150px";
+			    clearTimeout(timeout); // 기존 타임아웃 제거
+			    timeout = setTimeout(() => {
+			        button.textContent = "+ 글쓰기";                  
+			    }, 500);
+			});
+
+			$("#writeButton").mouseleave(function(){
+			    var button = document.getElementById('writeButton');
+			    if(isScrolled){
+			    	clearTimeout(timeout);
+			        button.textContent = "+";
+			        button.style.width = "60px";                  
+			    } else {
+			        clearTimeout(timeout);
+			    }
+			});
+		})
+	</script>
+</body>
+</html>

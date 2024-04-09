@@ -1,17 +1,24 @@
 package kr.ezen.daangn.controller;
 
+import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import kr.ezen.daangn.service.DaangnUsedmarketService;
 import kr.ezen.daangn.vo.DaangnMemberVO;
+import kr.ezen.daangn.vo.DaangnUsedmarketBoardFileVO;
 import kr.ezen.daangn.vo.DaangnUsedmarketBoardVO;
 import kr.ezen.daangn.vo.ScrollVO;
 import lombok.extern.slf4j.Slf4j;
@@ -95,7 +103,7 @@ public class UsedmarketController {
 		log.info("usedmarketDetail/idx 실행 => idx : {}", idx);
 		DaangnUsedmarketBoardVO board = usedmarketService.selectByIdx(idx);
 		if(board == null) {
-			return "redirect:/life/view";
+			return "redirect:/used-market/view";
 		}
 		DaangnMemberVO user = (DaangnMemberVO) request.getSession().getAttribute("user");
 		if(user != null) { // 로그인 상태이면
@@ -138,6 +146,8 @@ public class UsedmarketController {
 		}
 		
 		model.addAttribute("board", board);
+		// 이 글의 유저가 쓴 다른 글들!;
+		model.addAttribute("userBoard", usedmarketService.selectListByUserIdxAndNotBoardIdx(board.getUserRef(), board.getIdx()));
 		return "usedmarket/usedDetail";
 	}
 	
@@ -148,5 +158,62 @@ public class UsedmarketController {
 	@GetMapping("/board/write")
 	public String insertUsedBoard() { // 시큐리티가 알아서 해줄꺼같다.
 		return "usedmarket/usedUpload";
+	}
+	
+	
+	/**
+	 * 중고거래 게시물 쓰기 ok
+	 * @param lifeBoardVO
+	 * @return
+	 */
+	@PostMapping(value = "/board/write/ok", consumes = "multipart/form-data; charset=utf-8")
+	@ResponseBody
+	@Transactional
+	public String insertUsedmarketBoardOk(MultipartHttpServletRequest request, @ModelAttribute DaangnUsedmarketBoardVO boardVO) {
+		DaangnMemberVO user = (DaangnMemberVO) request.getSession().getAttribute("user");
+		if(user == null) {
+			return "0";
+		}
+		boardVO.setUserRef(user.getIdx());
+		String ipAddress = request.getRemoteAddr(); // 클라이언트의 IP 주소 가져오기
+	    boardVO.setIp(ipAddress);
+	    String uploadPath = request.getServletContext().getRealPath("/upload/");
+	    File file2 = new File(uploadPath);
+	    log.info("서버 실제 경로 : " + uploadPath);
+	    
+		if (!file2.exists()) {
+			file2.mkdirs();
+		}
+		
+		List<MultipartFile> list = request.getFiles("file"); // form에 있는 name과 일치
+		log.info("listSize => {}개", list.size());
+		boolean isFirstFile = true;
+		try {
+			if (list != null && list.size() > 0) {
+				for(MultipartFile file :list) {
+					if(file != null && file.getSize() >0) {
+						String saveFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+						File savaFile = new File(uploadPath, saveFileName);
+						FileCopyUtils.copy(file.getBytes(), savaFile); // 파일 저장
+						
+						// 첫 번째 파일일 경우 썸네일로 저장
+						if(isFirstFile) {
+							boardVO.setThumbnail(saveFileName);
+							usedmarketService.insertUsedmarketBoard(boardVO);
+							isFirstFile = false;
+						}
+						DaangnUsedmarketBoardFileVO boardFileVO = new DaangnUsedmarketBoardFileVO();
+						boardFileVO.setBoardRef(boardVO.getIdx());
+						boardFileVO.setSaveFileName(saveFileName);
+						usedmarketService.insertUsedmarketBoardFile(boardFileVO);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "0"; // 실패시
+		}
+		log.info("저장 성공 {}", boardVO);
+	    return boardVO.getIdx() + ""; // 생성된 idx리턴
 	}
 }
