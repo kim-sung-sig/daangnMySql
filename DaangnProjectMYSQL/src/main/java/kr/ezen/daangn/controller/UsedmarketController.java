@@ -24,6 +24,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import kr.ezen.daangn.service.DaangnMemberService;
 import kr.ezen.daangn.service.DaangnUsedmarketService;
 import kr.ezen.daangn.vo.DaangnMemberVO;
 import kr.ezen.daangn.vo.DaangnUsedmarketBoardFileVO;
@@ -38,6 +39,8 @@ public class UsedmarketController {
 	
 	@Autowired
 	private DaangnUsedmarketService usedmarketService;
+	@Autowired
+	private DaangnMemberService memberService;
 	
 	/**
 	 * 중고거래 게시물 목록 보기
@@ -215,5 +218,151 @@ public class UsedmarketController {
 		}
 		log.info("저장 성공 {}", boardVO);
 	    return boardVO.getIdx() + ""; // 생성된 idx리턴
+	}
+	
+	/**
+	 * 중고거래 게시글 수정 페이지
+	 * @param idx
+	 * @param model
+	 * @param session
+	 * @return
+	 */
+	@PostMapping(value = "/board/update")
+	public String updateUsedBoard(Model model,@RequestParam(value = "idx") int idx, HttpSession session) {
+		if(session.getAttribute("user") == null) {
+			return "redirect:/";
+		}
+		DaangnUsedmarketBoardVO boardVO = usedmarketService.selectByIdx(idx);
+		if(boardVO == null) {
+			return "redirect:/used-market/view";
+		}
+		log.info("updateUsedBoard 실행 idx => {}", idx);
+		DaangnMemberVO user = (DaangnMemberVO) session.getAttribute("user");
+		if(boardVO.getUserRef() != user.getIdx()) {
+			return "redirect:/";
+		}
+		model.addAttribute("board", boardVO);
+		return "usedmarket/usedUpdate";
+	}
+	/**
+	 * 중고거래 게시글 수정 ok
+	 * @param idx
+	 * @param model
+	 * @param session
+	 * @return
+	 */
+	@PostMapping(value = "/board/update/ok", consumes = "multipart/form-data; charset=utf-8")
+	@ResponseBody
+	@Transactional
+	public String updateUsedBoardOk(MultipartHttpServletRequest request, @ModelAttribute DaangnUsedmarketBoardVO boardVO) {
+		int result = 0;
+		DaangnMemberVO user = (DaangnMemberVO) request.getSession().getAttribute("user");
+		if(user == null) {
+			return "0";
+		}
+		String ipAddress = request.getRemoteAddr(); // 클라이언트의 IP 주소 가져오기
+		boardVO.setIp(ipAddress);
+		usedmarketService.deleteUsedmarketBoardFile(boardVO.getIdx());
+		
+		String uploadPath = request.getServletContext().getRealPath("/upload/");
+	    File file2 = new File(uploadPath);
+	    log.info("서버 실제 경로 : " + uploadPath);
+	    
+		if (!file2.exists()) {
+			file2.mkdirs();
+		}
+		List<MultipartFile> list = request.getFiles("file"); // form에 있는 name과 일치
+		log.info("listSize => {}개", list.size());
+		boolean isFirstFile = true;
+		try {
+			if (list != null && list.size() > 0) {
+				for(MultipartFile file :list) {
+					if(file != null && file.getSize() >0) {
+						String saveFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+						File savaFile = new File(uploadPath, saveFileName);
+						FileCopyUtils.copy(file.getBytes(), savaFile); // 파일 저장
+						
+						// 첫 번째 파일일 경우 썸네일로 저장
+						if(isFirstFile) {
+							boardVO.setThumbnail(saveFileName);
+							usedmarketService.updateUsedmarketBoard(boardVO);
+							isFirstFile = false;
+						}
+						DaangnUsedmarketBoardFileVO boardFileVO = new DaangnUsedmarketBoardFileVO();
+						boardFileVO.setBoardRef(boardVO.getIdx());
+						boardFileVO.setSaveFileName(saveFileName);
+						usedmarketService.insertUsedmarketBoardFile(boardFileVO);
+					}
+				}
+			}
+			result = 1;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "0"; // 실패시
+		}
+		return result + "";
+	}
+	
+	/**
+	 * 중고거래 게시글 삭제 ok
+	 * @param lifeBoardVO
+	 * @return
+	 */
+	@PostMapping("/board/delete")
+	@ResponseBody
+	public String deleteUsedBoardOk(@RequestBody DaangnUsedmarketBoardVO boardVO) {
+		log.info("deleteUsedBoardOk 실행 {}", boardVO.getIdx());
+	    int result = usedmarketService.deleteUsedmarketBoard(boardVO.getIdx());
+	    log.info("deleteUsedBoardOk 리턴 {}", result);
+	    return result + ""; // 성공 실패 리턴
+	}
+	
+	/**
+	 * 중고거래 게시물 찜하기
+	 * @param session
+	 * @param boardRef
+	 * @return
+	 */
+	@PostMapping(value = "/like")
+	@ResponseBody
+	public int likeLifeBoard(HttpSession session, @RequestBody ScrollVO sv) {
+		log.info("좋아요 실행 {}", sv.getBoardRef());
+		DaangnMemberVO user = (DaangnMemberVO) session.getAttribute("user");
+		int result = usedmarketService.incrementLikeCount(sv.getBoardRef(), user.getIdx());
+		log.info("result => {}", result);
+		return result;
+	}
+	
+	/**
+	 * 중고거래 게시물 찜 취소
+	 * @param session
+	 * @param boardRef
+	 * @return
+	 */
+	@PostMapping(value = "/unlike")
+	@ResponseBody
+	public int unlikeLifeBoard(HttpSession session, @RequestBody ScrollVO sv) {
+		log.info("좋아요 취소 실행 {}", sv.getBoardRef());
+		DaangnMemberVO user = (DaangnMemberVO) session.getAttribute("user");
+	    int result = usedmarketService.decrementLikeCount(sv.getBoardRef(), user.getIdx());
+	    log.info("result => {}", result);
+	    return result;
+	}
+	
+	/**
+	 * 유저의 글 목록 보는곳
+	 * @param userIdx
+	 * @param model
+	 * @return
+	 */
+	@GetMapping(value = "/{userIdx}/board")
+	public String getBoardsByUserIdx(@PathVariable(value = "userIdx") int userIdx, Model model) {
+		DaangnMemberVO user = memberService.selectByIdx(userIdx);
+		model.addAttribute("user", user);
+		model.addAttribute("lastItemIdx", usedmarketService.getBoardLastIdx() + 1);
+		model.addAttribute("boardStatus1", usedmarketService.getBoardCountByUserIdxAndStatusRef(user.getIdx(), 1));
+    	model.addAttribute("boardStatus2", usedmarketService.getBoardCountByUserIdxAndStatusRef(user.getIdx(), 2));
+    	model.addAttribute("boardStatus3", usedmarketService.getBoardCountByUserIdxAndStatusRef(user.getIdx(), 3));
+		return "usedmarket/userView";
 	}
 }

@@ -129,8 +129,8 @@
 			loc2 = #{loc2},
 			loc3 = #{loc3},
 			location = #{location},
-			ip = #{ip}
-			updateDate = current_timestamp
+			ip = #{ip},
+			updateDate = CURRENT_TIMESTAMP
 		WHERE
 			idx = #{idx}
 	</update>

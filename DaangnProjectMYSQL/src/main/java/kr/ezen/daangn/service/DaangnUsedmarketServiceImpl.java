@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import kr.ezen.daangn.dao.DaangnUsedmarketBoardChatMessageDAO;
 import kr.ezen.daangn.dao.DaangnUsedmarketBoardChatRoomDAO;
@@ -37,7 +38,9 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	private DaangnUsedmarketBoardChatMessageDAO chatMessageDAO;
 	
 	/**
-	 * 중고거래 게시글 목록 얻기 (lastItemIdx, sizeOfPage, categoryRef, region, gu, dong, search, userRef)
+	 * 중고거래 게시글 목록 얻기 
+	 * 1. 게시글 목록보기인 경우 (lastItemIdx, sizeOfPage, categoryRef, region, gu, dong, search, userRef)
+	 * 2. 유저가 쓴글 보기인경우 (lastItemIdx, sizeOfPage, userRef, statusRef)
 	 * @param sv
 	 * @return
 	 */
@@ -48,12 +51,24 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 		try {
 			list = boardDAO.selectPagedLifeBoards(
 					sv.getLastItemIdx(), sv.getSizeOfPage(),
-					sv.getCategoryRef(), null,
+					sv.getCategoryRef(), sv.getStatusRef(),
 					sv.getRegion(), sv.getGu(), sv.getDong(), sv.getSearch(), sv.getUserRef(), sv.getBoardRef());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return list;
+	}
+	
+	/**
+	 * 유저의 판매상품의 상태에 따른 갯수 얻기 (userRef, statusRef)
+	 * @param sv
+	 * @return
+	 */
+	@Override
+	public int getBoardCountByUserIdxAndStatusRef(int userRef, int statusRef) {
+		int result = 0;
+		// result = boardDAO.
+		return 0;
 	}
 	
 	/**
@@ -185,34 +200,6 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	}
 	
 	/**
-	 * 유저가 쓴 글 주기 (lastItemIdx, sizeOfPage, userRef, statusRef)
-	 * @param sv
-	 * @return
-	 */
-	@Override
-	public List<DaangnUsedmarketBoardVO> getUsedmarketBoardsByUserRef(ScrollVO sv) {
-		List<DaangnUsedmarketBoardVO> list = null;
-		try {
-			list = boardDAO.selectPagedLifeBoards(sv.getLastItemIdx(), sv.getSizeOfPage(), null, sv.getStatusRef(), null, null, null, null, sv.getUserRef(), null);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	/**
-	 * 유저의 판매상품의 상태에 따른 갯수 얻기 (userRef, statusRef)
-	 * @param sv
-	 * @return
-	 */
-	@Override
-	public int getBoardCountByUserIdxAndStatusRef(ScrollVO sv) {
-		int result = 0;
-		// result = boardDAO.
-		return 0;
-	}
-	
-	/**
 	 * 게시글에 해당하는 유저의 다른 게시물 얻기 (userRef, boardRef)
 	 * @param sv
 	 * @return
@@ -272,10 +259,12 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 * @return
 	 */
 	@Override
+	@Transactional
 	public int incrementLikeCount(int boardRef, int userRef) {
 		int result = 0;
 		try {
-			boardLikeDAO.insertUsedmarketBoardLike(userRef, boardRef);
+			boardDAO.incrementLikeCount(boardRef); // 좋아요 수 증가
+			boardLikeDAO.insertUsedmarketBoardLike(userRef, boardRef); // 좋아요 저장
 			result = 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -293,7 +282,8 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	public int decrementLikeCount(int boardRef, int userRef) {
 		int result = 0;
 		try {
-			boardLikeDAO.deleteUsedmarketBoardLike(userRef, boardRef);
+			boardDAO.decrementLikeCount(boardRef); // 좋아요 수 감소
+			boardLikeDAO.deleteUsedmarketBoardLike(userRef, boardRef); // 좋아요 삭제
 			result = 1;
 		} catch (SQLException e) {
 			e.printStackTrace();

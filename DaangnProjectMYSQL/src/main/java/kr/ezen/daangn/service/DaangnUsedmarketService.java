@@ -23,6 +23,14 @@ public interface DaangnUsedmarketService {
 	 */
 	int getBoardLastIdx();
 	
+
+	/**
+	 * 유저의 판매상품의 상태에 따른 갯수 얻기 (userRef, statusRef)
+	 * @param sv
+	 * @return
+	 */
+	int getBoardCountByUserIdxAndStatusRef(int userRef, int statusRef);
+	
 	/**
 	 * 중고거래 게시글 한개 얻기
 	 * @param idx
@@ -65,20 +73,6 @@ public interface DaangnUsedmarketService {
 	 * @return
 	 */
 	int updateStatus(int boardRef, int statusRef);
-	
-	/**
-	 * 유저가 쓴 글 주기 (lastItemIdx, sizeOfPage, userRef, statusRef)
-	 * @param sv
-	 * @return
-	 */
-	List<DaangnUsedmarketBoardVO> getUsedmarketBoardsByUserRef(ScrollVO sv);
-	
-	/**
-	 * 유저의 판매상품의 상태에 따른 갯수 얻기 (userRef, statusRef)
-	 * @param sv
-	 * @return
-	 */
-	int getBoardCountByUserIdxAndStatusRef(ScrollVO sv);
 	
 	/**
 	 * 게시글에 해당하는 유저의 다른 게시물 얻기 (userRef, boardRef)
