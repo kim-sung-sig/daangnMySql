@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import kr.ezen.daangn.service.DaangnMemberService;
+import kr.ezen.daangn.service.DaangnUsedmarektChatService;
 import kr.ezen.daangn.service.DaangnUsedmarketService;
 import kr.ezen.daangn.vo.DaangnMemberVO;
 import kr.ezen.daangn.vo.DaangnUsedmarketBoardFileVO;
@@ -41,6 +42,8 @@ public class UsedmarketController {
 	private DaangnUsedmarketService usedmarketService;
 	@Autowired
 	private DaangnMemberService memberService;
+	@Autowired
+	private DaangnUsedmarektChatService chatService;
 	
 	/**
 	 * 중고거래 게시물 목록 보기
@@ -321,6 +324,75 @@ public class UsedmarketController {
 	}
 	
 	/**
+	 * 게시물 상태변경 페이지
+	 * @param boardRef
+	 * @param statusRef
+	 * @param model
+	 * @param session
+	 * @return
+	 */
+	@PostMapping(value = "/board-status/update")
+	public String usedStatusUpdate(@RequestParam(value = "boardRef") int boardRef, @RequestParam(value = "statusRef") int statusRef, Model model, HttpSession session) {
+		var boardVO = usedmarketService.selectByIdx(boardRef);
+		var user = (DaangnMemberVO) session.getAttribute("user");
+		if(boardVO.getUserRef() != user.getIdx()) {
+			return "redirect:/";
+		}
+		log.info("usedStatusUpdate 실행 boardIdx => {}, statusRef => {}", boardRef, statusRef);
+		// 1. 예약목록이 있는지 확인한다!
+		var rv = usedmarketService.getReserveByBoardRef(boardRef);
+		if(rv == null) {
+			if(statusRef == 1) { // 예약목록이 없으면 1번 금지!
+				return "redirect:/";
+			}
+		} else {
+			if(rv.getInteraction() == 1) { // 거래완료시 상품상태 변경불가
+				return "redirect:/";
+			}
+		}
+		model.addAttribute("rv", rv); // 예약목록이 있고 interaction = 0 이면 2빼고 1,2,3 셋 다가능
+		model.addAttribute("board", boardVO);
+		// 1. 게시글에 해당하는 채팅유저를 가져온다.
+		List<DaangnMemberVO> chatUsers = chatService.getChatRoomUserByBoardRef(boardRef);
+		log.info("fleamarketStatusUpdate 리턴 chatUsers => {}개 , {}", chatUsers.size(), chatUsers);
+		model.addAttribute("chatUsers", chatUsers);
+		model.addAttribute("statusRef", statusRef);
+		return "usedmarket/usedStatusUpdate";
+	}
+	
+	/**
+	 * 게시물 상태 변경 완료
+	 * @param boardRef
+	 * @param statusRef
+	 * @param model
+	 * @param session
+	 * @return
+	 */
+	@PostMapping(value = "/board-status/update/ok")
+	@ResponseBody
+	public String usedStatusUpdateOk(@RequestParam(value = "boardRef") int boardRef,
+									 @RequestParam(value = "statusRef") int statusRef,
+									 Model model, 
+									 HttpSession session) {
+		if(session.getAttribute("user") == null) {
+			return "redirect:/";
+		}
+		var boardVO = usedmarketService.selectByIdx(boardRef);
+		var user = (DaangnMemberVO) session.getAttribute("user");
+		
+		if(boardVO.getUserRef() != user.getIdx()) {
+			return "redirect:/";
+		}
+		log.info("fleamarketStatusUpdateOk 실행 boardRef => {}, statusRef => {}", boardRef, statusRef);
+		int result = usedmarketService.updateStatus(boardRef, user.getIdx(), statusRef);
+		log.info("fleamarketStatusUpdateOk 리턴 result => {}", result);
+		return result + "";
+	}
+	
+	//================================================================================================================
+	// 좋아요
+	//================================================================================================================
+	/**
 	 * 중고거래 게시물 찜하기
 	 * @param session
 	 * @param boardRef
@@ -351,6 +423,9 @@ public class UsedmarketController {
 	    log.info("result => {}", result);
 	    return result;
 	}
+	//================================================================================================================
+	// 좋아요 끝
+	//================================================================================================================
 	
 	/**
 	 * 유저의 글 목록 보는곳
@@ -368,4 +443,7 @@ public class UsedmarketController {
     	model.addAttribute("boardStatus3", usedmarketService.getBoardCountBy(user.getIdx(), 3));
 		return "usedmarket/userView";
 	}
+	
+	
+	// 채팅 메시지는 채팅 컨트롤러로 이전하겠다.
 }

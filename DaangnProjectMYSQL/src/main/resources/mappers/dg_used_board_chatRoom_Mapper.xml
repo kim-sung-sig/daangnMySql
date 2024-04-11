@@ -10,7 +10,7 @@
     </update>
     
     <!-- 채팅방 생성 (저장)-->
-    <insert id="createChatRoom" parameterType="hashmap" useGeneratedKeys="true" keyProperty="roomIdx">
+    <insert id="createChatRoom" parameterType="DaangnUsedmarketChatRoomVO" useGeneratedKeys="true" keyProperty="roomIdx">
         INSERT INTO daangn_usedmarket_board_chatRoom (userRef, boardRef, boardUserRef) 
         VALUES (#{userRef}, #{boardRef}, #{boardUserRef})
     </insert>
@@ -20,7 +20,7 @@
         SELECT
 		    CASE 
 		        WHEN (SELECT count(*) FROM daangn_usedmarket_board_chatRoom WHERE (userRef = #{userRef} AND boardRef = #{boardRef})) = 1 THEN
-		            (SELECT roomIdx FROM daangn_usedmarket_board_chatRoom WHERE (userIdx = #{userRef} AND boardIdx = #{boardRef}))
+		            (SELECT roomIdx FROM daangn_usedmarket_board_chatRoom WHERE (userRef = #{userRef} AND boardRef = #{boardRef}))
 		        ELSE
 		            0
 		    END AS roomIdx
@@ -78,4 +78,8 @@
         DELETE FROM daangn_usedmarket_board_chatRoom 
         WHERE roomIdx = #{roomIdx}
     </delete>
+    
+    <select id="selectChatRoomByIdx" parameterType="int" resultType="DaangnUsedmarketChatRoomVO">
+    	SELECT * FROM daangn_usedmarket_board_chatRoom WHERE roomIdx = #{roomIdx}
+    </select>
 </mapper>

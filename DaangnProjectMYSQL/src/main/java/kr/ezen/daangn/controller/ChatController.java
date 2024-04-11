@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 public class ChatController {
-	
+	/*
 	@Autowired
     private SimpMessagingTemplate messagingTemplate;
 	
@@ -63,5 +63,5 @@ public class ChatController {
 		log.info("messageUpdateReadCountAll 실행 : {}", chatMessageVO);
 		chatService.updateReadCountAll(chatMessageVO.getChatRoom(), chatMessageVO.getSender());
 	}
-
+	*/
 }

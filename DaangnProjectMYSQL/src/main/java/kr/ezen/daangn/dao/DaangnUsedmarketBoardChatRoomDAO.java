@@ -22,11 +22,7 @@ public interface DaangnUsedmarketBoardChatRoomDAO {
      * 채팅방 만들기 (userRef, boardRef, boardUserRef)
      * @param chatRoomVO
      */
-    void createChatRoom(
-    		@Param("userRef") int userRef,
-    		@Param("boardRef") int boardRef,
-    		@Param("boardUserRef") int boardUserRef
-    	) throws SQLException;
+    void createChatRoom(DaangnUsedmarketChatRoomVO chatRoomVO) throws SQLException;
     
     /**
      * 이미 채팅방이 있는지 확인 (없으면 0, 있으면 idx)
@@ -54,7 +50,7 @@ public interface DaangnUsedmarketBoardChatRoomDAO {
      * 채팅방 활성화(유저에서)
      * @param roomIdx
      */
-    void activateChatRoom(@Param("roomIdx") int roomIdx);
+    void activateChatRoom(@Param("roomIdx") int roomIdx) throws SQLException;
     
     /**
      * 채팅방 비활성화(유저에서) userRef = deleted1 , boardUserRef = deleted2
@@ -77,5 +73,13 @@ public interface DaangnUsedmarketBoardChatRoomDAO {
      * 채팅방 완전 삭제 하기
      * @param roomIdx
      */
-    void deleteChatRoom(int roomIdx);
+    void deleteChatRoom(int roomIdx) throws SQLException;
+    
+    /**
+     * 채팅방 하나 얻기
+     * @param idx
+     * @return
+     * @throws SQLException
+     */
+    DaangnUsedmarketChatRoomVO selectChatRoomByIdx(int roomIdx) throws SQLException;
 }

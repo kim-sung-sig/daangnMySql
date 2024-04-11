@@ -60,4 +60,6 @@ public interface DaangnUsedmarketBoardChatMessageDAO {
     int unreadCount(@Param("chatRoomRef") int chatRoomRef, @Param("sender") int sender) throws SQLException;
 
     void deactivateChatMessage(@Param("chatRoomRef") int chatRoomRef, @Param("deleted1") Integer deleted1, @Param("deleted2") Integer deleted2) throws SQLException;
+
+    DaangnUsedmarketChatMessageVO selectLastMessageByChatRoomRef(int chatRoomRef) throws SQLException;
 }

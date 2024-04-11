@@ -9,12 +9,7 @@ drop table if exists daangn_life_category;
 
 
 
-select * from daangn_life_category;
-select * from daangn_life_board;
-select * from daangn_life_board_file;
-select * from daangn_life_board_like;
-select * from daangn_life_comment;
-select * from daangn_life_comment_like;
+
 
 create table daangn_life_category(
     idx int primary key auto_increment,
@@ -89,3 +84,10 @@ create table daangn_life_comment_like(
     commentRef int not null,
     constraint dg_life_cm_like_commentRef foreign key (commentRef) references daangn_life_comment(idx) on delete cascade
 );
+
+select * from daangn_life_category;
+select * from daangn_life_board;
+select * from daangn_life_board_file;
+select * from daangn_life_board_like;
+select * from daangn_life_comment;
+select * from daangn_life_comment_like;

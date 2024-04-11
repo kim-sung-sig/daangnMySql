@@ -13,17 +13,17 @@
 		JOIN
 			daangn_member dm ON dubcm.sender = dm.idx
 		LEFT JOIN
-			daangn_user_file AS duf ON dubcm.sender = duf.ref
+			daangn_user_file duf ON dubcm.sender = duf.ref
 		WHERE
 			<![CDATA[
 				dubcm.idx < #{lastItemIdx}
 			]]>
 			AND dubcm.chatRoomRef = #{chatRoomRef}
 			<if test="deleted1 != null">
-				dubcm.deleted1 = 0
+				AND dubcm.deleted1 = 0
 			</if>
 			<if test="deleted2 != null">
-				dubcm.deleted2 = 0
+				AND dubcm.deleted2 = 0
 			</if>
 		ORDER BY
 			dubcm.idx DESC

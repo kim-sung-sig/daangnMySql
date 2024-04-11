@@ -10,5 +10,5 @@ public class DaangnUsedmarketReserveVO {
 	private int boardRef;
 	private int userRef;
 	private LocalDateTime reserveDate; 
-	private int interaction;
+	private int interaction; // 0: 예약, 1: 판매완료
 }

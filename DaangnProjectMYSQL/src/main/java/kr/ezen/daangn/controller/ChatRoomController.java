@@ -27,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @RequestMapping("/chat")
 public class ChatRoomController {
-	
 	@Autowired
 	private ChatService chatService;
 	@Autowired

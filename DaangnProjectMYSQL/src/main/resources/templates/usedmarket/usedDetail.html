@@ -132,14 +132,13 @@
 						[[${#numbers.formatInteger(board.price, 0, 'COMMA')}]]원		
 					</div>
 					<div>
-						<form th:action="@{/chat/createChatRoom}" method="post" id="chatBtn">
-							<input type="hidden" name="boardIdx" th:value="${board.idx}">						
-							<input th:if="${session.user == null}" type="submit" onclick="alert('로그인 후 이용가능합니다.'); location.href='/member/login'" class="uk-button uk-button-primary" value="채팅하기"/>				
-							<th:block th:if="${session.user != null}">
-								<input th:if="${session.user.idx != board.userRef && board.statusRef != 3}" type="submit" class="uk-button uk-button-primary" value="채팅하기"/>				
-								<input th:if="${session.user.idx == board.userRef}" type="button" class="uk-button uk-button-primary" id="updateBtn" value="수정하기" th:disabled="${board.statusRef == 3}"/>							
-							</th:block>
-						</form>
+						<input type="hidden" name="boardIdx" th:value="${board.idx}">						
+						<input th:if="${session.user == null}" type="button" onclick="alert('로그인 후 이용가능합니다.'); location.href='/member/login'" class="uk-button uk-button-primary" value="채팅하기"/>				
+						<th:block th:if="${session.user != null}">
+							<input th:if="${session.user.idx != board.userRef && board.statusRef != 3}" type="button" class="uk-button uk-button-primary" value="채팅하기" id="chatBtn"/>				
+							<input th:if="${session.user.idx != board.userRef && board.statusRef == 3}" type="button" class="uk-button uk-button-primary" value="채팅불가" disabled="disabled"/>				
+							<input th:if="${session.user.idx == board.userRef}" type="button" class="uk-button uk-button-primary" id="updateBtn" value="수정하기" th:disabled="${board.statusRef == 3}"/>							
+						</th:block>
 					</div>
 				</div>
 			</div>
@@ -238,15 +237,15 @@
 			})
 			
 			
-			$("#chatBtn").submit(function(){
-				axios.post("/chat/createChatRoom",{
-					'boardIdx': $("#boardIdx").val()
+			$("#chatBtn").click(function(){
+				axios.post("/chat2/createChatRoom",{
+					'boardRef': $("#boardIdx").val()
 				})
-				.then(function (res) {
+				.then((res) => {
 					data = res.data;
 					console.log(data);
-					if(data!=0){
-						const url = `/chat/room/${data}`;
+					if(data != 0){
+						const url = `/chat2/room/${data}`;
 						const popupWidth = 400;
 			            const popupHeight = 705;
 			            const leftPosition = (window.screen.width - popupWidth) / 2;
@@ -257,11 +256,9 @@
 						alert("로그인후 이용가능합니다.")
 					}
 				})
-				.catch(function (err) {
+				.catch((err) => {
 					console.log(err);
 				});
-				
-				return false;
 			})
 			
 			// 수정버튼
@@ -292,9 +289,9 @@
 				if(result) {
 					const form = $('<form>').attr({
 						'method' : 'post',
-						'action' : ''
+						'action' : '/used-market/board-status/update'
 					});
-				    form.append($('<input>').attr('type', 'hidden').attr('name', 'boardIdx').val(boardIdx));
+				    form.append($('<input>').attr('type', 'hidden').attr('name', 'boardRef').val(boardIdx));
 				    form.append($('<input>').attr('type', 'hidden').attr('name', 'statusRef').val(statusRef));
 				    $('body').append(form);
 				    form.submit();

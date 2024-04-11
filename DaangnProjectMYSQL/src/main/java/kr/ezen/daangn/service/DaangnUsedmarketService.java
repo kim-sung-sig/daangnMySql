@@ -4,8 +4,7 @@ import java.util.List;
 
 import kr.ezen.daangn.vo.DaangnUsedmarketBoardFileVO;
 import kr.ezen.daangn.vo.DaangnUsedmarketBoardVO;
-import kr.ezen.daangn.vo.DaangnUsedmarketChatMessageVO;
-import kr.ezen.daangn.vo.DaangnUsedmarketChatRoomVO;
+import kr.ezen.daangn.vo.DaangnUsedmarketReserveVO;
 import kr.ezen.daangn.vo.ScrollVO;
 
 public interface DaangnUsedmarketService {
@@ -79,7 +78,21 @@ public interface DaangnUsedmarketService {
 	 * @param statusRef
 	 * @return
 	 */
-	int updateStatus(int boardRef, int statusRef);
+	int updateStatus(int boardRef, int userRef, int statusRef);
+	
+	/**
+	 * 예약자가 있는지 확인하기
+	 * @param boardRef
+	 * @return
+	 */
+	DaangnUsedmarketReserveVO getReserveByBoardRef(int boardRef);
+	
+	/**
+	 * 구매 목록 얻기
+	 * @param sv
+	 * @return
+	 */
+	List<DaangnUsedmarketBoardVO> getPurchaseListByUserIdx(ScrollVO sv);
 	
 	/**
 	 * 게시글에 해당하는 유저의 다른 게시물 얻기 (userRef, boardRef)
@@ -129,62 +142,4 @@ public interface DaangnUsedmarketService {
 	 */
 	int isUsedmarketBoardLike(int userRef, int boardRef);
 	
-	//=========================================================================
-	// 채팅관련
-	//=========================================================================
-	/**
-	 * 채팅방 입장하기
-	 * 1. 없으면 만들고 있으면 번호리턴
-	 * 2. 상대방의 채팅을 모두 읽음 처리하기
-	 * @param chatRoomVO
-	 * @return 생성된 채팅방의 인덱스 or 기존 채팅방 인덱스
-	 */
-	int createChatRoom(int userRef, int boardRef);
-	
-	/**
-	 * 1. 채팅방 목록 보기 (LastUpdateDate 기준)
-	 * 2. 안읽은 채팅 메시지 수 가져오기(userRef, chatRoomRef) 채팅방에 해당
-	 * @param userRef
-	 * @return
-	 */
-	List<DaangnUsedmarketChatRoomVO> getChatRooms(int userRef);
-	
-    /**
-     * 채팅방 삭제하기
-     * @param chatRoomRef 채팅방 인덱스
-     * @return 삭제된 채팅방 수
-     */
-    int deleteChatRoom(int chatRoomRef, Integer deleted1, Integer deleted2);
-
-    /**
-     * 1. 채팅메시지 저장
-     * 2. 채팅방 LastUpdateDate를 업데이트
-     * @param chatMessageVO
-     */
-    void insertMessage(DaangnUsedmarketChatMessageVO chatMessageVO);
-    
-    // 날라온 idx로 readed--
-    void updateReadCount(int idx);
-    
-    // 안읽은 채팅 메시지 수 가져오기(userRef) 모든 채팅방의 총합
-    int getUnReadCountByUserRef(int userRef);
-    
- 	/**
-      * 채팅메시지 가져오기
-      * @param sizeOfPage 한 페이지에 표시할 채팅메시지 수
-      * @param lastItemIdx 마지막 채팅메시지 인덱스
-      * @param chatRoomRef 채팅방 인덱스
-      * @param deleted1, deleted1 누가 호출하는지
-      * @return 채팅메시지 목록
-      */
-     List<DaangnUsedmarketChatMessageVO> getPagedChatMessages(
-     		int lastItemIdx, int sizeOfPage, int chatRoomRef,
-     		Integer deleted1, Integer deleted2
-     	);
-     
-     /**
-      * 채팅메시지 가장 큰 idx
-      * @return
-      */
-     int getChatMessageLastIdx();
 }
