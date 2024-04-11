@@ -70,7 +70,7 @@
 			daangn_usedmarket_board_chatMessage
 		WHERE
 			<![CDATA[
-				chatRoomRef = #{chatRoomRef} AND sender <> #{sender} AND readed = 1			
+				chatRoomRef = #{chatRoomRef} AND sender <> #{sender} AND readed > 0			
 			]]>
 	</select>
 	
@@ -87,4 +87,12 @@
 		WHERE
 			chatRoomRef = #{chatRoomRef}
 	</update>
+	
+	<select id="selectLastMessageByChatRoomRef" parameterType="int" resultType="DaangnUsedmarketChatMessageVO">
+		SELECT * 
+		FROM daangn_usedmarket_board_chatMessage
+		WHERE chatRoomRef = #{chatRoomRef}
+		ORDER BY idx DESC
+		LIMIT 1
+	</select>
 </mapper>

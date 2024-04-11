@@ -16,8 +16,6 @@ public class DaangnUsedmarketChatMessageVO {
 	private int readed = 2;
 	private int deleted1;
 	private int deleted2;
-	
-	private String ip;
 	// end - DB Setting
 	
 	private String nickName;

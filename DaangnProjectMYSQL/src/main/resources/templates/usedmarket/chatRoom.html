@@ -13,6 +13,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
 	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<!-- axios -->
 	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 	
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
@@ -58,12 +59,14 @@
 			const sizeOfPage = 30;
 			let lastItemIdx = $("#lastItemIdx").val();
 			let isJoined = false;
+			console.log(chatRoomIdx, sender, sizeOfPage, lastItemIdx, isJoined);
 		    // WebSocket 및 Stomp 초기화
 		    var sock = new SockJS("/ws");
 		    var ws = Stomp.over(sock);
 		    
 		    /** 메시지를 보낼때 실행되는 함수 */
 		    function sendMessage() {
+		    	console.log('메시지 보내기!');
 		        const content = $('#message').val();
 		        ws.send("/pub/chat2/message", {}, JSON.stringify({"typeRef": 2, "chatRoomRef": chatRoomIdx, "sender": sender, "content": content, "readed":2}));
 		        $('#message').val('');
@@ -89,28 +92,28 @@
 		    // pub/sub 이벤트
 		    ws.connect({}, function(frame) {
 				// 입장 모두 읽음 처리
-				axios.put("/chat/readAll", {
+				axios.put("/chat2/readAll", {
 		    		"chatRoomRef": chatRoomIdx,
 		    		"sender": sender,
 		    	})
 				.then(res => console.log('readAll 성공'))
 				.catch(error => console.error('readAll 실패',error));
 				// 구독
-		        ws.subscribe("/sub/chat/room/" + chatRoomIdx, function(message) {
+		        ws.subscribe("/sub/chat2/room/" + chatRoomIdx, function(message) {
 		        	let recv = JSON.parse(message.body);
 		        	console.log(recv);
 		        	if(recv.typeRef == 1){ // 입장 메시지를 받으면!
 						if(recv.sender != sender) {
 							// 다른 유저가 접속 했다면!
 							if(!isJoined){
-								ws.send("/pub/chat/message", {}, JSON.stringify({'typeRef': 1,'chatRoomRef': chatRoomIdx, 'sender': sender}));
+								ws.send("/pub/chat2/message", {}, JSON.stringify({'typeRef': 1,'chatRoomRef': chatRoomIdx, 'sender': sender}));
 								console.log('상대방 입장');
 								isJoined = true;
 								$(".readed").remove();						
 							}
 						}
 					} else if(recv.typeRef == 2) {
-						axios.put("/chat/read", {
+						axios.put("/chat2/read", {
 							'idx': recv.idx
 						})
 						.then(res => console.log('read 성공'))
@@ -168,7 +171,7 @@
 				let lastItem = chatMessages[0];
 				let idx = lastItem.querySelector(".idx").value;
 				lastItemIdx = idx;
-				console.log('lastItemIdx1 =', lastItemIdx);
+				console.log('lastItemIdx =', lastItemIdx);
 			}
 			
 		    /**

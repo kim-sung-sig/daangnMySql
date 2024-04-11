@@ -46,4 +46,7 @@ public class DaangnUsedmarketBoardVO {
 
 	// 좋아요 했는지 안했는지 확인
 	private int isLike;
+	
+	private Integer likeIdx;
+	private Integer reserveIdx;
 }

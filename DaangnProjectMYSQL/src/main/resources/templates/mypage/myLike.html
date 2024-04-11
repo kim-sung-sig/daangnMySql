@@ -37,26 +37,78 @@
 </style>
 </head>
 <body>
+	<input type="hidden" id="userIdx" th:value="${user.idx}">
+	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx}">
 	<div id="wrap">
 		<th:block th:insert="~{indexHeader.html}"></th:block>
 		<main>
 			<th:block th:insert="~{mypage/leftArea.html}"></th:block>
 			<div id="rightArea">
-				<h3 style="font-weight: 600"><span class="highlight">[[${user.nickName}]]</span>님의 관심목록</h3>
-				<th:block th:if="${#lists.isEmpty(pv.list)}">
+				<h3 style="font-weight: 600"><span class="highlight">[[${user.nickName}]]</span>님의 관심목록 [[${totalCount != 0 ? totalCount + '건' : ''}]]</h3>
+				<th:block th:if="${totalCount == 0}">
 					<p>등록된 관심목록이 없습니다.</p>
 				</th:block>
-				<th:block th:if="${not #lists.isEmpty(pv.list)}">
-					<ul id="boardNav">
-						<li th:each="board : ${pv.list}" class="itemLi">
-							<div class="itemImg">
-								<img th:src="'/upload/' + ${board.boardFileList[0].saveFileName}" alt="상품사진" />
-							</div>
+				<th:block th:if="${totalCount != 0}">
+					<ul id="boardNav"></ul>
+				</th:block>
+			</div>
+		</main>
+	</div>
+	
+	<script type="text/javascript">
+		let lastItemIdx = 0;
+		const sizeOfPage = 12;
+		let userIdx = 0;
+		
+		function detail(idx) {
+		    const url = '/used-market/detail/' + idx;
+		    window.open(url, "_blank");
+		}
+		
+		function init(){
+			lastItemIdx = $("#lastItemIdx").val();
+			userIdx = $("#userIdx").val();
+			console.log(lastItemIdx, sizeOfPage, userIdx);
+			getItem();
+		}
+		
+		/** 스크롤 이벤트 */
+		function handleScroll() {
+		    if (window.scrollY + window.innerHeight + 100 >= document.documentElement.scrollHeight) {
+		        getItem();
+		    }
+		}
+		
+		/** 수를 가격으로 바꿔주는 함수 */
+		function numberFormatter(number){
+			let formattedNumber = new Intl.NumberFormat('ko-KR').format(number) + '원';
+			return formattedNumber;
+		}
+		
+		function getItem(){
+			window.removeEventListener('scroll', handleScroll);
+			axios.post('/member/myLikeBoardList', {
+	            'lastItemIdx' : lastItemIdx,
+	            'sizeOfPage' : sizeOfPage,
+	            'userRef' : userIdx
+	        })
+	        .then(res => {
+				let data = res.data;
+				content = "";
+				if(data.length == 0) {
+					window.removeEventListener('scroll', handleScroll);
+					return ;
+				}
+				data.forEach(board => {
+					lastItemIdx = board.likeIdx;
+			    	content += `
+			    		<li class="itemLi" onclick="detail(${board.idx})" style="cursor: pointer;">
+							<div class="itemImg" style="background: url('/upload/${board.thumbnail}') center/cover;"></div>
 							<div>
 								<div class="itemInfo">
-									<h4 class="itemTitle">[[${board.subject}]]</h4>
-									<span class="itemLoc">[[${board.loc}]]</span>
-									<p class="itemPrice">[[${#numbers.formatInteger(board.price, 0, 'COMMA')}]]원</p>
+									<h4 class="itemTitle">${board.title}</h4>
+									<span class="itemLoc">${board.loc1} ${board.loc2} ${board.loc3}</span>
+									<p class="itemPrice">${numberFormatter(board.price)}</p>
 								</div>
 							</div>
 							<div class="heartBtnBox">
@@ -64,29 +116,28 @@
 								<span uk-icon="heart" class="active"></span>
 							</div>
 							<div class="heartCount" style="">
-								<span uk-icon="heart"><span>[[${board.countLike}]]&nbsp;</span></span>
+								<span uk-icon="heart"><span>${board.likeCount}&nbsp;</span></span>
 							</div>
 						</li>
-					</ul>
-					<div id="page" style="display: flex; align-items: center; justify-content: center; margin-top: 30px">
-						[(${pv.pageList})]
-					</div>
-				</th:block>
-			</div>
-		</main>
-	</div>
+			    	`;
+				})
+				$("#boardNav").append(content);
+				window.addEventListener('scroll', handleScroll);
+			})
+		}
 	
-	<script type="text/javascript">
 		$(function(){
+			
+			init();
 			
 			// 좋아요 버튼을 클릭시 발생이벤트
 			$(".heartBtnBox").click(function(){
 				let boardIdx = $(this).find(".heartVal").val()
 				
 				if($(this).find("span").hasClass("active")){
-					axios.delete("/api/like",{
+					axios.post("/used-market/unlike",{
 						data: {
-							'boardIdx' : boardIdx
+							'boardRef' : boardIdx
 						}
 					})
 					.then(res => {
@@ -101,8 +152,8 @@
 						console.log(e);
 					})
 				} else {
-					axios.post("/api/like",{
-						'boardIdx' : boardIdx
+					axios.post("/used-market/like",{
+						'boardRef' : boardIdx
 					})
 					.then(res => {
 						const data = res.data;

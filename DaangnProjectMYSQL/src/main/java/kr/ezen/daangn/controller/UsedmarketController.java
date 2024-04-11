@@ -2,6 +2,7 @@ package kr.ezen.daangn.controller;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import jakarta.servlet.http.HttpSession;
 import kr.ezen.daangn.service.DaangnMemberService;
 import kr.ezen.daangn.service.DaangnUsedmarektChatService;
 import kr.ezen.daangn.service.DaangnUsedmarketService;
+import kr.ezen.daangn.service.RegionService;
 import kr.ezen.daangn.vo.DaangnMemberVO;
 import kr.ezen.daangn.vo.DaangnUsedmarketBoardFileVO;
 import kr.ezen.daangn.vo.DaangnUsedmarketBoardVO;
@@ -44,6 +46,8 @@ public class UsedmarketController {
 	private DaangnMemberService memberService;
 	@Autowired
 	private DaangnUsedmarektChatService chatService;
+	@Autowired
+	private RegionService regionService;
 	
 	/**
 	 * 중고거래 게시물 목록 보기
@@ -65,15 +69,27 @@ public class UsedmarketController {
 							@RequestParam(value = "search", required = false) String search) {
 		log.debug("lifeview 실행 region: {}, gu: {}, dong: {}, search: {}", region, gu, dong, search);
 		if(region != null) {
+			if(!regionService.regionList(region, gu, dong).contains(region)) {
+				return "redirect:/used-market/view";
+			}
 			model.addAttribute("region", region);		
 		}
 		if(gu != null) {
+			if(!regionService.regionList(region, gu, dong).contains(gu)) {
+				return "redirect:/used-market/view";
+			}
 			model.addAttribute("gu", gu);			
 		}
 		if(dong != null) {
+			if(!regionService.regionList(region, gu, dong).contains(dong)) {
+				return "redirect:/used-market/view";
+			}
 			model.addAttribute("dong", dong);
 		}
-		if(categoryRef != null && categoryRef > 0) {
+		if(categoryRef != null) {
+			if(!(0 < categoryRef && categoryRef < 14)) {
+				return "redirect:/used-market/view";
+			}
 			model.addAttribute("categoryRef", categoryRef);
 		}
 		if(search != null && !search.equals("")) {
@@ -81,6 +97,9 @@ public class UsedmarketController {
 		}
 		model.addAttribute("lastItemIdx", usedmarketService.getBoardLastIdx() + 1);
 		model.addAttribute("totalCount", usedmarketService.getBoardCountBy(categoryRef, region, gu, dong, search));
+		if(session.getAttribute("user") != null) {
+			model.addAttribute("unreadCount", chatService.getUnreadCountByUserRef(((DaangnMemberVO)session.getAttribute("user") ).getIdx()));			
+		}
 		return "usedmarket/usedmarket";
 	}
 	
@@ -346,6 +365,7 @@ public class UsedmarketController {
 				return "redirect:/";
 			}
 		} else {
+			log.info("예약있엇음! {}", rv);
 			if(rv.getInteraction() == 1) { // 거래완료시 상품상태 변경불가
 				return "redirect:/";
 			}
@@ -354,7 +374,7 @@ public class UsedmarketController {
 		model.addAttribute("board", boardVO);
 		// 1. 게시글에 해당하는 채팅유저를 가져온다.
 		List<DaangnMemberVO> chatUsers = chatService.getChatRoomUserByBoardRef(boardRef);
-		log.info("fleamarketStatusUpdate 리턴 chatUsers => {}개 , {}", chatUsers.size(), chatUsers);
+		log.info("usedStatusUpdate 리턴 chatUsers => {}", chatUsers);
 		model.addAttribute("chatUsers", chatUsers);
 		model.addAttribute("statusRef", statusRef);
 		return "usedmarket/usedStatusUpdate";
@@ -370,22 +390,21 @@ public class UsedmarketController {
 	 */
 	@PostMapping(value = "/board-status/update/ok")
 	@ResponseBody
-	public String usedStatusUpdateOk(@RequestParam(value = "boardRef") int boardRef,
-									 @RequestParam(value = "statusRef") int statusRef,
-									 Model model, 
-									 HttpSession session) {
+	public String usedStatusUpdateOk(HttpSession session, @RequestBody Map<String, Integer> map) {
 		if(session.getAttribute("user") == null) {
-			return "redirect:/";
+			return "0";
 		}
+		int boardRef = map.get("boardRef");
+		int statusRef = map.get("statusRef");
+		Integer userRef = map.get("userRef");
 		var boardVO = usedmarketService.selectByIdx(boardRef);
 		var user = (DaangnMemberVO) session.getAttribute("user");
-		
 		if(boardVO.getUserRef() != user.getIdx()) {
-			return "redirect:/";
+			return "0";
 		}
-		log.info("fleamarketStatusUpdateOk 실행 boardRef => {}, statusRef => {}", boardRef, statusRef);
-		int result = usedmarketService.updateStatus(boardRef, user.getIdx(), statusRef);
-		log.info("fleamarketStatusUpdateOk 리턴 result => {}", result);
+		log.info("usedStatusUpdateOk 실행 boardRef => {}, userRef => {}, statusRef => {}", boardRef, userRef, statusRef);
+		int result = usedmarketService.updateStatus(boardRef, userRef, statusRef);
+		log.info("usedStatusUpdateOk 리턴 result => {}", result);
 		return result + "";
 	}
 	

@@ -27,6 +27,14 @@ public interface DaangnUsedmarketBoardReserveDAO {
 	void deleteReserveByboardRef(int boardRef) throws SQLException;
 	
 	/**
+	 * 예약이 되어 있엇는지 확인 유저닉네임 리턴
+	 * @param boardRef
+	 * @return
+	 * @throws SQLException
+	 */
+	DaangnUsedmarketReserveVO getReserveByBoardRef(int boardRef) throws SQLException;
+	
+	/**
 	 * 구매 목록 얻기 (lastItemIdx, sizeOfPage, userRef)
 	 * @return
 	 * @throws SQLException
@@ -46,10 +54,9 @@ public interface DaangnUsedmarketBoardReserveDAO {
 	int getPurchaseListTotalCountByUserRef(int userRef) throws SQLException;
 	
 	/**
-	 * 예약이 되어 있엇는지 확인 유저닉네임 리턴
-	 * @param boardRef
+	 * 구매목록 최대 idx 얻기
 	 * @return
 	 * @throws SQLException
 	 */
-	String getReserveUserNickNameByBoardRef(int boardRef) throws SQLException;
+	int getLastItemIdx() throws SQLException;
 }

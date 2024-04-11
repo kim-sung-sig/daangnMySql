@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>당근-마이페이지</title>
+<title>당근 - 마이페이지</title>
 <!--제이쿼리 추가-->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <!-- UIkit CSS -->
@@ -55,7 +55,7 @@
 </head>
 <body>
 	<input type="hidden" id="userRef" th:value="${user.idx}">
-	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx + 1}">
+	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx}">
 	<div id="wrap">
 		<th:block th:insert="~{indexHeader.html}"></th:block>
 		<main>
@@ -85,21 +85,129 @@
 	</div>
 	<script type="text/javascript">
 		const scrollHandlers = [];
+		const lastItemIdxs = [];
+		const userIdx = $("#userRef").val();
+		const sizeOfPage = 12;
+		let statusRef = 0;
+		let targetDiv = 0;
 		
 		function detail(idx) {
-		    const url = '/fleamarketDetail/' + idx;
+		    const url = '/used-market/detail/' + idx;
 		    window.open(url, "_blank");
 		}
-	
+		
+		function init(){
+			$(".libtn").each(function(index) {
+		        scrollHandlers[index] = function() {
+		            handleScroll(index);
+		        };
+		        lastItemIdxs[index] = $("#lastItemIdx").val();
+		    });
+			// 초기데이터 읽어드리기
+			readData(0);	
+			readData(1);	
+			readData(2);
+			
+			window.addEventListener('scroll', scrollHandlers[0]);
+		}
+		
+		// 스크롤 이벤트 핸들러
+	    function handleScroll(index) {
+	        if (window.scrollY + window.innerHeight + 100 >= document.documentElement.scrollHeight) {
+	        	readData(index);
+	        }
+	    }
+		
+	    function activateScrollHandler(index) { // i번째 스크롤 핸들러 살리기
+	        window.addEventListener('scroll', scrollHandlers[index]);
+	    }
+
+	    function deactivateScrollHandler() { // 모든 스크롤핸들러 죽이기
+	        window.removeEventListener('scroll', scrollHandlers[0]);
+	        window.removeEventListener('scroll', scrollHandlers[1]);
+	        window.removeEventListener('scroll', scrollHandlers[2]);
+	    }
+		
+		/** 데이타 읽어서 */
+		/** index번호에 aalastItemIdx부터 조회하고  index번호에 읽고 뿌리기*/
+		function readData(index){
+			
+			let lastItemIdx = lastItemIdxs[index];
+			
+			axios.post(`/used-market/list`,{
+				'lastItemIdx' : lastItemIdx,
+				'sizeOfPage' : sizeOfPage,
+				'userRef' : userIdx,
+				'statusRef' : index + 1,
+			})
+			.then(res => {
+				const data = res.data;
+				if(data.length == 0) {
+					window.removeEventListener('scroll', scrollHandlers[index])
+					scrollHandlers[index] = null;
+					return ;
+	            }
+				console.log(index, data);
+				data.forEach(vo => {
+					updateTable(vo, index);
+				})
+			})
+			.catch(e => {
+				console.log(e);
+			})
+		}
+
+		/** i번째에 내용 채워넣기 */
+		function updateTable(vo, index){
+			lastItemIdxs[index] = vo.idx;
+			content = `
+				<article class="uk-card" onclick="detail(${vo.idx})">
+					<input type="hidden" class="idx" value="${vo.idx}">
+					<div class="uk-card-media-top" style="background: url('/upload/${vo.thumbnail}') center/cover"></div>
+					<div class="uk-card-body">
+						<h4 class="uk-card-title">${vo.statusRef==1 ? '' : vo.statusRef==2 ? '<span class="reserved">예약중</span>' : '<span class="sold">판매완료</span>'}${vo.title}</h4>
+						<p class="price">${numberFormatter(vo.price)}</p>
+						<span class="city">${vo.loc1} ${vo.loc2} ${vo.loc3}</span>
+						<p class="like"><span>관심 ${vo.likeCount}</span>ㆍ<span>채팅 ${vo.chatRoomCount}</span>ㆍ<span>조회수 ${vo.readCount}</span></p>
+					</div>
+				</article>
+			`;
+			console.log(content);
+			$("#contentBox > div").eq(index).append(content);
+		}
+		
+		/** 수를 가격으로 바꿔주는 함수 */
+		function numberFormatter(number){
+			let formattedNumber = new Intl.NumberFormat('ko-KR').format(number) + '원';
+			return formattedNumber;
+		}
+		
+		/** 날짜변경 */
+		function dateFormatter(dateStr){
+			// Moment.js를 사용하여 상대적인 시간 표시 
+			let momentRegDate = moment(dateStr);
+			let now = moment();
+			let diff = now.diff(momentRegDate, 'seconds'); // 차이 구하기
+			var formattedDate;
+			if (diff < 60) {
+			    formattedDate = diff + '초 전';
+			} else if (diff < 3600) {
+			    formattedDate = Math.floor(diff / 60) + '분 전';
+			} else if (diff < 86400) {
+			    formattedDate = Math.floor(diff / 3600) + '시간 전';
+			} else if (diff < 604800) {
+			    formattedDate = Math.floor(diff / 86400) + '일 전';
+			} else {
+			    formattedDate = momentRegDate.format('YYYY.MM.DD');
+			}
+			return formattedDate;
+		}
+		
 		$(function(){
-			const userIdx = $("#userRef").val();
-			const sizeOfPage = 9;
-			let lastItemIdx = $("#lastItemIdx").val();
-			let statusRef = 0;
-			let targetDiv = 0;
 			
 			init();
 			
+			// 텝 매뉴
 			$(".libtn").click(function() {
 			    $(".libtn").removeClass("active");
 			    $(this).addClass("active");
@@ -116,115 +224,6 @@
 			    activateScrollHandler(index);
 			});
 			
-			function init(){
-				$(".libtn").each(function(index) {
-			        scrollHandlers[index] = function() {
-			            handleScroll(index);
-			        };
-			    });
-				readData(0, lastItemIdx);	
-				readData(1, lastItemIdx);	
-				readData(2, lastItemIdx);
-				
-				window.addEventListener('scroll', scrollHandlers[0]);
-			}
-			
-			// 스크롤 이벤트 핸들러
-		    function handleScroll(index) {
-				console.log(1);
-		        if (window.scrollY + window.innerHeight + 100 >= document.documentElement.scrollHeight) {
-		            const aalastItemIdx = findLastItemIdxByTargetDiv(index);
-		        	readData(index, aalastItemIdx);
-		        }
-		    }
-		    function activateScrollHandler(index) { // i번째 스크롤 핸들러 살리기
-		        window.addEventListener('scroll', scrollHandlers[index]);
-		    }
-
-		    function deactivateScrollHandler() { // 모든 스크롤핸들러 죽이기
-		        window.removeEventListener('scroll', scrollHandlers[0]);
-		        window.removeEventListener('scroll', scrollHandlers[1]);
-		        window.removeEventListener('scroll', scrollHandlers[2]);
-		    }
-			
-			
-			/** 데이타 읽어서 */
-			/** index번호에 aalastItemIdx부터 조회하고  index번호에 읽고 뿌리기*/
-			function readData(index, aalastItemIdx){
-				axios.post(`/user/${userIdx}/boards`,{
-					'sizeOfPage' : sizeOfPage,
-					'statusRef' : index + 1,
-					'lastItemIdx' : aalastItemIdx,
-				})
-				.then(res => {
-					const data = res.data;
-					if(data.length == 0) {
-						window.removeEventListener('scroll', scrollHandlers[index])
-						scrollHandlers[index] = null;
-						return ;
-		            }
-					data.forEach(vo => {
-						updateTable(vo, index);
-					})
-				})
-				.catch(e => {
-					console.log(e);
-				})
-			}
-			
-			/** i번째 div의 lastItemIdx 찾기 */
-			function findLastItemIdxByTargetDiv(index){
-				const targetValue = targetDiv;
-				let result = $("#contentBox > div").eq(index).children(".uk-card:last-child").find('.idx').val();
-				return result;
-			}
-			
-			/** i번째에 내용 채워넣기 */
-			function updateTable(vo, index){
-				content = `
-					<article class="uk-card" onclick="detail(${vo.idx})">
-						<input type="hidden" class="idx" value="${vo.idx}">
-						<div class="uk-card-media-top">
-							<img src="/upload/${vo.boardFileList[0].saveFileName}" alt="" />
-						</div>
-						<div class="uk-card-body">
-							<h4 class="uk-card-title">${vo.statusRef==1 ? '' : vo.statusRef==2 ? '<span class="reserved">예약중</span>' : '<span class="sold">판매완료</span>'}${vo.subject}</h4>
-							<p class="price">${numberFormatter(vo.price)}</p>
-							<span class="city">${vo.loc}</span>
-							<p class="like"><span>관심 ${vo.countLike}</span>ㆍ<span>채팅 ${vo.chatRoomCount}</span>ㆍ<span>조회수 ${vo.readCount}</span></p>
-							<p class="regDate">게시일 ${dateFormatter(vo.regDate)}</p>
-						</div>
-					</article>
-				`;
-				$("#contentBox > div").eq(index).append(content);
-			}
-			
-			/** 수를 가격으로 바꿔주는 함수 */
-			function numberFormatter(number){
-				let formattedNumber = new Intl.NumberFormat('ko-KR').format(number) + '원';
-				return formattedNumber;
-			}
-			
-			/** 날짜변경 */
-			function dateFormatter(dateStr){
-				// Moment.js를 사용하여 상대적인 시간 표시 
-				let momentRegDate = moment(dateStr);
-				let now = moment();
-				let diff = now.diff(momentRegDate, 'seconds'); // 차이 구하기
-				var formattedDate;
-				if (diff < 60) {
-				    formattedDate = diff + '초 전';
-				} else if (diff < 3600) {
-				    formattedDate = Math.floor(diff / 60) + '분 전';
-				} else if (diff < 86400) {
-				    formattedDate = Math.floor(diff / 3600) + '시간 전';
-				} else if (diff < 604800) {
-				    formattedDate = Math.floor(diff / 86400) + '일 전';
-				} else {
-				    formattedDate = momentRegDate.format('YYYY.MM.DD');
-				}
-				return formattedDate;
-			}
 		})
 	</script>
 </body>

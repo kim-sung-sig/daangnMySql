@@ -29,10 +29,8 @@
 		<main>
 			<div id="leftArea">
 				<div style="position: relative;">
-					<div id="userProfileImg">
-						<img th:if="${user.userFile == null}" src="/img/user.png" alt="user" />
-						<img th:if="${user.userFile != null}" th:src="'/upload/' + ${user.userFile.saveFileName}" alt="user" />
-					</div>
+					<div id="userProfileImg" th:if="${user.userFile == null}" style="background: url('/img/user.png') center/cover;"></div>
+					<div id="userProfileImg" th:if="${user.userFile != null}" th:style="|background: url('/upload/${user.userFile.saveFileName}') center/cover;|"></div>
 					<button class="uk-button" id="userProfileImgUpdateBtn" value="userProfileImg">
 						<span class="material-symbols-outlined">add_a_photo</span>
 					</button>
@@ -43,7 +41,8 @@
 					<li><a href="/member/myBoard">판매내역</a></li>
 					<li><a href="/member/myPurchase">구매내역</a></li>
 					<li><a href="/member/myLike">관심목록</a></li>
-					<li><a href="/member/history">최근 방문</a></li>
+					<li><a href="/member/myLife">나의 동네생활 활동</a></li>
+					<!-- <li><a href="/member/history">최근 방문</a></li> -->
 				</ul>
 			</div>
 			<div id="rightArea">
@@ -58,10 +57,8 @@
 					</div>
 					<div class="myinfo_area">
 						<div class="flexAlign">
-							<div class="myphoto">
-								<img th:if="${user.userFile == null}" src="/img/user.png" alt="user" />
-								<img th:if="${user.userFile != null}" th:src="'/upload/' + ${user.userFile.saveFileName}" alt="user" />
-							</div>
+							<div class="myphoto" th:if="${user.userFile == null}" style="background: url('/img/user.png') center/cover;"></div>
+							<div class="myphoto" th:if="${user.userFile != null}" th:style="|background: url('/upload/${user.userFile.saveFileName}') center/cover;|"></div>
 							<div class="myname">
 								[[${user.name}]]
 							</div>

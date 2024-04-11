@@ -102,6 +102,11 @@
 			window.addEventListener('scroll', scrollHandlers[0]);
 		}
 		
+		function detail(idx) {
+		    const url = '/used-market/detail/' + idx;
+		    window.open(url, "_blank");
+		}
+		
 		// 스크롤 이벤트 핸들러
 	    function handleScroll(index) {
 	        if (window.scrollY + window.innerHeight + 100 >= document.documentElement.scrollHeight) {

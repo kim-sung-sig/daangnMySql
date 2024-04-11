@@ -19,4 +19,47 @@
 		FROM daangn_usedmarket_board_like
 		WHERE userRef = #{userRef} AND boardRef = #{boardRef}
 	</select>
+	
+	<!-- 마이페이지에서 찜목록 담당 -->
+	<select id="selectLikeBoardsByUserRef" parameterType="hashmap" resultType="DaangnUsedmarketBoardVO">
+		SELECT
+			dubl.idx as likeIdx,
+			dub.*
+		FROM
+			daangn_usedmarket_board_like dubl
+		JOIN
+			(
+				select
+					dub.*,
+					duc.categoryName AS categoryName,
+					dus.statusName AS statusName
+				FROM
+					daangn_usedmarket_board dub
+				JOIN
+				    daangn_usedmarket_category duc ON dub.categoryRef = duc.categoryIdx
+				JOIN
+				    daangn_usedmarket_status dus ON dub.statusRef = dus.statusIdx
+			) dub ON dub.idx = dubl.boardRef
+		WHERE
+			<![CDATA[
+				dubl.idx < #{lastItemIdx}
+			]]>
+			AND dubl.userRef = #{userRef}
+		ORDER BY
+			dubl.idx desc
+		LIMIT #{sizeOfPage}
+	</select>
+	
+	<select id="getLikeBoardTotalCountByUserRef" parameterType="int" resultType="int">
+		SELECT
+			count(*)
+		FROM
+		    daangn_usedmarket_board_like dubl
+		WHERE
+		    dubl.userRef = #{userRef}
+	</select>
+	
+	<select id="getLastItemIdx" resultType="int">
+		SELECT COALESCE(MAX(idx), 0) FROM daangn_usedmarket_board_like
+	</select>
 </mapper>

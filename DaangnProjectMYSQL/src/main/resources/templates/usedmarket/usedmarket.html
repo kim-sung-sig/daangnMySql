@@ -40,7 +40,7 @@
 			background: #333;
 		}
 		
-		#writeButton {
+		#writeButton, #chatRoomButton {
 		    display: inline-block;
 		    width: 150px;
 		    height: 60px;
@@ -53,12 +53,12 @@
 		    transition: width 1s, background-color 0.5s; /* 트랜지션을 추가합니다 */
 		}
 		
-		#writeButton:hover {
+		#writeButton:hover, #chatRoomButton:hover {
 		    background-color: #e67e00;
 		    width: 150px;
 		}
 		
-		#writeButton:active {
+		#writeButton:active, #chatRoomButton:active {
 		    background-color: #d97700;
 		}
 		
@@ -92,8 +92,11 @@
 	<input type="hidden" id="dong" th:value="${dong}">
 	<input type="hidden" id="search" th:value="${search}">
 	<input type="hidden" id="categoryRef" th:value="${categoryRef}">
+	<input type="hidden" id="unreadCount" th:value="${unreadCount}">
 	<button id="writeButton" style="position: fixed; bottom: 100px; right: 100px;" th:if="${session.user == null}" onclick="alert('로그인이 필요합니다.'); location.href='/member/login'">+ 글쓰기</button>
     <button id="writeButton" style="position: fixed; bottom: 100px; right: 100px;" th:if="${session.user != null}" onclick="location.href='/used-market/board/write';">+ 글쓰기</button>
+    <button id="chatRoomButton" style="position: fixed; bottom: 165px; right: 100px;" th:if="${session.user != null && unreadCount == 0}">채팅</button>
+    <button id="chatRoomButton" style="position: fixed; bottom: 165px; right: 100px;" th:if="${session.user != null && unreadCount != 0}">채팅 [[${unreadCount}]]개</button>
 	<div id="wrap">
 		<th:block th:insert="~{header.html}"></th:block>
 		<main>
@@ -239,21 +242,35 @@
 			
 			let isScrolled = false; // 스크롤 여부를 저장하는 변수
 			let timeout; // 딜레이를 위한 타임아웃 변수
+			let unreadCount = parseInt($("#unreadCount").val());
 			window.addEventListener('scroll', function() {
 			    var scrollPosition = window.scrollY;
 			    var button = document.getElementById('writeButton');
+			    var button2 = document.getElementById('chatRoomButton');
 
 			    // 상단에 위치한 상태인지 확인
 			    if (scrollPosition > 100) {
 			        button.textContent = "+";
+			        if(unreadCount === 0){
+		                button2.textContent = "+";
+		            } else {
+		                button2.textContent = unreadCount;
+		            }
 			        button.style.width = "60px";
+			        button2.style.width = "60px";
 			        isScrolled = true; // 스크롤된 상태로 설정
 			    } else {
 			        if (isScrolled) { // 스크롤된 상태에서만 실행
 			            button.style.width = "150px";
+			            button2.style.width = "150px";
 			            clearTimeout(timeout); // 기존 타임아웃 제거
 			            timeout = setTimeout(() => {
-			                button.textContent = "+ 글쓰기";                  
+			                button.textContent = "+ 글쓰기";
+			                if(unreadCount === 0){
+			                    button2.textContent = "채팅";
+			                } else {
+			                    button2.textContent = "채팅 " + unreadCount + "개";
+			                }                  
 			            }, 500);
 			            isScrolled = false; // 스크롤되지 않은 상태로 설정
 			        }
@@ -265,7 +282,7 @@
 			    button.style.width = "150px";
 			    clearTimeout(timeout); // 기존 타임아웃 제거
 			    timeout = setTimeout(() => {
-			        button.textContent = "+ 글쓰기";                  
+			        button.textContent = "+ 글쓰기";               
 			    }, 500);
 			});
 
@@ -278,6 +295,44 @@
 			    } else {
 			        clearTimeout(timeout);
 			    }
+			});
+			
+			$("#chatRoomButton").mouseover(function(){
+			    var button = document.getElementById('chatRoomButton');
+			    button.style.width = "150px";
+			    clearTimeout(timeout); // 기존 타임아웃 제거
+			    timeout = setTimeout(() => {
+			    	if(unreadCount === 0){
+	                    button.textContent = "채팅";
+	                } else {
+	                    button.textContent = "채팅 " + unreadCount + "개";
+	                }               
+			    }, 500);
+			});
+
+			$("#chatRoomButton").mouseleave(function(){
+			    var button = document.getElementById('chatRoomButton');
+			    if(isScrolled){
+			    	clearTimeout(timeout);
+			    	if(unreadCount === 0){
+	                    button.textContent = "+";
+	                } else {
+	                    button.textContent = unreadCount;
+	                }
+			        button.style.width = "60px";                  
+			    } else {
+			        clearTimeout(timeout);
+			    }
+			});
+			
+			$("#chatRoomButton").click(function(){
+				const url = `/chat2/rooms`;
+				const popupWidth = 400;
+	            const popupHeight = 705;
+	            const leftPosition = (window.screen.width - popupWidth) / 2;
+	            const topPosition = (window.screen.height - popupHeight) / 2;
+	            const popupWindow = window.open(url, "ChatRoomPopup", `width=${popupWidth}, height=${popupHeight}, left=${leftPosition}, top=${topPosition}, resizable=no`);
+	            popupWindow.focus();
 			});
 		})
 	</script>

@@ -1,6 +1,7 @@
 package kr.ezen.daangn.service;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,9 @@ import kr.ezen.daangn.dao.DaangnUsedmarketBoardDAO;
 import kr.ezen.daangn.vo.DaangnMemberVO;
 import kr.ezen.daangn.vo.DaangnUsedmarketChatMessageVO;
 import kr.ezen.daangn.vo.DaangnUsedmarketChatRoomVO;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service(value = "daangnUsedmarektChatService")
 public class DaangnUsedmarektChatServiceImpl implements DaangnUsedmarektChatService{
 	
@@ -25,6 +28,9 @@ public class DaangnUsedmarektChatServiceImpl implements DaangnUsedmarektChatServ
 	@Autowired
 	private DaangnUsedmarketBoardChatMessageDAO chatMessageDAO;
 	
+	@Autowired
+	private DaangnMemberService memberService;
+	
 	@Override
 	public int createChatRoom(int userRef, int boardRef, int boardUserRef) {
 		int result = 0;
@@ -36,6 +42,7 @@ public class DaangnUsedmarektChatServiceImpl implements DaangnUsedmarektChatServ
 				chatRoom.setBoardRef(boardRef);
 				chatRoom.setBoardUserRef(boardUserRef);
 				chatRoomDAO.createChatRoom(chatRoom);
+				boardDAO.incrementChatRoomCount(boardRef);
 				result = chatRoom.getRoomIdx();
 			}
 		} catch (SQLException e) {
@@ -46,22 +53,49 @@ public class DaangnUsedmarektChatServiceImpl implements DaangnUsedmarektChatServ
 
 	@Override
 	public List<DaangnUsedmarketChatRoomVO> getChatRoomsByUserRef(int userRef) {
+		log.info("getChatRoomsByUserRef 실행 userRef => {}", userRef);
 		List<DaangnUsedmarketChatRoomVO> list = null;
 		try {
 			list = chatRoomDAO.getChatRoomsByUserRef(userRef);
 			for(var cr: list) {
 				cr.setBoard(boardDAO.selectByIdx(cr.getBoardRef())); // board
 				cr.setLastMessage(chatMessageDAO.selectLastMessageByChatRoomRef(cr.getRoomIdx())); // 마지막 메시지
+				if(userRef == cr.getBoardUserRef()) {
+					var member = memberService.selectByIdx(cr.getUserRef());
+					cr.setNickName(member.getNickName());
+					if(member.getUserFile() != null) {
+						cr.setUserProfile(member.getUserFile().getSaveFileName());
+					}
+				} else {
+					var member = memberService.selectByIdx(cr.getBoardUserRef());
+					cr.setNickName(member.getNickName());
+					if(member.getUserFile() != null) {
+						cr.setUserProfile(member.getUserFile().getSaveFileName());
+					}
+				}
+				cr.setUnreadCount(chatMessageDAO.unreadCount(cr.getRoomIdx(), userRef));
 			}		
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		log.info("getChatRoomsByUserRef 리턴 {}개 {}", list.size(), list);
 		return list;
 	}
 
 	@Override
 	public int getUnreadCountByUserRef(int userRef) {
-		return 0;
+		log.info("");
+		int result = 0;
+		try {
+			List<DaangnUsedmarketChatRoomVO> list = chatRoomDAO.getChatRoomsByUserRef(userRef);
+			for(var cr: list) {
+				result += chatMessageDAO.unreadCount(cr.getRoomIdx(), userRef);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		log.info("getUnreadCountByUserRef 리턴 {}개", result);
+		return result;
 	}
 
 	@Override
@@ -142,6 +176,15 @@ public class DaangnUsedmarektChatServiceImpl implements DaangnUsedmarektChatServ
 		List<DaangnMemberVO> userList = null;
 		try {
 			var list = chatRoomDAO.getChatRoomByboardRef(boardRef);
+			if(list != null && list.size() > 0) {
+				userList = new ArrayList<DaangnMemberVO>();
+				for(var cr : list) {
+					var user = memberService.selectByIdx(cr.getUserRef());
+					if(user != null) {
+						userList.add(user);					
+					}
+				}
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

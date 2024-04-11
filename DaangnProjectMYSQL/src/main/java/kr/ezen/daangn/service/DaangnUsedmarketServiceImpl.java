@@ -201,7 +201,8 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 * @return
 	 */
 	@Override
-	public int updateStatus(int boardRef, int userRef, int statusRef) {
+	@Transactional
+	public int updateStatus(int boardRef, Integer userRef, int statusRef) {
 		int result = 0;
         try {
         	boardDAO.updateUsedmarketBoardStatus(boardRef, statusRef);
@@ -214,7 +215,7 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	                var reserveVO = new DaangnUsedmarketReserveVO();
 	                reserveVO.setBoardRef(boardRef);
 	                reserveVO.setUserRef(userRef);
-	                reserveVO.setInteraction(2);
+	                reserveVO.setInteraction(0);
 	                reserveDAO.insertReserve(reserveVO); // 예약 저장
 	                break;
 	            }
@@ -235,27 +236,9 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
         return result;
 	}
 	
-	/**
-	 * 예약자가 있는지 확인하기
-	 * @param boardRef
-	 * @return
-	 */
-	@Override
-	public DaangnUsedmarketReserveVO getReserveByBoardRef(int boardRef) {
-		DaangnUsedmarketReserveVO rv = null;
-		return rv;
-	}
 	
-	/**
-	 * 구매 목록 얻기
-	 * @param sv
-	 * @return
-	 */
-	@Override
-	public List<DaangnUsedmarketBoardVO> getPurchaseListByUserIdx(ScrollVO sv){
-		List<DaangnUsedmarketBoardVO> list = null;
-		return list;
-	}
+	
+	
 	
 	/**
 	 * 게시글에 해당하는 유저의 다른 게시물 얻기 (userRef, boardRef)
@@ -366,4 +349,116 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 		return result;
 	}
 	
+	/**
+	 * 좋아요한 목록 얻기 (lastItemIdx, sizeOfPage, userRef)
+	 * @param sv
+	 * @return
+	 */
+	@Override
+	public List<DaangnUsedmarketBoardVO> getLikeBoardsByUserRef(ScrollVO sv) {
+		List<DaangnUsedmarketBoardVO> list = null;
+		try {
+			list = boardLikeDAO.selectLikeBoardsByUserRef(sv.getLastItemIdx(), sv.getSizeOfPage(), sv.getUserRef());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	/**
+	 * 좋아요 한 목록 총합 얻기
+	 * @param userRef
+	 * @return
+	 */
+	@Override
+	public int getLikeBoardsSizeByUserRef(int userRef) {
+		int result = 0;
+		try {
+			result = boardLikeDAO.getLikeBoardTotalCountByUserRef(userRef);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	/**
+	 * 좋아요 최대 idx 얻기
+	 * @return
+	 */
+	@Override
+	public int getLikeLastItemIdx() {
+		int result = 0;
+        try {
+            result = boardLikeDAO.getLastItemIdx();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+	}
+	
+	//=========================================================================
+	// 예약 관련
+	//=========================================================================
+	/**
+	 * 예약자가 있는지 확인하기
+	 * @param boardRef
+	 * @return
+	 */
+	@Override
+	public DaangnUsedmarketReserveVO getReserveByBoardRef(int boardRef) {
+		DaangnUsedmarketReserveVO rv = null;
+		try {
+			rv = reserveDAO.getReserveByBoardRef(boardRef);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rv;
+	}
+	
+	/**
+	 * 구매 목록 얻기 (lastItemIdx, sizeOfPage, userRef)
+	 * @param sv
+	 * @return
+	 */
+	@Override
+	public List<DaangnUsedmarketBoardVO> getPurchaseListByUserRef(ScrollVO sv){
+		List<DaangnUsedmarketBoardVO> list = null;
+		try {
+			list = reserveDAO.selectPurchaseListByUserRef(sv.getLastItemIdx(), sv.getSizeOfPage(), sv.getUserRef());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	/**
+	 * 구매 목록 총합 얻기
+	 * @param userRef
+	 * @return
+	 */
+	@Override
+	public int getPurchaseListSizeByUserRef(int userRef) {
+		int result = 0;
+		try {
+			result = reserveDAO.getPurchaseListTotalCountByUserRef(userRef);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	/**
+	 * 구매목록 최대 idx 얻기
+	 * @return
+	 */
+	@Override
+	public int getReserveLastItemIdx() {
+		int result = 0;
+        try {
+            result = reserveDAO.getLastItemIdx();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+	}
 }

@@ -76,10 +76,11 @@ CREATE TABLE daangn_usedmarket_board_file(
 
 -- 중고마켓 좋아요
 CREATE TABLE daangn_usedmarket_board_like(
+	idx INT PRIMARY KEY AUTO_INCREMENT,
 	userRef INT NOT NULL,
 	boardRef INT NOT NULL,
-	CONSTRAINT fk_dubl_userRef FOREIGN KEY (userRef) REFERENCES daangn_usedmarket_board(idx) ON DELETE CASCADE,
-	CONSTRAINT fk_dubl_boardRef FOREIGN KEY (boardRef) REFERENCES daangn_member(idx) ON DELETE CASCADE
+	CONSTRAINT fk_dubl_boardRef FOREIGN KEY (boardRef) REFERENCES daangn_usedmarket_board(idx) ON DELETE CASCADE,
+	CONSTRAINT fk_dubl_userRef FOREIGN KEY (userRef) REFERENCES daangn_member(idx) ON DELETE CASCADE
 );
 
 -- 채팅방
@@ -104,11 +105,10 @@ CREATE TABLE daangn_usedmarket_board_chatMessage(
 	typeRef INT NOT NULL, -- 사진 전송 또는 위치 전송
 	sender INT NOT NULL,
 	content VARCHAR(200) NOT NULL,
-	regDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	readed INT DEFAULT 2,
 	deleted1 INT DEFAULT 0, -- userRef 삭제했는지.. 삭제 1
 	deleted2 INT DEFAULT 0, -- boardUserRef 삭제했는지.. 삭제 1
-	ip VARCHAR(200) NOT NULL,
 	CONSTRAINT fk_dubcm_chatRoomRef FOREIGN KEY (chatRoomRef) REFERENCES daangn_usedmarket_board_chatRoom(roomIdx) ON DELETE CASCADE,
 	CONSTRAINT fk_dubcm_sender_userRef FOREIGN KEY (sender) REFERENCES daangn_member(idx) ON DELETE CASCADE
 );

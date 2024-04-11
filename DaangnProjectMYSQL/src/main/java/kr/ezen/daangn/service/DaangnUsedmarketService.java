@@ -78,21 +78,7 @@ public interface DaangnUsedmarketService {
 	 * @param statusRef
 	 * @return
 	 */
-	int updateStatus(int boardRef, int userRef, int statusRef);
-	
-	/**
-	 * 예약자가 있는지 확인하기
-	 * @param boardRef
-	 * @return
-	 */
-	DaangnUsedmarketReserveVO getReserveByBoardRef(int boardRef);
-	
-	/**
-	 * 구매 목록 얻기
-	 * @param sv
-	 * @return
-	 */
-	List<DaangnUsedmarketBoardVO> getPurchaseListByUserIdx(ScrollVO sv);
+	int updateStatus(int boardRef, Integer userRef, int statusRef);
 	
 	/**
 	 * 게시글에 해당하는 유저의 다른 게시물 얻기 (userRef, boardRef)
@@ -142,4 +128,54 @@ public interface DaangnUsedmarketService {
 	 */
 	int isUsedmarketBoardLike(int userRef, int boardRef);
 	
+	/**
+	 * 좋아요 한 목록 얻기
+	 * @param sv
+	 * @return
+	 */
+	List<DaangnUsedmarketBoardVO> getLikeBoardsByUserRef(ScrollVO sv);
+	
+	/**
+	 * 좋아요 한 목록 총합 얻기
+	 * @param userRef
+	 * @return
+	 */
+	int getLikeBoardsSizeByUserRef(int userRef);
+	
+	/**
+	 * 좋아요 최대 idx 얻기
+	 * @return
+	 */
+	int getLikeLastItemIdx();
+	
+	
+	//=========================================================================
+	// 예약 관련
+	//=========================================================================
+	/**
+	 * 예약자가 있는지 확인하기
+	 * @param boardRef
+	 * @return
+	 */
+	DaangnUsedmarketReserveVO getReserveByBoardRef(int boardRef);
+	
+	/**
+	 * 구매 목록 얻기
+	 * @param sv
+	 * @return
+	 */
+	List<DaangnUsedmarketBoardVO> getPurchaseListByUserRef(ScrollVO sv);
+	
+	/**
+	 * 구매 목록 총합 얻기
+	 * @param userRef
+	 * @return
+	 */
+	int getPurchaseListSizeByUserRef(int userRef);
+	
+	/**
+	 * 구매목록 최대 idx 얻기
+	 * @return
+	 */
+	int getReserveLastItemIdx();
 }

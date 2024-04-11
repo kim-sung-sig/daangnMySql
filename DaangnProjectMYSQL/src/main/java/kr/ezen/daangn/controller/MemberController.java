@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpSession;
 import kr.ezen.daangn.service.DaangnLikeService;
 import kr.ezen.daangn.service.DaangnMainBoardService;
 import kr.ezen.daangn.service.DaangnMemberService;
+import kr.ezen.daangn.service.DaangnUsedmarketService;
 import kr.ezen.daangn.service.DaangnUserFileService;
 import kr.ezen.daangn.service.MailService;
 import kr.ezen.daangn.service.PopularService;
@@ -35,7 +36,9 @@ import kr.ezen.daangn.vo.CommonVO;
 import kr.ezen.daangn.vo.DaangnFileVO;
 import kr.ezen.daangn.vo.DaangnMainBoardVO;
 import kr.ezen.daangn.vo.DaangnMemberVO;
+import kr.ezen.daangn.vo.DaangnUsedmarketBoardVO;
 import kr.ezen.daangn.vo.PagingVO;
+import kr.ezen.daangn.vo.ScrollVO;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -47,6 +50,8 @@ public class MemberController {
 	private DaangnMemberService daangnMemberService;
 	@Autowired
 	private DaangnMainBoardService daangnMainBoardService;
+	@Autowired
+	private DaangnUsedmarketService usedmarektService;
 	@Autowired
 	private DaangnLikeService daangnLikeService;
 	@Autowired
@@ -210,29 +215,42 @@ public class MemberController {
     	DaangnMemberVO sessionUser = (DaangnMemberVO) session.getAttribute("user");
     	DaangnMemberVO user = daangnMemberService.selectByIdx(sessionUser.getIdx());
     	model.addAttribute("user", user);
-    	model.addAttribute("lastItemIdx", daangnMainBoardService.getLastIdx());
-    	model.addAttribute("boardStatus1", daangnMainBoardService.getBoardCountByUserIdxAndStatusRef(user.getIdx(), 1));
-    	model.addAttribute("boardStatus2", daangnMainBoardService.getBoardCountByUserIdxAndStatusRef(user.getIdx(), 2));
-    	model.addAttribute("boardStatus3", daangnMainBoardService.getBoardCountByUserIdxAndStatusRef(user.getIdx(), 3));
+    	model.addAttribute("lastItemIdx", usedmarektService.getBoardLastIdx() + 1);
+    	model.addAttribute("boardStatus1", usedmarektService.getBoardCountBy(user.getIdx(), 1));
+    	model.addAttribute("boardStatus2", usedmarektService.getBoardCountBy(user.getIdx(), 2));
+    	model.addAttribute("boardStatus3", usedmarektService.getBoardCountBy(user.getIdx(), 3));
     	return "mypage/myBoard";
     }
     
     /** 마이페이지 구매 내역 보기 */
     @GetMapping(value = "/myPurchase")
-    public String myPurchase(HttpSession session, Model model, @ModelAttribute CommonVO cv) {
+    public String myPurchase(HttpSession session, Model model) {
     	if(session.getAttribute("user") == null) {
     		return "redirect:/";
     	}
     	DaangnMemberVO sessionUser = (DaangnMemberVO) session.getAttribute("user");
     	DaangnMemberVO user = daangnMemberService.selectByIdx(sessionUser.getIdx());
     	model.addAttribute("user", user);
-    	cv.setUserRef(user.getIdx());
-    	log.info("myPurchase 실행 cv => {}", cv);
-    	PagingVO<DaangnMainBoardVO> pv = reserveService.selectPurchaseListByUserIdx(cv);
-    	log.info("myPurchase 리턴 p => {}, size => {}", pv.getCurrentPage(), pv.getList().size());
-    	model.addAttribute("pv", pv);
+    	model.addAttribute("totalCount", usedmarektService.getPurchaseListSizeByUserRef(user.getIdx()));
+    	model.addAttribute("lastItemIdx", usedmarektService.getReserveLastItemIdx() + 1);
     	return "mypage/myPurchase";
     }
+    
+    /**
+     * 구매목록 얻기 (lastItemIdx, sizeOfPage, userRef)
+     * @param sv
+     * @return
+     */
+    @PostMapping(value ="/myPurchaseList")
+    @ResponseBody
+    public List<DaangnUsedmarketBoardVO> getMyPurchaseList(@RequestBody ScrollVO sv) {
+    	log.info("getMyPurchaseList 실행 {}", sv);
+    	List<DaangnUsedmarketBoardVO> list = usedmarektService.getPurchaseListByUserRef(sv);
+    	log.info("getMyPurchaseList 리턴 {}", list);
+    	return list;
+    }
+    
+    
     
     /** 마이페이지 관심목록 글 보기 */
     @GetMapping(value = "/myLike")
@@ -241,13 +259,26 @@ public class MemberController {
     	DaangnMemberVO sessionUser = (DaangnMemberVO) session.getAttribute("user");
     	DaangnMemberVO user = daangnMemberService.selectByIdx(sessionUser.getIdx());
     	model.addAttribute("user", user);
-    	cv.setUserRef(user.getIdx());
-    	cv.setSizeOfPage(5);
-		PagingVO<DaangnMainBoardVO> pv = daangnLikeService.selectLikeByUseridx(cv);
-		log.info("myLike 리턴 {}개", pv.getTotalCount());
-    	model.addAttribute("pv", pv);
+    	model.addAttribute("totalCount", usedmarektService.getLikeBoardsSizeByUserRef(user.getIdx()));
+    	model.addAttribute("lastItemIdx", usedmarektService.getLikeLastItemIdx() + 1);
     	return "mypage/myLike";
     }
+    
+    /**
+     * 관심목록 얻기 (lastItemIdx, sizeOfPage, userRef)
+     * @param sv
+     * @return
+     */
+    @PostMapping(value ="/myLikeBoardList")
+    @ResponseBody
+    public List<DaangnUsedmarketBoardVO> getMyLikeBoardList(@RequestBody ScrollVO sv) {
+    	log.info("getMyLikeBoardList 실행 {}", sv);
+    	List<DaangnUsedmarketBoardVO> list = usedmarektService.getLikeBoardsByUserRef(sv);
+    	log.info("getMyLikeBoardList 리턴 {}", list);
+    	return list;
+    }
+    
+    
     
     /** 마이페이지 최근 방문 */
     @GetMapping(value = "/history")
