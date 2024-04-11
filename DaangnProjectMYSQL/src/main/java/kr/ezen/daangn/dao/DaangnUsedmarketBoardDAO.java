@@ -48,6 +48,30 @@ public interface DaangnUsedmarketBoardDAO {
 	int getLastIdx() throws SQLException;
 	
 	/**
+	 * 유저 번호과 status로 총합얻기
+	 * @param userRef
+	 * @param statusRef
+	 * @return
+	 * @throws SQLException
+	 */
+	int getTotalCountByUserRefAndStatusRef(@Param("userRef") int userRef, @Param("statusRef") int statusRef) throws SQLException;
+	
+	/**
+	 * 게시글조건에 따른 총량얻기
+	 * @param userRef
+	 * @param statusRef
+	 * @return
+	 * @throws SQLException
+	 */
+	int getTotalCountBy(
+			@Param("categoryRef") Integer categoryRef,
+			@Param("region") String region,
+			@Param("gu") String gu,
+			@Param("dong") String dong,
+			@Param("search") String search
+		) throws SQLException;
+	
+	/**
 	 * 중거거래 게시글 한개 얻기
 	 * @param idx
 	 * @return

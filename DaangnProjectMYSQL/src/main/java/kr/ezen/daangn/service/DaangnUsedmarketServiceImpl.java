@@ -39,7 +39,7 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	
 	/**
 	 * 중고거래 게시글 목록 얻기 
-	 * 1. 게시글 목록보기인 경우 (lastItemIdx, sizeOfPage, categoryRef, region, gu, dong, search, userRef)
+	 * 1. 게시글 목록보기인 경우 (lastItemIdx, sizeOfPage, categoryRef, region, gu, dong, search, boardRef)
 	 * 2. 유저가 쓴글 보기인경우 (lastItemIdx, sizeOfPage, userRef, statusRef)
 	 * @param sv
 	 * @return
@@ -65,10 +65,30 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	 * @return
 	 */
 	@Override
-	public int getBoardCountByUserIdxAndStatusRef(int userRef, int statusRef) {
+	public int getBoardCountBy(int userRef, int statusRef) {
 		int result = 0;
-		// result = boardDAO.
-		return 0;
+		try {
+			result = boardDAO.getTotalCountByUserRefAndStatusRef(userRef, statusRef);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	/**
+	 * 판매상품의 상태에 따른 갯수 얻기 (userRef, statusRef)
+	 * @param sv
+	 * @return
+	 */
+	@Override
+	public int getBoardCountBy(Integer categoryRef, String region, String gu, String dong, String search) {
+		int result = 0;
+		try {
+			result = boardDAO.getTotalCountBy(categoryRef, region, gu, dong, search);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	/**

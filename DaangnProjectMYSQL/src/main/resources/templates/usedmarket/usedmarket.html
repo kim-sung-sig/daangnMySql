@@ -118,7 +118,9 @@
 				<th:block th:insert="~{usedmarket/selectRegion.html}"></th:block>
 			</div>
 			<div class="uk-container" id="viewBox" style="margin-top: 20px;">
-				<ul id="slide"></ul>
+				<ul id="slide">
+					<li th:if="${totalCount == 0}">등록된 게시글이 없습니다.</li>
+				</ul>
 			</div>
 		</main>
 	</div>

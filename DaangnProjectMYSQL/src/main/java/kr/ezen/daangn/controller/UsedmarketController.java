@@ -77,11 +77,14 @@ public class UsedmarketController {
 			model.addAttribute("search", search);
 		}
 		model.addAttribute("lastItemIdx", usedmarketService.getBoardLastIdx() + 1);
+		model.addAttribute("totalCount", usedmarketService.getBoardCountBy(categoryRef, region, gu, dong, search));
 		return "usedmarket/usedmarket";
 	}
 	
 	/**
-	 * 중고거래 게시글 리턴 (lastItemIdx, sizeOfPage, categoryRef, region, gu, dong, search, userRef)
+	 * 중고거래 게시글 리턴
+	 * 1. (lastItemIdx, sizeOfPage, categoryRef, region, gu, dong, search, boardRef)
+	 * 2. (lastItemIdx, sizeOfPage, userRef, statusRef)
 	 * @param sv
 	 * @return
 	 */
@@ -360,9 +363,9 @@ public class UsedmarketController {
 		DaangnMemberVO user = memberService.selectByIdx(userIdx);
 		model.addAttribute("user", user);
 		model.addAttribute("lastItemIdx", usedmarketService.getBoardLastIdx() + 1);
-		model.addAttribute("boardStatus1", usedmarketService.getBoardCountByUserIdxAndStatusRef(user.getIdx(), 1));
-    	model.addAttribute("boardStatus2", usedmarketService.getBoardCountByUserIdxAndStatusRef(user.getIdx(), 2));
-    	model.addAttribute("boardStatus3", usedmarketService.getBoardCountByUserIdxAndStatusRef(user.getIdx(), 3));
+		model.addAttribute("boardStatus1", usedmarketService.getBoardCountBy(user.getIdx(), 1));
+    	model.addAttribute("boardStatus2", usedmarketService.getBoardCountBy(user.getIdx(), 2));
+    	model.addAttribute("boardStatus3", usedmarketService.getBoardCountBy(user.getIdx(), 3));
 		return "usedmarket/userView";
 	}
 }

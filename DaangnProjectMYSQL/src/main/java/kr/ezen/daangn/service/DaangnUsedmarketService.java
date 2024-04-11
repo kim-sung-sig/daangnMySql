@@ -29,7 +29,14 @@ public interface DaangnUsedmarketService {
 	 * @param sv
 	 * @return
 	 */
-	int getBoardCountByUserIdxAndStatusRef(int userRef, int statusRef);
+	int getBoardCountBy(int userRef, int statusRef);
+	
+	/**
+	 * 판매상품의 상태에 따른 갯수 얻기 (categoryRef, region, gu, dong, search)
+	 * @param sv
+	 * @return
+	 */
+	int getBoardCountBy(Integer categoryRef, String region, String gu, String dong, String search);
 	
 	/**
 	 * 중고거래 게시글 한개 얻기
