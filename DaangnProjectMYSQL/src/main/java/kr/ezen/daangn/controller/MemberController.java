@@ -254,7 +254,7 @@ public class MemberController {
     
     /** 마이페이지 관심목록 글 보기 */
     @GetMapping(value = "/myLike")
-    public String myLike(HttpSession session, Model model, @ModelAttribute(value = "cv") CommonVO cv) {
+    public String myLike(HttpSession session, Model model) {
     	log.info("myLike 실행");
     	DaangnMemberVO sessionUser = (DaangnMemberVO) session.getAttribute("user");
     	DaangnMemberVO user = daangnMemberService.selectByIdx(sessionUser.getIdx());
@@ -278,6 +278,24 @@ public class MemberController {
     	return list;
     }
     
+    /**
+     * 나의 동네생활 활동
+     * @param session
+     * @param model
+     * @param cv
+     * @return
+     */
+    @GetMapping(value = "/myLife")
+    public String myLife(HttpSession session, Model model) {
+    	log.info("myLife 실행");
+    	DaangnMemberVO sessionUser = (DaangnMemberVO) session.getAttribute("user");
+    	DaangnMemberVO user = daangnMemberService.selectByIdx(sessionUser.getIdx());
+    	model.addAttribute("user", user);
+    	model.addAttribute("lastItemIdx", usedmarektService.getBoardLastIdx() + 1);
+    	model.addAttribute("boardCount", usedmarektService.getBoardCountBy(user.getIdx(), 1));
+    	model.addAttribute("commentedBoardCount", usedmarektService.getBoardCountBy(user.getIdx(), 2));
+    	return "mypage/myLife";
+    }
     
     
     /** 마이페이지 최근 방문 */

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>당근 - 마이페이지</title>
+<!--제이쿼리 추가-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<!-- UIkit CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css" />
+<!-- UIkit JS -->
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Ajax처리를 위한 포함 -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- 구글아이콘 사용 -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" />
+<!-- moment.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+
+<link href="/css/header.css" rel="stylesheet">
+<link href="/css/mypage/home.css" rel="stylesheet">
+<script src="/js/mypage/home.js"></script>
+
+<style type="text/css">
+	main{padding-bottom: 0;}
+	#boardNav {width: 100%; display: flex; position: relative;}
+	#boardNav li {width: 100%; cursor: pointer; text-align: center; padding: 10px; font-weight: 400;}
+	#boardNav li.active {width: 100%; cursor: pointer; text-align: center; padding: 10px;font-weight: bold;}
+	
+	#boardNav #boardNav-bar{transition:0.2s;cursor:auto;z-index:5;display:block; padding:0; position: absolute; width: calc(100% / 2); height: 2px; background: #333; left: 0; bottom: -1px;}
+	#boardNav #boardNav-barBg{cursor:auto;z-index:4;display:block; padding:0; position: absolute; width: 100%; height: 2px; background: #ccc; left: 0; bottom: -1px;}
+	
+	
+	#contentBox {width: 100%; overflow: hidden; position: relative; height: auto;}
+	#contentBox > div {width: 100%; gap:19px;}
+	
+</style>
+</head>
+<body>
+	<input type="hidden" id="userRef" th:value="${user.idx}">
+	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx}">
+	<div id="wrap">
+		<th:block th:insert="~{indexHeader.html}"></th:block>
+		<main>
+			<th:block th:insert="~{mypage/leftArea.html}"></th:block>
+			<div id="rightArea">
+				<h3 style="font-weight: 600"><span class="highlight">[[${user.nickName}]]</span>님의 동네생활 활동</h3>
+				<ul id="boardNav">
+					<li class="libtn s1 active">작성한글 [[${boardCount != 0 ? boardCount : ''}]]</li>
+					<li class="libtn s2">댓글단 글 [[${commentedBoardCount != 0 ? commentedBoardCount : ''}]]</li>
+					<li id="boardNav-bar"></li>
+					<li id="boardNav-barBg"></li>
+				</ul>
+				<div id="contentBox" style="margin-top: 20px;">
+					<div id="s1">
+						<div th:if="${boardCount==0}" class="emtpyBox" style="width: 100%; text-align: center; padding-top: 20px;">첫 동네 이야기를 이웃에게 알려주세요.</div>
+					</div>
+					<div id="s2" style="display: none;">
+						<div th:if="${commentedBoardCount==0}" class="emtpyBox" style="width: 100%; text-align: center; padding-top: 20px;">
+							<p style="font-size: 16px; font-weight: 500;">
+								댓글단 글을 확인할 수 있어요!<br /><br />
+								<button type="button" class="uk-button" style="border-radius: 5px;">동네생활 둘러보기</button>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+	<script type="text/javascript">
+		const scrollHandlers = [];
+		const lastItemIdxs = [];
+		const userIdx = $("#userRef").val();
+		const sizeOfPage = 12;
+		let statusRef = 0;
+		let targetDiv = 0;
+		
+		function detail(idx) {
+		    const url = '/used-market/detail/' + idx;
+		    window.open(url, "_blank");
+		}
+		
+		function init(){
+			$(".libtn").each(function(index) {
+		        scrollHandlers[index] = function() {
+		            handleScroll(index);
+		        };
+		        lastItemIdxs[index] = $("#lastItemIdx").val();
+		    });
+			// 초기데이터 읽어드리기
+			readData(0);	
+			readData(1);
+			
+			window.addEventListener('scroll', scrollHandlers[0]);
+		}
+		
+		// 스크롤 이벤트 핸들러
+	    function handleScroll(index) {
+	        if (window.scrollY + window.innerHeight + 100 >= document.documentElement.scrollHeight) {
+	        	readData(index);
+	        }
+	    }
+		
+	    function activateScrollHandler(index) { // i번째 스크롤 핸들러 살리기
+	        window.addEventListener('scroll', scrollHandlers[index]);
+	    }
+
+	    function deactivateScrollHandler() { // 모든 스크롤핸들러 죽이기
+	        window.removeEventListener('scroll', scrollHandlers[0]);
+	        window.removeEventListener('scroll', scrollHandlers[1]);
+	    }
+		
+		/** 데이타 읽어서 */
+		/** index번호에 aalastItemIdx부터 조회하고  index번호에 읽고 뿌리기*/
+		function readData(index){
+			
+			let lastItemIdx = lastItemIdxs[index];
+			
+			axios.post(`/used-market/list`,{
+				'lastItemIdx' : lastItemIdx,
+				'sizeOfPage' : sizeOfPage,
+				'userRef' : userIdx,
+				'statusRef' : index + 1,
+			})
+			.then(res => {
+				const data = res.data;
+				if(data.length == 0) {
+					window.removeEventListener('scroll', scrollHandlers[index])
+					scrollHandlers[index] = null;
+					return ;
+	            }
+				console.log(index, data);
+				data.forEach(vo => {
+					updateTable(vo, index);
+				})
+			})
+			.catch(e => {
+				console.log(e);
+			})
+		}
+
+		/** i번째에 내용 채워넣기 */
+		function updateTable(vo, index){
+			lastItemIdxs[index] = vo.idx;
+			content = `
+				<article class="uk-card" onclick="detail(${vo.idx})">
+					<input type="hidden" class="idx" value="${vo.idx}">
+					<div class="uk-card-media-top" style="background: url('/upload/${vo.thumbnail}') center/cover"></div>
+					<div class="uk-card-body">
+						<h4 class="uk-card-title">${vo.statusRef==1 ? '' : vo.statusRef==2 ? '<span class="reserved">예약중</span>' : '<span class="sold">판매완료</span>'}${vo.title}</h4>
+						<p class="price">${numberFormatter(vo.price)}</p>
+						<span class="city">${vo.loc1} ${vo.loc2} ${vo.loc3}</span>
+						<p class="like"><span>관심 ${vo.likeCount}</span>ㆍ<span>채팅 ${vo.chatRoomCount}</span>ㆍ<span>조회수 ${vo.readCount}</span></p>
+					</div>
+				</article>
+			`;
+			console.log(content);
+			$("#contentBox > div").eq(index).append(content);
+		}
+		
+		/** 수를 가격으로 바꿔주는 함수 */
+		function numberFormatter(number){
+			let formattedNumber = new Intl.NumberFormat('ko-KR').format(number) + '원';
+			return formattedNumber;
+		}
+		
+		/** 날짜변경 */
+		function dateFormatter(dateStr){
+			// Moment.js를 사용하여 상대적인 시간 표시 
+			let momentRegDate = moment(dateStr);
+			let now = moment();
+			let diff = now.diff(momentRegDate, 'seconds'); // 차이 구하기
+			var formattedDate;
+			if (diff < 60) {
+			    formattedDate = diff + '초 전';
+			} else if (diff < 3600) {
+			    formattedDate = Math.floor(diff / 60) + '분 전';
+			} else if (diff < 86400) {
+			    formattedDate = Math.floor(diff / 3600) + '시간 전';
+			} else if (diff < 604800) {
+			    formattedDate = Math.floor(diff / 86400) + '일 전';
+			} else {
+			    formattedDate = momentRegDate.format('YYYY.MM.DD');
+			}
+			return formattedDate;
+		}
+		
+		$(function(){
+			
+			init();
+			
+			// 텝 매뉴
+			$(".libtn").click(function() {
+			    $(".libtn").removeClass("active");
+			    $(this).addClass("active");
+			    const navBarWidth = $("#boardNav-bar").width();
+			    let index = $(this).index();
+			    statusRef = index;
+			    targetDiv = index;
+			    let itemWidth = $(".libtn").outerWidth();
+			    var leftPos = index * itemWidth;
+			    $("#boardNav-bar").css("left", leftPos + "px");
+			    $("#contentBox > div").hide(); // contentBox 안에 있는 모든 div를 숨깁니다.
+			    $("#contentBox > div").eq(index).show();
+			    deactivateScrollHandler();
+			    activateScrollHandler(index);
+			});
+			
+		})
+	</script>
+</body>
+</html>
