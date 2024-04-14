@@ -179,11 +179,14 @@
 		
 		$(function(){
 			$('input[name="categoryRef"]').change(function() {
-	            var index = $(this).index('input[name="categoryRef"]');
-	            $('.notice-tag').removeClass('selected');
-	            $('#label' + (index + 1)).addClass('selected');
-	            $('#content').attr('placeholder', TEXTAREA_PLACEHOLER[index]);
-	        });
+			    var value = $(this).val();  // 선택된 라디오 버튼의 value 값을 가져옵니다.
+				console.log(value);
+			    $('.notice-tag').removeClass('selected');  // 모든 라벨에서 selected 클래스를 제거합니다.
+			    $('#label' + value).addClass('selected');  // 선택된 라벨에 selected 클래스를 추가합니다.
+			    $('input[name="categoryRef"]').attr('checked', false);  // 모든 라디오 버튼의 체크를 해제합니다.
+			    $(`#radio${value}`).attr('checked', true);  // 선택된 라디오 버튼을 체크합니다.
+			    $('#content').attr('placeholder', TEXTAREA_PLACEHOLER[value - 1]);  // textarea의 placeholder를 변경합니다.
+			});
 			
 			
 			// 1. 파일 선택 버튼 클릭시 파일 선택 창 열기

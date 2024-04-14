@@ -1,3 +1,14 @@
+show tables;
+
+drop table if exists daangn_member;
+drop table if exists daangn_user_file;
+drop table if exists daangn_status;
+drop table if exists daangn_category;
+drop table if exists daangn_comment;
+
+drop table if exists notices;
+drop table if exists tb_visitor;
+
 -- 맴버
 CREATE TABLE daangn_member (
     idx INT PRIMARY KEY AUTO_INCREMENT,
