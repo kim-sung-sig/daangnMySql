@@ -137,4 +137,58 @@
         SET childCommentCount = childCommentCount - 1
         WHERE idx = #{idx}
     </update>
+    
+    <!-- 유저가 쓴 댓글 총합 -->
+    <select id="getTotalCountByUserRef" parameterType="int" resultType="int">
+    	SELECT
+			COUNT(DISTINCT dlb.idx) AS totalCount
+		FROM
+			daangn_life_comment dlc
+		JOIN
+			(
+		        SELECT
+		            dlb.*
+		        FROM
+		            daangn_life_board dlb
+		        WHERE
+		        	<![CDATA[
+		        		dlb.userRef <> #{userRef}
+		        	]]>
+		    ) dlb ON dlb.idx = dlc.boardRef
+		WHERE
+			dlc.userRef = #{userRef}
+    </select>
+    
+    <!-- 마이페이지 댓글쓴 글 담당 -->
+    <select id="selectCommentedBoardsByUserRef" parameterType="hashmap" resultType="DaangnLifeBoardVO">
+    	SELECT
+		    dlb.*,
+		    MAX(dlc.idx) AS commentIdx
+		FROM
+		    daangn_life_comment dlc
+		JOIN
+		    (
+		        SELECT
+		            dlb.*,
+		            dlct.categoryName AS categoryName
+		        FROM
+		            daangn_life_board dlb
+		        JOIN
+		            daangn_life_category dlct ON dlb.categoryRef = dlct.idx
+		        WHERE
+		        	<![CDATA[
+		            	dlb.userRef <> #{userRef}
+		            ]]>
+		    ) dlb ON dlb.idx = dlc.boardRef
+		WHERE
+			<![CDATA[
+		    	dlc.idx < #{lastItemIdx}
+		    ]]>
+		    AND dlc.userRef = #{userRef}
+		GROUP BY 
+		    dlb.idx
+		ORDER BY
+		    commentIdx DESC
+		LIMIT #{sizeOfPage}
+    </select>
 </mapper>

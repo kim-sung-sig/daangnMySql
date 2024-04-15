@@ -89,6 +89,7 @@ public class LifeController {
 	public List<DaangnLifeBoardVO> getLifeBoardList(@RequestBody ScrollVO sv){
 		log.info("getLifeBoardList 실행 : {}", sv);
 		List<DaangnLifeBoardVO> list = lifeBoardService.selectPagedLifeBoards(sv);
+		log.info("getLifeBoardList 리턴 : {}", list);
 		return list;
 	}
 	
@@ -112,7 +113,7 @@ public class LifeController {
 				}
 			}			
 		}
-		log.info("getLifeCommentList 리턴 {}개, {}", list.size(), list);
+		log.info("getLifeCommentList 리턴 {}", list);
 		return list;
 	}
 	
@@ -137,7 +138,24 @@ public class LifeController {
 				}
 			}
 		}
-		log.info("getLifeChildCommentList 리턴 {}개, {}", list.size(), list);
+		log.info("getLifeChildCommentList 리턴 {}", list);
+		return list;
+	}
+	
+	/**
+	 * 유저가 댓글쓴 동네생활 게시물 리턴
+	 * @param session
+	 * @param userRef
+	 * @param lastItemIdx
+	 * @param sizeOfPage
+	 * @return
+	 */
+	@PostMapping(value = "/commentedList/user")
+	@ResponseBody
+	public List<DaangnLifeBoardVO> getCommentedLifeBoardsByUserRef(@RequestBody ScrollVO sv){
+		log.info("getCommentedLifeBoardsByUserRef 실행 : userRef => {}, lastItemIdx => {}, sizeOfPage => {}", sv.getUserRef(), sv.getLastItemIdx(), sv.getSizeOfPage());
+		List<DaangnLifeBoardVO> list = lifeBoardService.getCommentedBoardByUserRef(sv);
+		log.info("getCommentedLifeBoardsByUserRef 리턴 {}", list);
 		return list;
 	}
 	

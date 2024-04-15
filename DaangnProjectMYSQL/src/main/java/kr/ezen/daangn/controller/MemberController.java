@@ -24,14 +24,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import kr.ezen.daangn.service.DaangnLikeService;
-import kr.ezen.daangn.service.DaangnMainBoardService;
+import kr.ezen.daangn.service.DaangnLifeBoardService;
 import kr.ezen.daangn.service.DaangnMemberService;
 import kr.ezen.daangn.service.DaangnUsedmarketService;
 import kr.ezen.daangn.service.DaangnUserFileService;
 import kr.ezen.daangn.service.MailService;
 import kr.ezen.daangn.service.PopularService;
-import kr.ezen.daangn.service.ReserveService;
 import kr.ezen.daangn.vo.CommonVO;
 import kr.ezen.daangn.vo.DaangnFileVO;
 import kr.ezen.daangn.vo.DaangnMainBoardVO;
@@ -49,20 +47,15 @@ public class MemberController {
 	@Autowired
 	private DaangnMemberService daangnMemberService;
 	@Autowired
-	private DaangnMainBoardService daangnMainBoardService;
-	@Autowired
 	private DaangnUsedmarketService usedmarektService;
 	@Autowired
-	private DaangnLikeService daangnLikeService;
+	private DaangnLifeBoardService lifeBoardService;
 	@Autowired
 	private MailService mailService;
 	@Autowired
 	private DaangnUserFileService daangnUserFileService;
 	@Autowired
 	private PopularService popularService;
-	@Autowired
-	private ReserveService reserveService;
-	
 	
 	/** 로그인 주소 */
 	@GetMapping(value = "/login")
@@ -124,19 +117,7 @@ public class MemberController {
 		int result = daangnMemberService.insert(memberVO);
 		return result + "";
 	}
-	
-	/** 로그아웃 */
-	/*
-	@GetMapping(value = "/logout")
-	public String logout(HttpServletRequest request) {
-		log.info("logout 실행");
-		request.getSession().removeAttribute("user");
-		request.getSession().invalidate();
-		log.info("session.user =>{}", request.getSession().getAttribute("user"));
-		return "redirect:/";
-	}
-	*/
-	
+
 	/** 회원가입중 필요한 메일을 보내는 주소 */
     @PostMapping(value = "/send", produces = "text/plain" )
     @ResponseBody
@@ -291,9 +272,18 @@ public class MemberController {
     	DaangnMemberVO sessionUser = (DaangnMemberVO) session.getAttribute("user");
     	DaangnMemberVO user = daangnMemberService.selectByIdx(sessionUser.getIdx());
     	model.addAttribute("user", user);
-    	model.addAttribute("lastItemIdx", usedmarektService.getBoardLastIdx() + 1);
-    	model.addAttribute("boardCount", usedmarektService.getBoardCountBy(user.getIdx(), 1));
-    	model.addAttribute("commentedBoardCount", usedmarektService.getBoardCountBy(user.getIdx(), 2));
+    	int lastItemIdxByBoard = lifeBoardService.getBoardLastIdx() + 1;
+    	int lastItemIdxByComment = lifeBoardService.getCommentLastIdx()+ 1;
+    	int boardCount = lifeBoardService.getBoardCountByUserRef(user.getIdx());
+    	int commentCount = lifeBoardService.getCommentCountByUserRef(user.getIdx());
+    	model.addAttribute("lastItemIdxByBoard", lifeBoardService.getBoardLastIdx() + 1);
+    	model.addAttribute("lastItemIdxByComment", lifeBoardService.getCommentLastIdx()+ 1);
+    	model.addAttribute("lastItemIdxByLike", 0 + 1);
+    	
+    	model.addAttribute("boardCount", lifeBoardService.getBoardCountByUserRef(user.getIdx()));
+    	model.addAttribute("commentCount", lifeBoardService.getCommentCountByUserRef(user.getIdx()));
+    	model.addAttribute("likeCount", 0);
+    	log.info("{}, {}, {}, {}", lastItemIdxByBoard, lastItemIdxByComment, boardCount, commentCount);
     	return "mypage/myLife";
     }
     

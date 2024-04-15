@@ -46,7 +46,11 @@
 			<div id="rightArea">
 				<h3 style="font-weight: 600"><span class="highlight">[[${user.nickName}]]</span>님의 관심목록 [[${totalCount != 0 ? totalCount + '건' : ''}]]</h3>
 				<th:block th:if="${totalCount == 0}">
-					<p>등록된 관심목록이 없습니다.</p>
+					<p style="font-size: 16px; font-weight: 500; text-align: center; padding-top: 20px;">
+						등록된 관심목록이 없습니다.<br>
+						중고거래에 올라온 글을 탐색하고 관심표시 해보세요!<br><br>
+						<button type="button" class="uk-button" style="border-radius: 5px;" onclick="location.href='/used-market/view';">중고거래 둘러보기</button>
+					</p>
 				</th:block>
 				<th:block th:if="${totalCount != 0}">
 					<ul id="boardNav"></ul>

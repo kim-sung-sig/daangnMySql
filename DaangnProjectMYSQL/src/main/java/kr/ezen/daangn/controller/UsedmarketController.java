@@ -68,19 +68,19 @@ public class UsedmarketController {
 							@RequestParam(value = "categoryRef", required = false) Integer categoryRef,
 							@RequestParam(value = "search", required = false) String search) {
 		log.debug("lifeview 실행 region: {}, gu: {}, dong: {}, search: {}", region, gu, dong, search);
-		if(region != null) {
+		if(region != null && region.equals("")) {
 			if(!regionService.regionList(region, gu, dong).contains(region)) {
 				return "redirect:/used-market/view";
 			}
 			model.addAttribute("region", region);		
 		}
-		if(gu != null) {
+		if(gu != null && gu.equals("")) {
 			if(!regionService.regionList(region, gu, dong).contains(gu)) {
 				return "redirect:/used-market/view";
 			}
 			model.addAttribute("gu", gu);			
 		}
-		if(dong != null) {
+		if(dong != null && dong.equals("")) {
 			if(!regionService.regionList(region, gu, dong).contains(dong)) {
 				return "redirect:/used-market/view";
 			}

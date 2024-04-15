@@ -93,5 +93,12 @@ public interface DaangnLifeBoardDAO {
      * @throws SQLException
      */
     void decrementCommentCount(@Param("idx") int idx, @Param("commentCount") int commentCount) throws SQLException;
+    
+    /**
+     * 동네생활 유저가 쓴 게시글 수 얻기
+     * @param userRef
+     * @return
+     */
+    int getTotalCountByUserRef(@Param("userRef") int userRef) throws SQLException;
 }
 

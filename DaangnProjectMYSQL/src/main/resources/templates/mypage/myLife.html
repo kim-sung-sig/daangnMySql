@@ -29,18 +29,28 @@
 	#boardNav li {width: 100%; cursor: pointer; text-align: center; padding: 10px; font-weight: 400;}
 	#boardNav li.active {width: 100%; cursor: pointer; text-align: center; padding: 10px;font-weight: bold;}
 	
-	#boardNav #boardNav-bar{transition:0.2s;cursor:auto;z-index:5;display:block; padding:0; position: absolute; width: calc(100% / 2); height: 2px; background: #333; left: 0; bottom: -1px;}
+	#boardNav #boardNav-bar{transition:0.2s;cursor:auto;z-index:5;display:block; padding:0; position: absolute; width: calc(100% / 3); height: 2px; background: #333; left: 0; bottom: -1px;}
 	#boardNav #boardNav-barBg{cursor:auto;z-index:4;display:block; padding:0; position: absolute; width: 100%; height: 2px; background: #ccc; left: 0; bottom: -1px;}
 	
 	
 	#contentBox {width: 100%; overflow: hidden; position: relative; height: auto;}
-	#contentBox > div {width: 100%; gap:19px;}
+	#contentBox > ul {width: 100%; gap:19px;}
 	
+	#contentBox p {margin: 0;}
+	#contentBox span{font-size: 14px; font-weight: 400;}
+	.board-category{padding: 5px 10px; background: #ccc; border-radius: 5px; font-size: 14px; font-weight: 400;}
+	.list-item{cursor: pointer; border-bottom: 1px solid #ccc;}
+	.list-item:hover{background: #eee;}
+	.list-item .board-title{font-size: 20px; font-weight: 500;}
+	.list-item .board-content{font-size: 16px;}
+	.li1 p{overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 530px;}
+	.li2 p{overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 690px;}
 </style>
 </head>
 <body>
 	<input type="hidden" id="userRef" th:value="${user.idx}">
-	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx}">
+	<input type="hidden" id="lastItemIdx1" th:value="${lastItemIdxByBoard}">
+	<input type="hidden" id="lastItemIdx2" th:value="${lastItemIdxByComment}">
 	<div id="wrap">
 		<th:block th:insert="~{indexHeader.html}"></th:block>
 		<main>
@@ -48,23 +58,37 @@
 			<div id="rightArea">
 				<h3 style="font-weight: 600"><span class="highlight">[[${user.nickName}]]</span>님의 동네생활 활동</h3>
 				<ul id="boardNav">
-					<li class="libtn s1 active">작성한글 [[${boardCount != 0 ? boardCount : ''}]]</li>
-					<li class="libtn s2">댓글단 글 [[${commentedBoardCount != 0 ? commentedBoardCount : ''}]]</li>
+					<li class="libtn s1 active">작성한 글 [[${boardCount != 0 ? boardCount : ''}]]</li>
+					<li class="libtn s2">댓글단 글 [[${commentCount != 0 ? commentCount : ''}]]</li>
+					<li class="libtn s2">공감한 글 [[${likeCount != 0 ? likeCount : ''}]]</li>
 					<li id="boardNav-bar"></li>
 					<li id="boardNav-barBg"></li>
 				</ul>
 				<div id="contentBox" style="margin-top: 20px;">
-					<div id="s1">
-						<div th:if="${boardCount==0}" class="emtpyBox" style="width: 100%; text-align: center; padding-top: 20px;">첫 동네 이야기를 이웃에게 알려주세요.</div>
-					</div>
-					<div id="s2" style="display: none;">
-						<div th:if="${commentedBoardCount==0}" class="emtpyBox" style="width: 100%; text-align: center; padding-top: 20px;">
+					<ul id="s1">
+						<li th:if="${boardCount==0}" class="emtpyBox" style="width: 100%; text-align: center; padding-top: 20px;">
+							<p style="font-size: 16px; font-weight: 500;">
+								첫 동네 이야기를 이웃에게 알려주세요.<br /><br />
+								<button type="button" class="uk-button" style="border-radius: 5px;" onclick="location.href='/life/board/write';">동네생활 글쓰기</button>
+							</p>
+						</li>
+					</ul>
+					<ul id="s2" style="display: none;">
+						<li th:if="${commentCount==0}" class="emtpyBox" style="width: 100%; text-align: center; padding-top: 20px;">
 							<p style="font-size: 16px; font-weight: 500;">
 								댓글단 글을 확인할 수 있어요!<br /><br />
-								<button type="button" class="uk-button" style="border-radius: 5px;">동네생활 둘러보기</button>
+								<button type="button" class="uk-button" style="border-radius: 5px;" onclick="location.href='/life/view';">동네생활 둘러보기</button>
 							</p>
-						</div>
-					</div>
+						</li>
+					</ul>
+					<ul id="s3" style="display: none;">
+						<li th:if="${likeCount==0}" class="emtpyBox" style="width: 100%; text-align: center; padding-top: 20px;">
+							<p style="font-size: 16px; font-weight: 500;">
+								공감한 글을 확인할 수 있어요!<br /><br />
+								<button type="button" class="uk-button" style="border-radius: 5px;" onclick="location.href='/life/view';">동네생활 둘러보기</button>
+							</p>
+						</li>
+					</ul>
 				</div>
 			</div>
 		</main>
@@ -87,8 +111,9 @@
 		        scrollHandlers[index] = function() {
 		            handleScroll(index);
 		        };
-		        lastItemIdxs[index] = $("#lastItemIdx").val();
+		        lastItemIdxs[index] = $("#lastItemIdx" + (index + 1)).val();
 		    });
+			console.log('lastItemIdxs =>' , lastItemIdxs);
 			// 초기데이터 읽어드리기
 			readData(0);	
 			readData(1);
@@ -117,21 +142,21 @@
 		function readData(index){
 			
 			let lastItemIdx = lastItemIdxs[index];
-			
-			axios.post(`/used-market/list`,{
+			let getDataAddr = index == 0 ? '/life/list' : '/life/commentedList/user';
+			console.log(getDataAddr);
+			axios.post(getDataAddr,{
 				'lastItemIdx' : lastItemIdx,
 				'sizeOfPage' : sizeOfPage,
 				'userRef' : userIdx,
-				'statusRef' : index + 1,
 			})
 			.then(res => {
 				const data = res.data;
+				console.log(data);
 				if(data.length == 0) {
 					window.removeEventListener('scroll', scrollHandlers[index])
 					scrollHandlers[index] = null;
 					return ;
 	            }
-				console.log(index, data);
 				data.forEach(vo => {
 					updateTable(vo, index);
 				})
@@ -144,20 +169,37 @@
 		/** i번째에 내용 채워넣기 */
 		function updateTable(vo, index){
 			lastItemIdxs[index] = vo.idx;
-			content = `
-				<article class="uk-card" onclick="detail(${vo.idx})">
-					<input type="hidden" class="idx" value="${vo.idx}">
-					<div class="uk-card-media-top" style="background: url('/upload/${vo.thumbnail}') center/cover"></div>
-					<div class="uk-card-body">
-						<h4 class="uk-card-title">${vo.statusRef==1 ? '' : vo.statusRef==2 ? '<span class="reserved">예약중</span>' : '<span class="sold">판매완료</span>'}${vo.title}</h4>
-						<p class="price">${numberFormatter(vo.price)}</p>
-						<span class="city">${vo.loc1} ${vo.loc2} ${vo.loc3}</span>
-						<p class="like"><span>관심 ${vo.likeCount}</span>ㆍ<span>채팅 ${vo.chatRoomCount}</span>ㆍ<span>조회수 ${vo.readCount}</span></p>
-					</div>
-				</article>
-			`;
-			console.log(content);
-			$("#contentBox > div").eq(index).append(content);
+			const isContainedFile = vo.fileList?.length != 0 ? true : false;
+			content = "";
+			if(isContainedFile){
+		    	content += `
+		    		<li class="list-item" onclick="detail(${vo.idx})">
+						<div class="li1" style="display:flex; justify-content: space-between;height: 170px; padding: 10px;">
+							<div style="width: 530px;">
+								<p class="board-category" style="display: inline-block;">${vo.categoryName}</p>
+								<p class="board-title">${vo.title}</p>
+								<p class="board-content">${vo.content}</p>
+								<span>${dateFormatter(vo.createDate)}</span>ㆍ<span>${vo.loc1} ${vo.loc2} ${vo.loc3}</span>ㆍ<span>조회수 ${vo.readCount}</span>ㆍ<span>좋아요 ${vo.likeCount}</span>ㆍ<span>댓글 ${vo.commentCount}</span>
+							</div>
+							<div style="width: 150px; height: 150xp; border-radius: 10px; overflow: hidden; background: url('/upload/${vo.fileList[0].saveFileName}') center/cover;"></div>
+						</div>
+					</li>
+		    	`;
+		    } else {
+		    	content += `
+		    		<li class="list-item" onclick="detail(${vo.idx})">
+						<div class="li2" style="display:flex; justify-content: space-between;height: 170px; padding: 10px;">
+							<div style="width: 690px;">
+								<p class="board-category" style="display: inline-block;">${vo.categoryName}</p>
+								<p class="board-title">${vo.title}</p>
+								<p class="board-content">${vo.content}</p>
+								<span>${dateFormatter(vo.createDate)}</span>ㆍ<span>${vo.loc1} ${vo.loc2} ${vo.loc3}</span>ㆍ<span>조회수 ${vo.readCount}</span>ㆍ<span>좋아요 ${vo.likeCount}</span>ㆍ<span>댓글 ${vo.commentCount}</span>
+							</div>
+						</div>
+					</li>
+		    	`;
+		    }
+			$("#contentBox > ul").eq(index).append(content);
 		}
 		
 		/** 수를 가격으로 바꿔주는 함수 */
@@ -202,8 +244,8 @@
 			    let itemWidth = $(".libtn").outerWidth();
 			    var leftPos = index * itemWidth;
 			    $("#boardNav-bar").css("left", leftPos + "px");
-			    $("#contentBox > div").hide(); // contentBox 안에 있는 모든 div를 숨깁니다.
-			    $("#contentBox > div").eq(index).show();
+			    $("#contentBox > ul").hide(); // contentBox 안에 있는 모든 ul를 숨깁니다.
+			    $("#contentBox > ul").eq(index).show();
 			    deactivateScrollHandler();
 			    activateScrollHandler(index);
 			});

@@ -4,44 +4,44 @@
 	
 	<!-- 동네생활 게시물 목록 페이징 조회 -->
     <select id="selectPagedLifeBoards" parameterType="hashmap" resultType="DaangnLifeBoardVO">
-		    SELECT
-		        dlb.*,
-		        dlc.categoryName AS categoryName,
-		        dm.nickName AS nickName,
-		        duf.saveFileName as userProfile
-		    FROM
-		        daangn_life_board dlb
-		    JOIN
-		        daangn_member dm ON dlb.userRef = dm.idx
-		    LEFT JOIN
-				daangn_user_file duf on dlb.userRef = duf.ref
-		    JOIN
-		    	daangn_life_category dlc ON dlb.categoryRef = dlc.idx
-		    WHERE
-		        <![CDATA[
-		        	dlb.idx < #{lastItemIdx}
-				]]>
-		        <if test="categoryRef != null">
-		            AND dlb.categoryRef = #{categoryRef}
-		        </if>
-		        <if test="region != null">
-		            AND dlb.loc1 = #{region}
-		        </if>
-		        <if test="gu != null">
-		            AND dlb.loc2 = #{gu}
-		        </if>
-		        <if test="dong != null">
-		            AND dlb.loc3 = #{dong}
-		        </if>
-		        <if test="search != null and search != ''">
-		            AND dlb.title LIKE CONCAT('%', #{search}, '%')
-		        </if>
-		        <if test="userRef != null">
-		            AND dlb.userRef = #{userRef}
-		        </if>
-		    ORDER BY
-		        dlb.idx DESC
-		    LIMIT #{sizeOfPage}
+	    SELECT
+	        dlb.*,
+	        dlc.categoryName AS categoryName,
+	        dm.nickName AS nickName,
+	        duf.saveFileName as userProfile
+	    FROM
+	        daangn_life_board dlb
+	    JOIN
+	        daangn_member dm ON dlb.userRef = dm.idx
+	    LEFT JOIN
+			daangn_user_file duf on dlb.userRef = duf.ref
+	    JOIN
+	    	daangn_life_category dlc ON dlb.categoryRef = dlc.idx
+	    WHERE
+	        <![CDATA[
+	        	dlb.idx < #{lastItemIdx}
+			]]>
+	        <if test="categoryRef != null">
+	            AND dlb.categoryRef = #{categoryRef}
+	        </if>
+	        <if test="region != null">
+	            AND dlb.loc1 = #{region}
+	        </if>
+	        <if test="gu != null">
+	            AND dlb.loc2 = #{gu}
+	        </if>
+	        <if test="dong != null">
+	            AND dlb.loc3 = #{dong}
+	        </if>
+	        <if test="search != null and search != ''">
+	            AND dlb.title LIKE CONCAT('%', #{search}, '%')
+	        </if>
+	        <if test="userRef != null">
+	            AND dlb.userRef = #{userRef}
+	        </if>
+	    ORDER BY
+	        dlb.idx DESC
+	    LIMIT #{sizeOfPage}
     </select>
     
     <select id="getLastIdx" resultType="int">
@@ -77,6 +77,7 @@
     <update id="updateLifeBoard" parameterType="DaangnLifeBoardVO">
         UPDATE daangn_life_board
         SET
+        	categoryRef = #{categoryRef},
         	title = #{title},
         	content = #{content},
         	loc1 = #{loc1},
@@ -127,4 +128,9 @@
         SET commentCount = commentCount - #{commentCount}
         WHERE idx = #{idx}
     </update>
+    
+    <!-- 유저가 쓴 게시글 총합 -->
+    <select id="getTotalCountByUserRef" parameterType="int" resultType="int">
+    	SELECT COUNT(*) FROM daangn_life_board WHERE userRef = #{userRef}
+    </select>
 </mapper>

@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import kr.ezen.daangn.vo.DaangnLifeBoardVO;
 import kr.ezen.daangn.vo.DaangnLifeCommentVO;
 
 @Mapper
@@ -96,4 +97,25 @@ public interface DaangnLifeBoardCommentDAO {
 	 * @throws SQLException
 	 */
 	void decrementChildCommentCount(int idx) throws SQLException;
+	
+	/**
+     * 동네생활 유저가 쓴 댓글 수 얻기
+     * @param userRef
+     * @return
+     */
+    int getTotalCountByUserRef(@Param("userRef") int userRef) throws SQLException;
+    
+	/**
+	 * 동네생활 유저가 댓글단 게시글 얻기
+	 * @param lastItemIdx
+	 * @param sizeOfPage
+	 * @param userRef
+	 * @return
+	 * @throws SQLException
+	 */
+    List<DaangnLifeBoardVO> selectCommentedBoardsByUserRef(
+    		@Param("lastItemIdx") int lastItemIdx,
+    		@Param("sizeOfPage") int sizeOfPage,
+    		@Param("userRef") int userRef
+    	) throws SQLException;
 }

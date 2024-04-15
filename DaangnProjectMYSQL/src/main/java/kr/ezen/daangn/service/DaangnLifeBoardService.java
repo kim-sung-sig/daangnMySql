@@ -89,23 +89,6 @@ public class DaangnLifeBoardService {
     }
     
     /**
-     * 동네생활 댓글 한개 얻기 (댓글 수정용)
-     * @param idx
-     * @return
-     */
-    public DaangnLifeCommentVO selectCommentByIdx(int idx) {
-    	log.info("selectCommentByIdx 실행 idx => {}", idx);
-    	DaangnLifeCommentVO lifeCommentVO = null;
-    	try {
-    		lifeCommentVO = lifeBoardCommentDAO.selectCommentByIdx(idx);
-    	} catch (SQLException e) {
-    		e.printStackTrace();
-    	}
-    	log.info("selectCommentByIdx 리턴 {}", lifeCommentVO);
-    	return lifeCommentVO;
-    }
-    
-    /**
      * 동네생활 게시글 쓰기
      * @param lifeBoardVO
      * @return
@@ -211,6 +194,21 @@ public class DaangnLifeBoardService {
         return result;
     }
     
+    /**
+     * 동네생활 유저가 쓴 게시글 수 얻기
+     * @param userRef
+     * @return
+     */
+    public int getBoardCountByUserRef(int userRef) {
+    	int result = 0;
+    	try {
+			result = lifeBoardDAO.getTotalCountByUserRef(userRef);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	return result;
+    }
+    
     // =================================================================================================================================
     // 댓글 관련
     // =================================================================================================================================
@@ -230,6 +228,23 @@ public class DaangnLifeBoardService {
         }
     	log.info("selectPagedLifeBoardComments 결과 {}개, {}", list.size(), list);
     	return list;
+    }
+    
+    /**
+     * 동네생활 댓글 한개 얻기 (댓글 수정용)
+     * @param idx
+     * @return
+     */
+    public DaangnLifeCommentVO selectCommentByIdx(int idx) {
+    	log.info("selectCommentByIdx 실행 idx => {}", idx);
+    	DaangnLifeCommentVO lifeCommentVO = null;
+    	try {
+    		lifeCommentVO = lifeBoardCommentDAO.selectCommentByIdx(idx);
+    	} catch (SQLException e) {
+    		e.printStackTrace();
+    	}
+    	log.info("selectCommentByIdx 리턴 {}", lifeCommentVO);
+    	return lifeCommentVO;
     }
     
     /**
@@ -378,6 +393,77 @@ public class DaangnLifeBoardService {
     	return result;
     }
     
+    /**
+     * 동네생활 유저가 쓴 댓글 수 얻기
+     * @param userRef
+     * @return
+     */
+    public int getCommentCountByUserRef(int userRef) {
+    	int result = 0;
+    	try {
+			result = lifeBoardCommentDAO.getTotalCountByUserRef(userRef);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	return result;
+    }
+    
+    /**
+     * 동네생활 댓글쓴 게시글 얻기
+     * @param sv (lastItemIdx, sizeOfPage, userRef)
+     * @return
+     */
+    public List<DaangnLifeBoardVO> getCommentedBoardByUserRef(ScrollVO sv) {
+    	List<DaangnLifeBoardVO> list = null;
+    	try {
+			list = lifeBoardCommentDAO.selectCommentedBoardsByUserRef(sv.getLastItemIdx(), sv.getSizeOfPage(), sv.getUserRef());
+			for(DaangnLifeBoardVO boardVO : list) {
+    			boardVO.setFileList(lifeBoardFileDAO.selectLifeBoardFileByBoardRef(boardVO.getIdx())); // 게시글 사진 넣어주기
+    		}
+    	} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	return list;
+    }
+
+    /**
+     * 동네생활 좋아요 가장 큰 idx 얻기
+     * @param userRef
+     * @return
+     */
+    public int getLikeLastItemIdx(int userRef) {
+        int result = 0;
+        try {
+            result = lifeBoardLikeDAO.getLastIdx();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public int getLikeCountByUserRef(int userRef) {
+        int result = 0;
+        try {
+            result = lifeBoardLikeDAO.getTotalCountByUserRef(userRef);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public List<DaangnLifeBoardVO> selectLifeBoardLike(int lastItemIdx, int sizeOfPage, int userRef) {
+        List<DaangnLifeBoardVO> list = null;
+        try {
+            list = lifeBoardLikeDAO.selectLikedBoardsByUserRef(lastItemIdx, sizeOfPage, userRef);
+            for(DaangnLifeBoardVO boardVO : list) {
+                boardVO.setFileList(lifeBoardFileDAO.selectLifeBoardFileByBoardRef(boardVO.getIdx())); // 게시글 사진 넣어주기
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     // =================================================================================================================================
     // 좋아요 했는지 안했는지 확인
     // =================================================================================================================================
