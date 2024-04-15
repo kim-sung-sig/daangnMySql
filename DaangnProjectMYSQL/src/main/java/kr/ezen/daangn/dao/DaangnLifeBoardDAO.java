@@ -100,5 +100,22 @@ public interface DaangnLifeBoardDAO {
      * @return
      */
     int getTotalCountByUserRef(@Param("userRef") int userRef) throws SQLException;
+    
+    /**
+     * 검색상태에 따른 갯수 얻기(categoryRef, region, gu, dong, search)
+     * @param categoryRef
+     * @param region
+     * @param gu
+     * @param dong
+     * @param search
+     * @return
+     */
+    int getTotalCountBy(
+    		@Param("categoryRef") Integer categoryRef,
+    		@Param("region") String region,
+    		@Param("gu") String gu,
+    		@Param("dong") String dong,
+    		@Param("search") String search
+    	) throws SQLException;
 }
 

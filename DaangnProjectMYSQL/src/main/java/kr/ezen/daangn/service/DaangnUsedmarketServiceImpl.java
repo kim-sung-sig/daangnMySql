@@ -69,7 +69,7 @@ public class DaangnUsedmarketServiceImpl implements DaangnUsedmarketService{
 	}
 	
 	/**
-	 * 판매상품의 상태에 따른 갯수 얻기 (categoryRef, region, gu, dong, search)
+	 * 검색상태에 따른 갯수 얻기 (categoryRef, region, gu, dong, search)
 	 * @param sv
 	 * @return
 	 */

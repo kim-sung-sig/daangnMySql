@@ -19,4 +19,62 @@
 		FROM daangn_life_board_like
 		WHERE userRef = #{userRef} AND boardRef = #{boardRef}
 	</select>
+	
+	<!-- 최대 idx 얻기 -->
+	<select id="getLastIdx" resultType="int">
+		SELECT COALESCE(MAX(idx), 0) FROM daangn_life_board_like
+	</select>
+	
+	<!-- 유저가 한 좋아요 갯수 얻기 -->
+	<select id="getTotalCountByUserRef" parameterType="int" resultType="int">
+		SELECT
+			COUNT(DISTINCT dlb.idx) AS totalCount
+		FROM
+			daangn_life_board_like dlbl
+		JOIN
+			(
+				SELECT
+					dlb.*
+				FROM
+					daangn_life_board dlb
+				WHERE
+					<![CDATA[
+						dlb.userRef <> #{userRef}
+					]]>
+			) dlb ON dlb.idx = dlbl.boardRef
+		WHERE
+			dlbl.userRef = #{userRef}
+	</select>
+	
+	<!-- 유저가 좋아요한 목록 얻기 -->
+	<select id="selectLikedBoardsByUserRef" parameterType="hashmap" resultType="DaangnLifeBoardVO">
+		SELECT
+		    dlbl.idx AS likeIdx,
+		    dlb.*
+		FROM
+		    daangn_life_board_like dlbl
+		JOIN
+		    (
+		        SELECT
+		            dlb.*,
+		            dlct.categoryName AS categoryName
+		        FROM
+		            daangn_life_board dlb
+		        JOIN
+		            daangn_life_category dlct ON dlb.categoryRef = dlct.idx
+		        WHERE
+		        	<![CDATA[
+		            	dlb.userRef <> #{userRef}
+		            ]]>
+		    ) dlb ON dlb.idx = dlbl.boardRef
+		WHERE
+			<![CDATA[
+		    	dlbl.idx < #{lastItemIdx}
+		    ]]>
+		    AND dlbl.userRef = #{userRef}
+		ORDER BY
+		    likeIdx DESC
+		LIMIT #{sizeOfPage}
+	</select>
+	
 </mapper>

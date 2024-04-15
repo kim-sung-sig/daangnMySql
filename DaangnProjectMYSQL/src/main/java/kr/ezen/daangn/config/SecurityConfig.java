@@ -26,32 +26,32 @@ public class SecurityConfig {
 		// 인증 설정
 		http.authorizeHttpRequests((authorize) -> {
 			authorize
-					// mainPage
-					.requestMatchers("/", "/dbinit").permitAll()
-					// 지정 주소에 대한 권한 설정 **은 하위폴더 포함 모두
-					.requestMatchers("/css/**", "/js/**", "/img/**", "/upload/**", "/data/**").permitAll()
-					// 회원가입 폼과 회원가입 완료는 누구나 접근 가능 
-					.requestMatchers("/member/login/useridcheck","/member/login","/member/logout","/member/join","/member/joinok","/member/send","/member/findUserName","/member/checkEmailAndUsername","/member/passwordUpdateByUsername","/member/login/usernicknamecheck").permitAll()
-					// 지역 리턴
-					.requestMatchers("/region/**").permitAll()
-					// 동네생활
-					.requestMatchers("/life/view/**", "/life/list", "/life/detail/**").permitAll()
-					// 동네생활댓글얻기
-					.requestMatchers("/life/commentList", "/life/childCommentList").permitAll()
-					// 공지사항
-					.requestMatchers("/notice/**").permitAll()
-					// 중고거래 리스트 사이트!
-					.requestMatchers("/fleamarket/**", "/fleamarketDetail/**", "/getfleamarketList").permitAll()
-					// 중고거래 리스트 사이트!
-					.requestMatchers("/used-market/view/**", "/used-market/list", "/used-market/detail/**").permitAll()
-					// 유저가쓴글보기
-					.requestMatchers("/user/**").permitAll()
-					// 뉴스
-					.requestMatchers("/news/**").permitAll()
-					// 지정 주소에 대한 권한 설정 : hasRole(권한)은 지정 권한이 있는 사용자만 접근이 가능하다.
-					.requestMatchers("/adm", "/adm/**").hasRole("ADMIN")
-					// 그 이외의 요청은 인증된 사용자만 접근이 가능하다.
-					.anyRequest().authenticated();
+				// mainPage
+				.requestMatchers("/", "/dbinit").permitAll()
+				// 지정 주소에 대한 권한 설정 **은 하위폴더 포함 모두
+				.requestMatchers("/css/**", "/js/**", "/img/**", "/upload/**", "/data/**").permitAll()
+				// 회원가입 폼과 회원가입 완료는 누구나 접근 가능 
+				.requestMatchers("/member/login/useridcheck","/member/login","/member/logout","/member/join","/member/joinok","/member/send","/member/findUserName","/member/checkEmailAndUsername","/member/passwordUpdateByUsername","/member/login/usernicknamecheck").permitAll()
+				// 지역 리턴
+				.requestMatchers("/region/**").permitAll()
+				// 동네생활
+				.requestMatchers("/life/view/**", "/life/list", "/life/detail/**").permitAll()
+				// 동네생활댓글얻기
+				.requestMatchers("/life/commentList", "/life/childCommentList").permitAll()
+				// 공지사항
+				.requestMatchers("/notice/**").permitAll()
+				// 중고거래 리스트 사이트!
+				.requestMatchers("/fleamarket/**", "/fleamarketDetail/**", "/getfleamarketList").permitAll()
+				// 중고거래 리스트 사이트!
+				.requestMatchers("/used-market/view/**", "/used-market/list", "/used-market/detail/**").permitAll()
+				// 유저가쓴글보기
+				.requestMatchers("/user/**").permitAll()
+				// 뉴스
+				.requestMatchers("/news/**").permitAll()
+				// 지정 주소에 대한 권한 설정 : hasRole(권한)은 지정 권한이 있는 사용자만 접근이 가능하다.
+				.requestMatchers("/adm", "/adm/**").hasRole("ADMIN")
+				// 그 이외의 요청은 인증된 사용자만 접근이 가능하다.
+				.anyRequest().authenticated();
 		});
 
 		// 사용자 로그인을 사용하겠다 (내가만든 로그인 페이지를 사용하겠다?)

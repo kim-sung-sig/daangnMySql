@@ -55,7 +55,8 @@ create table daangn_life_board_file(
 );
 
 create table daangn_life_board_like(
-    userRef int not null,
+    idx int PRIMARY KEY AUTO_INCREMENT,
+	userRef int not null,
     constraint dg_life_bd_like_userRef foreign key (userRef) references daangn_member(idx) on delete cascade,
     boardRef int not null,
     constraint dg_life_bg_like_boardRef foreign key (boardRef) references daangn_life_board(idx) on delete cascade

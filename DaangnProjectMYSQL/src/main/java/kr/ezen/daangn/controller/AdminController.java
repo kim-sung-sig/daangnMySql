@@ -28,18 +28,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import kr.ezen.daangn.service.DaangnMainBoardService;
 import kr.ezen.daangn.service.DaangnMemberService;
 import kr.ezen.daangn.service.DaangnNoticesService;
 import kr.ezen.daangn.service.MailService;
-import kr.ezen.daangn.service.PopularService;
 import kr.ezen.daangn.service.VisitService;
 import kr.ezen.daangn.vo.CommonVO;
-import kr.ezen.daangn.vo.DaangnMainBoardVO;
 import kr.ezen.daangn.vo.DaangnMemberVO;
 import kr.ezen.daangn.vo.NoticesVO;
 import kr.ezen.daangn.vo.PagingVO;
-import kr.ezen.daangn.vo.PopularVO;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -50,11 +46,7 @@ public class AdminController {
 	@Autowired
 	private DaangnMemberService daangnMemberService;
 	@Autowired
-	private DaangnMainBoardService daangnMainBoardService;
-	@Autowired
 	private MailService mailService;
-	@Autowired
-	private PopularService popularService;
 	@Autowired
 	private VisitService visitService;
 	@Autowired
@@ -64,23 +56,12 @@ public class AdminController {
 	// 관리자 메인페이지
 	@GetMapping(value = {"","/"})
 	public String man(HttpSession session, Model model) {
-		if(session.getAttribute("user") == null) {
-    		return "redirect:/";
-    	}
-    	DaangnMemberVO memberVO = (DaangnMemberVO) session.getAttribute("user");
-    	if(!memberVO.getRole().equals("ROLE_ADMIN")) {
-    		return "redirect:/";
-    	}
+    	var admin = (DaangnMemberVO) session.getAttribute("user");
     	log.info("관리자 홈 실행");
-    	// 1. 회원수 및 회원목록 한 5개 정도만?
     	PagingVO<DaangnMemberVO> userpv = daangnMemberService.getUsers(new CommonVO());
     	List<DaangnMemberVO> memberList = userpv.getList().stream().limit(10).toList();
-    	// 2. 최근 게시물 한 10개 정도만?
-    	PagingVO<DaangnMainBoardVO> pv = daangnMainBoardService.selectList(new CommonVO()); // 10개 리스트
-    	List<DaangnMainBoardVO> boardList = pv.getList().stream().limit(12).toList();
-    	model.addAttribute("name",memberVO.getName());
+    	model.addAttribute("name",admin.getName());
     	model.addAttribute("users", memberList);
-    	model.addAttribute("boards", boardList);
 		return "admin/admin"; // 관리자 메인페이지
 	}
 	//=========================================================================================================================================
@@ -227,70 +208,6 @@ public class AdminController {
 		log.info("memberVO: {}", memberVO);
 		daangnMemberService.update(memberVO);
 		return "redirect:/adm/user-roles?p="+cv.getP()+"&search="+cv.getSearch();
-	}
-	
-	
-	// ==========================
-	// 회원 동향분석
-	@GetMapping(value = "/userTrendAnalysis")
-	public String userTrendAnalysis(HttpSession session, Model model, @ModelAttribute(value = "cv") CommonVO cv) {
-		log.info("userTrendAnalysis실행 cv: {}",cv);
-		if(session.getAttribute("user") == null) {
-	        return "redirect:/";
-	    }
-		DaangnMemberVO memberVO = (DaangnMemberVO) session.getAttribute("user");
-	    if(!memberVO.getRole().equals("ROLE_ADMIN")) {
-	        return "redirect:/";
-	    }
-	    model.addAttribute("name", memberVO.getName());
-		cv.setS(30);
-		PagingVO<PopularVO> pv = popularService.getUserTrendAnalysis(cv);
-		log.info("pv => {}", pv);
-		model.addAttribute("pv", pv);
-		model.addAttribute("cv", cv);
-		return "admin/userTrendAnalysis";
-	}
-	
-	//=========================================================================================================================================
-	// **게시물관리**
-	//=========================================================================================================================================
-	// 인기게시물
-	//=========================================================================================================================================
-	@GetMapping(value = "/bestPost")
-	public String bestPost(HttpSession session, Model model) {
-		log.info("bestPost실행");
-		if(session.getAttribute("user") == null) {
-	        return "redirect:/";
-	    }
-		DaangnMemberVO memberVO = (DaangnMemberVO) session.getAttribute("user");
-	    if(!memberVO.getRole().equals("ROLE_ADMIN")) {
-	        return "redirect:/";
-	    }
-	    model.addAttribute("name", memberVO.getName());
-		
-		List<DaangnMainBoardVO> popularBoardList = popularService.findPopularBoard();
-		model.addAttribute("list", popularBoardList);
-		log.info("popularBoardList : {}", popularBoardList);
-		return "admin/bestPost";
-	}
-	
-	//===========================================================
-	// 게시판 관리
-	@GetMapping(value = "/boardManagement")
-	public String boardMangement(HttpSession session, @ModelAttribute(value = "cv") CommonVO cv, Model model) {
-		if(session.getAttribute("user") == null) {
-	        return "redirect:/";
-	    }
-		DaangnMemberVO memberVO = (DaangnMemberVO) session.getAttribute("user");
-	    if(!memberVO.getRole().equals("ROLE_ADMIN")) {
-	        return "redirect:/";
-	    }
-	    model.addAttribute("name", memberVO.getName());
-		PagingVO<DaangnMainBoardVO> pv = daangnMainBoardService.selectList(cv);
-        log.info("boardMangement실행 cv: {}",cv);
-        model.addAttribute("pv",pv);
-        model.addAttribute("cv", cv);
-        return "admin/boardManagement";
 	}
 	
 	//=========================================================================================================================================

@@ -51,6 +51,7 @@
 	<input type="hidden" id="userRef" th:value="${user.idx}">
 	<input type="hidden" id="lastItemIdx1" th:value="${lastItemIdxByBoard}">
 	<input type="hidden" id="lastItemIdx2" th:value="${lastItemIdxByComment}">
+	<input type="hidden" id="lastItemIdx3" th:value="${lastItemIdxByLike}">
 	<div id="wrap">
 		<th:block th:insert="~{indexHeader.html}"></th:block>
 		<main>
@@ -102,8 +103,8 @@
 		let targetDiv = 0;
 		
 		function detail(idx) {
-		    const url = '/used-market/detail/' + idx;
-		    window.open(url, "_blank");
+		    const url = '/life/detail/' + idx;
+		    location.href = url;
 		}
 		
 		function init(){
@@ -112,11 +113,9 @@
 		            handleScroll(index);
 		        };
 		        lastItemIdxs[index] = $("#lastItemIdx" + (index + 1)).val();
+		        readData(index);
 		    });
 			console.log('lastItemIdxs =>' , lastItemIdxs);
-			// 초기데이터 읽어드리기
-			readData(0);	
-			readData(1);
 			
 			window.addEventListener('scroll', scrollHandlers[0]);
 		}
@@ -142,8 +141,20 @@
 		function readData(index){
 			
 			let lastItemIdx = lastItemIdxs[index];
-			let getDataAddr = index == 0 ? '/life/list' : '/life/commentedList/user';
-			console.log(getDataAddr);
+			let getDataAddr = "";
+			switch (index) {
+				case 0:
+					getDataAddr = '/life/list';
+					break;
+				case 1:
+					getDataAddr = '/life/commentedList/user';
+					break;
+				case 2:
+					getDataAddr = '/life/likedList/user';
+					break;
+				default:
+					break;
+			}
 			axios.post(getDataAddr,{
 				'lastItemIdx' : lastItemIdx,
 				'sizeOfPage' : sizeOfPage,

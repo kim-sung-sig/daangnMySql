@@ -278,11 +278,11 @@ public class MemberController {
     	int commentCount = lifeBoardService.getCommentCountByUserRef(user.getIdx());
     	model.addAttribute("lastItemIdxByBoard", lifeBoardService.getBoardLastIdx() + 1);
     	model.addAttribute("lastItemIdxByComment", lifeBoardService.getCommentLastIdx()+ 1);
-    	model.addAttribute("lastItemIdxByLike", 0 + 1);
+    	model.addAttribute("lastItemIdxByLike", lifeBoardService.getLikeLastItemIdx() + 1);
     	
     	model.addAttribute("boardCount", lifeBoardService.getBoardCountByUserRef(user.getIdx()));
     	model.addAttribute("commentCount", lifeBoardService.getCommentCountByUserRef(user.getIdx()));
-    	model.addAttribute("likeCount", 0);
+    	model.addAttribute("likeCount", lifeBoardService.getLikeCountByUserRef(user.getIdx()));
     	log.info("{}, {}, {}, {}", lastItemIdxByBoard, lastItemIdxByComment, boardCount, commentCount);
     	return "mypage/myLife";
     }

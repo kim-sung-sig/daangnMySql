@@ -76,6 +76,7 @@ public class LifeController {
 			model.addAttribute("search", search);
 		}
 		model.addAttribute("lastItemIdx", lifeBoardService.getBoardLastIdx() + 1);
+		model.addAttribute("totalCount", lifeBoardService.getBoardCountBy(categoryRef, region, gu, dong, search));
 		return "life/life";
 	}
 	
@@ -488,5 +489,34 @@ public class LifeController {
 		DaangnLifeCommentVO lifeCommentVO = lifeBoardService.selectCommentByIdx(idx);
 		log.info("getDaangnLifeCommentByIdx 리턴 {}", lifeCommentVO);
 		return lifeCommentVO;
+	}
+	
+	
+	
+	// =================================================
+	// 마이페이지
+	// =================================================
+	/**
+	 * 동네생활 유저가 공감한 동네생활 게시물 리턴
+	 * @param session
+	 * @param userRef
+	 * @param lastItemIdx
+	 * @param sizeOfPage
+	 * @return
+	 */
+	@PostMapping(value = "/likedList/user")
+	@ResponseBody
+	public List<DaangnLifeBoardVO> getLikedLifeBoardsByUserRef(HttpSession session, @RequestBody ScrollVO sv){
+		if(session.getAttribute("user") == null) {
+			return null;
+		}
+		var user = (DaangnMemberVO) session.getAttribute("user");
+		if(user.getIdx() != sv.getUserRef()) {
+			return null;
+		}
+		log.info("getLikedLifeBoardsByUserRef 실행 : userRef => {}, lastItemIdx => {}, sizeOfPage => {}", sv.getUserRef(), sv.getLastItemIdx(), sv.getSizeOfPage());
+		List<DaangnLifeBoardVO> list = lifeBoardService.getLikedBoardsByUserRef(sv);
+		log.info("getLikedLifeBoardsByUserRef 리턴 {}", list);
+		return list;
 	}
 }

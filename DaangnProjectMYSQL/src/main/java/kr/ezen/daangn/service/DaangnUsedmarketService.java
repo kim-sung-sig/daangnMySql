@@ -31,7 +31,7 @@ public interface DaangnUsedmarketService {
 	int getBoardCountBy(int userRef, int statusRef);
 	
 	/**
-	 * 판매상품의 상태에 따른 갯수 얻기 (categoryRef, region, gu, dong, search)
+	 * 검색 상태에 따른 갯수 얻기 (categoryRef, region, gu, dong, search)
 	 * @param sv
 	 * @return
 	 */

@@ -48,6 +48,30 @@
         SELECT COALESCE(MAX(idx), 0) FROM daangn_life_board
 	</select>
 	
+	<select id="getTotalCountBy" parameterType="hashmap" resultType="int">
+		SELECT
+			count(*)
+		FROM
+			daangn_life_board
+		<where>
+			<if test="categoryRef != null">
+                categoryRef = #{categoryRef}
+            </if>
+			<if test="search != null">
+                AND title LIKE CONCAT('%', #{search}, '%')
+            </if>
+            <if test="region != null">
+                AND loc1 LIKE CONCAT('%', #{region}, '%')
+            </if>
+            <if test="gu != null">
+                AND loc2 LIKE CONCAT('%', #{gu}, '%')
+            </if>
+            <if test="dong != null">
+                AND loc3 LIKE CONCAT('%', #{dong}, '%')
+            </if>
+    	</where>
+	</select>
+	
 	<!-- 동네생활 게시물 1개 얻기 -->
 	<select id="selectByIdx" parameterType="int" resultType="DaangnLifeBoardVO">
 		SELECT

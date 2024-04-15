@@ -94,45 +94,7 @@
 					    </tbody>
 					</table>
 					<div class="btn-right">
-						<a href="/adm/userManagement" class="uk-button uk-button-small uk-button-primary">회원관리하기</a>
-					</div>
-	        	</div>
-	        	
-				<label class="subtitle">최근 게시글물(10개)</label>
-	        	<div class="hr"></div>
-	        	<div class="xBox">
-	        		<table class="uk-table uk-table-striped">
-					    <thead>
-					        <tr>
-					            <th>No</th>
-					            <th>카테고리</th>
-					            <th>상품상태</th>
-					            <th>제목</th>
-					            <th>판매장소</th>
-					            <th>작성자</th>
-					            <th>조회수</th>
-					            <th>좋아요</th>
-					            <th>채팅수</th>
-					            <th>게시일</th>
-					        </tr>
-					    </thead>
-					    <tbody>
-					    	<tr th:each="board : ${boards}">
-					    		<td>[[${board.idx}]]</td>
-					    		<td>[[${board.categoryName}]]</td>
-					    		<td>[[${board.statusName}]]</td>
-					    		<td style="max-width: 500px;text-align: left;overflow: hidden;text-overflow: ellipsis;">[[${board.subject}]]</td>
-					    		<td>[[${board.loc}]]</td>
-					    		<td>[[${board.member.nickName}]]</td>
-					    		<td>[[${board.readCount}]]</td>
-					    		<td>[[${board.countLike}]]</td>
-					    		<td>[[${board.chatRoomCount}]]</td>
-					    		<td>[[${#dates.format(board.regDate, 'yy.MM.dd hh:mm')}]]</td>
-					    	</tr>
-					    </tbody>
-					</table>
-					<div class="btn-right">
-						<a href="/adm/boardManagement" class="uk-button uk-button-small uk-button-primary">게시글 관리하기</a>
+						<a href="/adm2/userManagement" class="uk-button uk-button-small uk-button-primary">회원관리하기</a>
 					</div>
 	        	</div>
 	        </div>
@@ -142,7 +104,7 @@
 
 <script type="text/javascript">
 	$(function(){
-		axios.post('/adm/visitorData')
+		axios.post('/adm2/visitorData')
 		.then(res => {
 			const data = res.data;
 			const lineExample = document.querySelector('#lineExample').getContext('2d');
