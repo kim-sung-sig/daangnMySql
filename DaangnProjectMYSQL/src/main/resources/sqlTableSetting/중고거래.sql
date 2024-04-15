@@ -130,3 +130,5 @@ SELECT * FROM daangn_usedmarket_board_file;
 SELECT * FROM daangn_usedmarket_board_chatRoom;
 SELECT * FROM daangn_usedmarket_board_chatMessage;
 SELECT * FROM daangn_usedmarket_board;
+SELECT * FROM daangn_usedmarket_status;
+SELECT * FROM daangn_usedmarket_category;

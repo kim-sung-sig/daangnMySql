@@ -132,7 +132,7 @@
 	</div>
 	<script>
 		let lastItemIdx = 0;
-		const sizeOfPage = 12;
+		const sizeOfPage = 16;
 		let categoryRef = null;
 		let region = null;
 		let gu = null;
@@ -245,35 +245,43 @@
 			
 			let isScrolled = false; // 스크롤 여부를 저장하는 변수
 			let timeout; // 딜레이를 위한 타임아웃 변수
-			let unreadCount = parseInt($("#unreadCount").val());
+			let unreadCount = 0;
+			if($("#unreadCount").val().length != 0){
+				unreadCount = parseInt($("#unreadCount").val());
+			}
+			console.log(unreadCount);
 			window.addEventListener('scroll', function() {
 			    var scrollPosition = window.scrollY;
-			    var button = document.getElementById('writeButton');
+			    var button1 = document.getElementById('writeButton');
 			    var button2 = document.getElementById('chatRoomButton');
 
 			    // 상단에 위치한 상태인지 확인
 			    if (scrollPosition > 100) {
-			        button.textContent = "+";
-			        if(unreadCount === 0){
-		                button2.textContent = "+";
-		            } else {
-		                button2.textContent = unreadCount;
-		            }
-			        button.style.width = "60px";
-			        button2.style.width = "60px";
+			        button1.textContent = "+";
+			        button1.style.width = "60px";
+			        if(button2){
+				        if(unreadCount === 0){
+			                button2.textContent = "+";
+			            } else {
+			                button2.textContent = unreadCount;
+			            }
+				        button2.style.width = "60px";
+			        }
 			        isScrolled = true; // 스크롤된 상태로 설정
 			    } else {
 			        if (isScrolled) { // 스크롤된 상태에서만 실행
-			            button.style.width = "150px";
-			            button2.style.width = "150px";
-			            clearTimeout(timeout); // 기존 타임아웃 제거
-			            timeout = setTimeout(() => {
-			                button.textContent = "+ 글쓰기";
-			                if(unreadCount === 0){
-			                    button2.textContent = "채팅";
-			                } else {
-			                    button2.textContent = "채팅 " + unreadCount + "개";
-			                }                  
+			            button1.style.width = "150px";
+		                clearTimeout(timeout); // 기존 타임아웃 제거
+		                timeout = setTimeout(() => {
+		                    button1.textContent = "+ 글쓰기";
+			            	if (button2) { // 버튼이 존재할 때만 실행
+			                    if (unreadCount === 0) {
+			                        button2.textContent = "채팅";
+			                    } else {
+			                        button2.textContent = "채팅 " + unreadCount + "개";
+			                    }
+			                    button2.style.width = "150px";
+			                }
 			            }, 500);
 			            isScrolled = false; // 스크롤되지 않은 상태로 설정
 			        }
