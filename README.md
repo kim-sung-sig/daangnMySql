@@ -56,4 +56,4 @@
 
 ### ERD
 
-사진보일곳
+![daangn_ERD](https://github.com/kim-sung-sig/daangnMySql/assets/144510755/8c0d5554-0bc8-4c77-8eb7-e8247e404768)
