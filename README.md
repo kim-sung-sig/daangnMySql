@@ -23,8 +23,7 @@
 ### 👤 마이페이지
 
 개인화된 정보와 설정, 여러분의 활동내역등을 확인하실 수 있습니다. 
-
-![마이페이지](https://github.com/kim-sung-sig/daangnMySql/assets/144510755/8ed66a6d-1a33-4bc4-bbc5-2ac6a5cadf68){: width="50%"}
+<img src="https://github.com/kim-sung-sig/daangnMySql/assets/144510755/8ed66a6d-1a33-4bc4-bbc5-2ac6a5cadf68" width="50%"/>
 
 ### 주요기능
 
