@@ -18,14 +18,14 @@
 
 이웃들과 여러분의 이야기, 정보, 질문을 자유롭게 나누세요. 함께 성자하는 커뮤니티가 될 것입니다.
 
-![동네생활 메인페이지](https://github.com/kim-sung-sig/daangnMySql/assets/144510755/4549ef64-e5e0-41d1-a874-9729cdcc4622)
+![동네생활 메인페이지](https://github.com/kim-sung-sig/daangnMySql/assets/144510755/4549ef64-e5e0-41d1-a874-9729cdcc4622){: width="50%"}
 
 
 ### 👤 마이페이지
 
 개인화된 정보와 설정, 여러분의 활동내역등을 확인하실 수 있습니다. 
 
-![마이페이지](https://github.com/kim-sung-sig/daangnMySql/assets/144510755/8ed66a6d-1a33-4bc4-bbc5-2ac6a5cadf68)
+![마이페이지](https://github.com/kim-sung-sig/daangnMySql/assets/144510755/8ed66a6d-1a33-4bc4-bbc5-2ac6a5cadf68){: width="50%"}
 
 ### 주요기능
 
@@ -55,4 +55,4 @@
 
 ### ERD
 
-![daangn_ERD](https://github.com/kim-sung-sig/daangnMySql/assets/144510755/8c0d5554-0bc8-4c77-8eb7-e8247e404768)
+![daangn_ERD](https://github.com/kim-sung-sig/daangnMySql/assets/144510755/8c0d5554-0bc8-4c77-8eb7-e8247e404768){: width="50%"}
