@@ -271,6 +271,9 @@
 			    } else {
 			        if (isScrolled) { // 스크롤된 상태에서만 실행
 			            button1.style.width = "150px";
+			        	if(button2){
+			        		button2.style.width = "150px";
+			        	}
 		                clearTimeout(timeout); // 기존 타임아웃 제거
 		                timeout = setTimeout(() => {
 		                    button1.textContent = "+ 글쓰기";
@@ -280,7 +283,6 @@
 			                    } else {
 			                        button2.textContent = "채팅 " + unreadCount + "개";
 			                    }
-			                    button2.style.width = "150px";
 			                }
 			            }, 500);
 			            isScrolled = false; // 스크롤되지 않은 상태로 설정
