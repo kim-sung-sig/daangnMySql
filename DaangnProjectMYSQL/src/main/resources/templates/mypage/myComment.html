@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>당근-나의 유저평</title>
+<!--제이쿼리 추가-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<!-- UIkit CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css" />
+<!-- UIkit JS -->
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Ajax처리를 위한 포함 -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- 구글아이콘 사용 -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" />
+<!-- moment.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+
+<link href="/css/header.css" rel="stylesheet">
+<link href="/css/mypage/home.css" rel="stylesheet">
+<script src="/js/mypage/home.js"></script>
+<style type="text/css">
+	.chat {
+	    display: flex;
+	    align-items: flex-start;
+	    padding: 0px 10px;
+	    width: 100%;
+	    margin-bottom: 2px;
+	}
+	.chat .textbox {
+	    position: relative;
+	    display: inline-block;
+	    max-width: 590px;
+	    padding: 10px;
+	    margin-top: 7px;
+	    font-size: 13px;
+	    border-radius: 10px;
+	    white-space: normal;
+	}
+	.chat .textbox > p{
+		font-size: 24px;
+		width: 100%;
+	    white-space: normal;
+	    margin: 0;
+	}
+	.chat .textbox::before {
+	    position: absolute;
+	    display: block;
+	    top: 0;
+	    font-size: 1.5rem;
+	}
+	.ch1 .textbox {
+	    margin-left: 20px;
+	    background-color: #FF8A3D;
+	}
+	.ch1 .textbox::before {
+	    left: -15px;
+	    content: "◀";
+	    color: #FF8A3D;
+	}
+	.ch1 .chat-time{
+		position:absolute;
+		left: 100%;
+		bottom: 0;
+		padding: 0 10px;
+		font-size : 12px;
+		white-space: nowrap;
+	}
+</style>
+</head>
+<body>
+	<input type="hidden" id="userIdx" th:value="${user.idx}">
+	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx}">
+	<div id="wrap">
+		<th:block th:insert="~{indexHeader.html}"></th:block>
+		<main>
+			<th:block th:insert="~{mypage/leftArea.html}"></th:block>
+			<div id="rightArea">
+				<h3 style="font-weight: 600"><span class="highlight">[[${user.nickName}]]</span>님께 남긴 유저평 [[${totalCount != 0 ? totalCount + '건' : ''}]]</h3>
+				<th:block th:if="${totalCount == 0}">
+					<p style="font-size: 16px; font-weight: 500; text-align: center; padding-top: 20px;">
+						등록된 유저평이 없습니다.<br>
+					</p>
+				</th:block>
+				<th:block th:if="${totalCount != 0}">
+					<ul id="commentNav"></ul>
+				</th:block>
+			</div>
+		</main>
+	</div>
+	
+	<script type="text/javascript">
+		let lastItemIdx = 0;
+		const sizeOfPage = 12;
+		let userIdx = 0;
+		
+		function init(){
+			lastItemIdx = $("#lastItemIdx").val();
+			userIdx = $("#userIdx").val();
+			console.log(lastItemIdx, sizeOfPage, userIdx);
+			getItem();
+		}
+		
+		/** 스크롤 이벤트 */
+		function handleScroll() {
+		    if (window.scrollY + window.innerHeight + 100 >= document.documentElement.scrollHeight) {
+		        getItem();
+		    }
+		}
+		
+		/** 날짜변경 */
+		function dateFormatter(dateStr){
+			// Moment.js를 사용하여 상대적인 시간 표시 
+			let momentRegDate = moment(dateStr);
+			let now = moment();
+			let diff = now.diff(momentRegDate, 'seconds'); // 차이 구하기
+			var formattedDate;
+			if (diff < 60) {
+			    formattedDate = diff + '초 전';
+			} else if (diff < 3600) {
+			    formattedDate = Math.floor(diff / 60) + '분 전';
+			} else if (diff < 86400) {
+			    formattedDate = Math.floor(diff / 3600) + '시간 전';
+			} else if (diff < 604800) {
+			    formattedDate = Math.floor(diff / 86400) + '일 전';
+			} else {
+			    formattedDate = momentRegDate.format('YYYY.MM.DD');
+			}
+			return formattedDate;
+		}
+		
+		function getItem(){
+			window.removeEventListener('scroll', handleScroll);
+			axios.get('/user/comments', {
+			    params: {
+			        'lastItemIdx': lastItemIdx,
+			        'sizeOfPage': sizeOfPage,
+			        'userRef': userIdx
+			    }
+			})
+	        .then(res => {
+				let data = res.data;
+				content = "";
+				if(data.length == 0) {
+					window.removeEventListener('scroll', handleScroll);
+					return ;
+				}
+				data.forEach(cm => {
+					lastItemIdx = cm.idx;
+			    	content += `
+			    		<li class="chat ch1">
+							<div class="textbox">
+						    	<p style="word-wrap: break-word;">${cm.content}</p>
+								<span class="chat-time">${dateFormatter(cm.createDate)}</span>
+							</div>
+						</li>
+			    	`;
+				})
+				$("#commentNav").append(content);
+				window.addEventListener('scroll', handleScroll);
+			})
+		}
+	
+		$(function(){
+			
+			init();
+			
+		})
+	</script>
+</body>
+</html>

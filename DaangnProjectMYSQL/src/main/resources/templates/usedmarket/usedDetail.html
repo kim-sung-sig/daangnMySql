@@ -11,7 +11,10 @@
 <!-- UIkit JS -->
 <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+<!-- 구글 폰트 사용 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap">
+<!-- 구글 아이콘 사용 -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" />
 <!-- 카카오맵 api -->
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=fa04a00338cccad468f169754f5e7cc6&libraries=services"></script>
 <!-- axios -->
@@ -24,6 +27,11 @@
 </head>
 <body>
 	<input type="hidden" id="boardIdx" th:value="${board.idx}">
+	<input type="hidden" id="userRef" th:value="${board.userRef}">
+	
+	<!-- 유저평 -->
+	<th:block th:insert="~{userComment.html}"></th:block>
+	
 	<div id="wrap">
 		<th:block th:insert="~{header.html}"></th:block>
 		<main>
@@ -69,11 +77,17 @@
 					    			<option value="3" th:selected="${board.statusRef == 3}">판매완료</option>
 					    		</select>
 					    	</th:block>
-					    	<h3 class="uk-card-title uk-margin-remove-bottom" style="margin: 0;">
-			                	<span th:if="${board.statusRef == 2}" class="reserved">[[${board.statusName}]]</span>
-			                	<span th:if="${board.statusRef == 3}" class="sold">[[${board.statusName}]]</span>
-					    		[[${board.title}]]
-					    	</h3>
+					    	<div class="uk-card-title uk-margin-remove-bottom" style="margin: 0; display: flex; justify-content: space-between; align-items: center;">
+			                	<div>
+				                	<span th:if="${board.statusRef == 2}" class="reserved">[[${board.statusName}]]</span>
+				                	<span th:if="${board.statusRef == 3}" class="sold">[[${board.statusName}]]</span>
+						    		[[${board.title}]]
+			                	</div>
+			                	<!-- 유저평 -->
+								<th:block th:if="${session.user != null}">
+									<span th:if="${board.userRef != session.user.idx}" class="material-symbols-outlined" uk-tooltip="유저 평하기" style="cursor: pointer;" id="moreBtn">more_vert</span>					
+								</th:block>
+					    	</div>
 					    	<span class="category">[[${board.categoryName}]]</span>ㆍ<span class="regDate" id="board-time"></span>
 					    	<input type="hidden" th:value="${board.createDate}" id="board-time2">
 					        <p class="text-card">[[${board.content}]]</p>

@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpSession;
 import kr.ezen.daangn.service.DaangnLifeBoardService;
 import kr.ezen.daangn.service.DaangnMemberService;
 import kr.ezen.daangn.service.DaangnUsedmarketService;
+import kr.ezen.daangn.service.DaangnUserCommentService;
 import kr.ezen.daangn.service.DaangnUserFileService;
 import kr.ezen.daangn.service.MailService;
 import kr.ezen.daangn.service.PopularService;
@@ -56,6 +57,8 @@ public class MemberController {
 	private DaangnUserFileService daangnUserFileService;
 	@Autowired
 	private PopularService popularService;
+	@Autowired
+	private DaangnUserCommentService commentService;
 	
 	/** 로그인 주소 */
 	@GetMapping(value = "/login")
@@ -285,6 +288,21 @@ public class MemberController {
     	model.addAttribute("likeCount", lifeBoardService.getLikeCountByUserRef(user.getIdx()));
     	log.info("{}, {}, {}, {}", lastItemIdxByBoard, lastItemIdxByComment, boardCount, commentCount);
     	return "mypage/myLife";
+    }
+    
+    @GetMapping(value = "/myComment")
+    public String myComment(HttpSession session, Model model) {
+    	log.info("myComment 실행");
+    	DaangnMemberVO sessionUser = (DaangnMemberVO) session.getAttribute("user");
+    	DaangnMemberVO user = daangnMemberService.selectByIdx(sessionUser.getIdx());
+    	model.addAttribute("user", user);
+    	
+    	int lastItemIdx = commentService.getLastIdx() + 1;
+    	int commentCount = commentService.getCountUserCommentsByUsedRef(user.getIdx());
+    	
+    	model.addAttribute("lastItemIdx", lastItemIdx);
+    	model.addAttribute("totalCount", commentCount);
+    	return "mypage/myComment";
     }
     
     

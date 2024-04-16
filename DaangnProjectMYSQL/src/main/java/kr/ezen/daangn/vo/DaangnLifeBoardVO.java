@@ -40,6 +40,7 @@ public class DaangnLifeBoardVO {
 	private String categoryName;
 	private String nickName;
 	private String userProfile;
+	private Float userVal = 3f;
 	private List<DaangnLifeBoardFileVO> fileList;
 	private int isLike;
 }

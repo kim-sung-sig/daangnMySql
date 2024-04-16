@@ -10,7 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.ezen.daangn.dao.DaangnCommentDAO;
 import kr.ezen.daangn.dao.DaangnMemberDAO;
 import kr.ezen.daangn.dao.DaangnUserFileDAO;
 import kr.ezen.daangn.vo.CommonVO;
@@ -26,10 +25,8 @@ public class DaangnMemberServiceImpl implements DaangnMemberService{
 	@Autowired
 	private DaangnMemberDAO daangnMemberDAO;
 	@Autowired
-	private DaangnCommentDAO daangnCommentDAO;
-	@Autowired
 	private DaangnUserFileDAO daangnUserFileDAO;
-		
+	
 	//=========================================================
 	// 유저 서비스
 	//=========================================================
@@ -124,7 +121,6 @@ public class DaangnMemberServiceImpl implements DaangnMemberService{
 		try {
 			memberVO = daangnMemberDAO.selectByIdx(idx);
 			if(memberVO != null) {
-				memberVO.setUserVal(daangnCommentDAO.selectScoreByUserIdx(idx));
 				memberVO.setUserFile(daangnUserFileDAO.selectFileByUserIdx(idx));				
 			}
 		} catch (SQLException e) {

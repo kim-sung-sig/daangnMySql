@@ -64,152 +64,18 @@ CREATE TABLE daangn_user_file(
     CONSTRAINT fk_daangn_user_file_ref FOREIGN KEY (ref) REFERENCES daangn_member(idx) ON DELETE CASCADE
 );
 
--- 상품상태
-CREATE TABLE  daangn_status(
-	statusIdx INT PRIMARY KEY AUTO_INCREMENT,
-	statusName VARCHAR(100) NOT NULL
-);
-
-INSERT INTO daangn_status (statusName) VALUES ('판매중'); -- 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_status (statusName) VALUES ('예약중'); -- 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_status (statusName) VALUES ('판매완료');
-
-
-
--- 중고 카테고리
-CREATE TABLE  daangn_category(
-	categoryIdx INT PRIMARY KEY AUTO_INCREMENT,
-	categoryName VARCHAR(100) NOT NULL
-);
-
-INSERT INTO daangn_category (categoryName) VALUES ('디지털/가전');			-- 1 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('가구/인테리어');		-- 2 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('유아동/유아도서');		-- 3 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('생활/가공식품');		-- 4 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('스포츠/레저');			-- 5 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('여성잡화');			-- 6 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('여성의류');			-- 7 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('남성패션/잡화');		-- 8 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('게임/취미');			-- 9 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('뷰티/미용');			-- 10 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('반려동물용품');		-- 11 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('도서/티켓/음반');		-- 12 여기서 이름을 일단 미리 만들어 주자
-INSERT INTO daangn_category (categoryName) VALUES ('기타'); 				-- 13 여기서 이름을 일단 미리 만들어 주자
-
-
 -- 유저평
 CREATE TABLE daangn_comment(
 	idx INT PRIMARY KEY AUTO_INCREMENT,
-	userIdx INT NOT NULL,
-	writerIdx INT NOT NULL,
+	userRef INT NOT NULL,
+	writerRef INT NOT NULL,
 	score INT NOT NULL,
 	content VARCHAR(200) NOT NULL,
-	regDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	CONSTRAINT fk_daangn_comment_userIdx_ref FOREIGN KEY (userIdx) REFERENCES daangn_member(idx) ON DELETE CASCADE,
-	CONSTRAINT fk_daangn_comment_wrIdx_ref FOREIGN KEY (writerIdx) REFERENCES daangn_member(idx) ON DELETE CASCADE
+	createDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	ip VARCHAR(200) NOT NULL,
+	CONSTRAINT fk_daangn_comment_userIdx_ref FOREIGN KEY (userRef) REFERENCES daangn_member(idx) ON DELETE CASCADE,
+	CONSTRAINT fk_daangn_comment_wrIdx_ref FOREIGN KEY (writerRef) REFERENCES daangn_member(idx) ON DELETE CASCADE
 );
-
-
--- 중고마켓
-CREATE TABLE daangn_board(
-	idx INT PRIMARY KEY AUTO_INCREMENT,
-	userRef INT NOT NULL,
-	categoryRef INT NOT NULL,
-	statusRef INT DEFAULT 1,
-	subject VARCHAR(100) NOT NULL,
-	content VARCHAR(2000) NOT NULL,
-	price INT NOT NULL,
-	latitude DOUBLE NOT NULL,
-	longitude DOUBLE NOT NULL,
-	location VARCHAR(200) NOT NULL,
-	loc VARCHAR(200) NOT NULL,
-	readCount INT DEFAULT 0,
-	regDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	CONSTRAINT fk_daangn_board_ref FOREIGN KEY (userRef) REFERENCES daangn_member(idx) ON DELETE CASCADE
-);
-
-
--- 중고마켓 사진
-CREATE TABLE daangn_board_file (
-    idx INT PRIMARY KEY AUTO_INCREMENT, 
-    ref INT NOT NULL,
-    originFileName VARCHAR(1000) NOT NULL,
-    saveFileName VARCHAR(1000) NOT NULL,
-    CONSTRAINT fk_daangn_board_file_ref FOREIGN KEY (ref) REFERENCES daangn_board(idx) ON DELETE CASCADE
-);
-
-
--- 중고마켓 좋아요
-CREATE TABLE daangn_like_tb(
-	idx INT PRIMARY KEY AUTO_INCREMENT,
-	userIdx INT NOT NULL,
-	boardIdx INT NOT NULL,
-	CONSTRAINT fk_daangn_like_tb_board_ref FOREIGN KEY (boardIdx) REFERENCES daangn_board(idx) ON DELETE CASCADE,
-	CONSTRAINT fk_daangn_like_tb_member_ref FOREIGN KEY (userIdx) REFERENCES daangn_member(idx) ON DELETE CASCADE
-);
-
-
--- 채팅방
-CREATE TABLE chatRoom (
-	roomIdx INT PRIMARY KEY AUTO_INCREMENT,
-	userIdx INT NOT NULL,
-	boardIdx INT NOT NULL,
-	boardUserIdx INT NOT NULL,
-	lastUpdateDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	CONSTRAINT fk_chatRoom_userIdx_ref FOREIGN KEY (userIdx) REFERENCES daangn_member(idx) ON DELETE CASCADE,
-	CONSTRAINT fk_chatRoom_boardIdx_ref FOREIGN KEY (boardIdx) REFERENCES daangn_board(idx) ON DELETE CASCADE,
-	CONSTRAINT fk_chatRoom_boardUserIdx_ref FOREIGN KEY (boardUserIdx) REFERENCES daangn_member(idx) ON DELETE CASCADE
-);
-
-
--- 채팅메시지
-CREATE TABLE chatMessage (
-	idx INT PRIMARY KEY AUTO_INCREMENT,
-	chatRoom INT NOT NULL,
-	typeRef INT NOT NULL,
-	sender INT NOT NULL,
-	content VARCHAR(200) NOT NULL,
-	regDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	readed INT DEFAULT 2,
-	CONSTRAINT fk_chatMessage_chatRoom_ref FOREIGN KEY (chatRoom) REFERENCES chatRoom(roomIdx) ON DELETE CASCADE,
-	CONSTRAINT fk_chatMessage_sender_ref FOREIGN KEY (sender) REFERENCES daangn_member(idx) ON DELETE CASCADE
-);
-
-
--- 메시지 타입
-CREATE TABLE MessageType (
-    idx INT PRIMARY KEY AUTO_INCREMENT,
-    typeStr VARCHAR(255) NOT NULL
-);
-
-INSERT INTO MessageType (typeStr) VALUES ('ENTER');
-INSERT INTO MessageType (typeStr) VALUES ('TALK');
-INSERT INTO MessageType (typeStr) VALUES ('LEAVE');
-INSERT INTO MessageType (typeStr) VALUES ('RESERVE');
-
-
--- 인기
-CREATE TABLE tb_popular(
-	idx INT PRIMARY KEY AUTO_INCREMENT,
-	boardRef INT NOT NULL,
-	userRef INT NOT NULL,
-	interaction INT NOT NULL,
-	interaction_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	CONSTRAINT fk_tb_popular_board_ref FOREIGN KEY (boardRef) REFERENCES daangn_board(idx) ON DELETE CASCADE,
-	CONSTRAINT fk_tb_popular_member_ref FOREIGN KEY (userRef) REFERENCES daangn_member(idx) ON DELETE CASCADE	
-);
-
-
--- 예약
-CREATE TABLE tb_reserve (
-    idx INT PRIMARY KEY AUTO_INCREMENT,
-    boardRef INT NOT NULL,
-    userRef INT NOT NULL,
-    interaction INT NOT NULL,
-    CONSTRAINT fk_reserve_boardRef FOREIGN KEY (boardRef) REFERENCES daangn_board(idx) ON DELETE CASCADE,
-    CONSTRAINT fk_reserve_userRef FOREIGN KEY (userRef) REFERENCES daangn_member(idx) ON DELETE CASCADE
-);
-
 
 -- 공지사항
 CREATE TABLE notices(
@@ -226,4 +92,16 @@ CREATE TABLE tb_visitor (
 	idx INT PRIMARY KEY AUTO_INCREMENT,							-- 키필드
 	visitIp VARCHAR(50) NOT NULL,									-- 접속자 ip
 	visitTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL		-- 방문 시간
+);
+
+
+-- 인기
+CREATE TABLE tb_popular(
+	idx INT PRIMARY KEY AUTO_INCREMENT,
+	boardRef INT NOT NULL,
+	userRef INT NOT NULL,
+	interaction INT NOT NULL,
+	interaction_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT fk_tb_popular_board_ref FOREIGN KEY (boardRef) REFERENCES daangn_board(idx) ON DELETE CASCADE,
+	CONSTRAINT fk_tb_popular_member_ref FOREIGN KEY (userRef) REFERENCES daangn_member(idx) ON DELETE CASCADE	
 );

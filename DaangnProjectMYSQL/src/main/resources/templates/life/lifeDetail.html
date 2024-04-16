@@ -11,12 +11,14 @@
 	<!-- UIkit JS -->
 	<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+	<!-- 구글 폰트 사용 -->
 	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<!-- 구글 아이콘 사용 -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" />
 	<!-- axios -->
 	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 	<!-- moment.js -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
-	
 	<link rel="stylesheet" href="/css/header.css">
 	<style type="text/css">
 		.uk-container{width: 810px; padding: 0;}
@@ -33,25 +35,44 @@
 		.comment-more-btn{cursor: pointer;}
 		
 		.comment-like-btn.active path{fill: #FC1A63;}
+		
 	</style>
 </head>
 <body>
 	<input type="hidden" id="boardRef" th:value="${board.idx}">
+	<input type="hidden" id="userRef" th:value="${board.userRef}">
 	<input type="hidden" id="isLogin" th:value="${isLogin}">
 	<input type="hidden" id="lastItemIdx" th:value="${lastItemIdx}"/>
+	
+	<!-- 유저평 -->
+	<th:block th:insert="~{userComment.html}"></th:block>
+	
 	<div id="wrap">
 		<th:block th:insert="~{header.html}"></th:block>
 		<main style="padding: 76px 0;">
 			<div class="uk-container" style="margin-top: 30px;">
-				<p class="board-category" style="display: inline-block;">[[${board.categoryName}]]</p>
-				<div id="board-info" style="display: flex;">
-					<div th:if="${board.userProfile == null}" id="board-user-profile" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
-					<div th:if="${board.userProfile != null}" id="board-user-profile" th:style="'width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url(\'/upload/' + ${board.userProfile} + '\') center/cover;'"></div>
-					<div style="margin-left: 20px;">
-						<p style="margin: 0; padding: 0; font-weight: 500;">[[${board.nickName}]]</p>
-						<p style="margin: 0;" id="board-time"></p>
-						<input type="hidden" th:value="${board.createDate}" id="board-time2"/>
+				<div style="display: flex; justify-content: space-between; align-items: center;">
+					<p class="board-category" style="display: inline-block;">
+						[[${board.categoryName}]]
+					</p>
+					
+					<!-- 유저평 -->
+					<th:block th:if="${session.user != null}">
+						<span th:if="${board.userRef != session.user.idx}" class="material-symbols-outlined" uk-tooltip="유저 평하기" style="cursor: pointer;" id="moreBtn">more_vert</span>					
+					</th:block>
+				</div>
+				<div id="board-info" style="display: flex; justify-content: space-between; align-items: center;">
+					<div style="display: flex;">
+						<div th:if="${board.userProfile == null}" id="board-user-profile" style="width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+						<div th:if="${board.userProfile != null}" id="board-user-profile" th:style="'width: 60px; height: 60px; overflow: hidden; border-radius: 100%; background: url(\'/upload/' + ${board.userProfile} + '\') center/cover;'"></div>
+						<div style="margin-left: 20px;">
+							<p style="margin: 0; padding: 0; font-weight: 500;">[[${board.nickName}]]</p>
+							<p style="margin: 0;" id="board-time"></p>
+							<input type="hidden" th:value="${board.createDate}" id="board-time2"/>
+						</div>
 					</div>
+					<input type="hidden" id="userVal" th:value="${board.userVal}">
+					<div id="userValBox" style="font-weight: bold"></div>
 				</div>
 				<div style="margin-top: 20px;">
 					<!-- 제목 -->
@@ -413,6 +434,17 @@
 			
 			init();
 			
+			let uv = $("#userVal").val();
+			let score = 6.5 * (uv - 3) + 36.5;
+		 	console.log(score);
+			score = score.toFixed(1);
+			$("#userValBox").html(`
+				<div><span style="font-weight:400;">매너온도</span> ${score} °C</div>
+					<div style="position: relative; width: 100%; height: 5px; border-radius: 3px; background: #eee; overflow: hidden;">
+				    <div style="position: absolute;top: 0; left: 0; width: ${uv/6 *100}%; height: 100%; background: #FF8A3D;"></div>
+				</div>`
+			);
+			
 			// 게시글 좋아요 이벤트
 			$("#board-like-Btn").click(function(){
 				const isActive = $(this).hasClass('active');
@@ -532,6 +564,9 @@
 		    	})
 		    	
 		    })
+		    
+		    
+		    
 		})
 	</script>
 </body>

@@ -26,13 +26,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import kr.ezen.daangn.service.ChatService;
 import kr.ezen.daangn.service.DaangnBoardFileService;
-import kr.ezen.daangn.service.DaangnCommentService;
 import kr.ezen.daangn.service.DaangnLikeService;
 import kr.ezen.daangn.service.DaangnMainBoardService;
 import kr.ezen.daangn.service.DaangnMemberService;
 import kr.ezen.daangn.service.PopularService;
 import kr.ezen.daangn.service.ReserveService;
-import kr.ezen.daangn.vo.DaangnCommentVO;
 import kr.ezen.daangn.vo.DaangnFileVO;
 import kr.ezen.daangn.vo.DaangnLikeVO;
 import kr.ezen.daangn.vo.DaangnMainBoardVO;
@@ -61,8 +59,6 @@ public class FleamarketController {
 	private DaangnMemberService daangnMemberService;
 	@Autowired
 	private ReserveService reserveSerivce;
-	@Autowired
-	private DaangnCommentService daangnCommentService;
 	
 	/**
 	 * 중고거래 리스트 보기
@@ -395,6 +391,7 @@ public class FleamarketController {
 		return "fleamarket/fleamarketStatusUpdate";
 	}
 	
+	/*
 	@PostMapping(value = "/fleamarketStatusUpdateOk")
 	@Transactional
 	public String fleamarketStatusUpdateOk(@RequestParam(value = "boardRef") int boardRef, 
@@ -440,4 +437,5 @@ public class FleamarketController {
 		log.info("fleamarketStatusUpdateOk 성공");
 		return "redirect:/fleamarketDetail/"+ boardVO.getIdx();
 	}
+	*/
 }

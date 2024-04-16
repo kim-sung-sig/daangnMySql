@@ -41,7 +41,7 @@ public class DaangnUsedmarketBoardVO {
 	private String statusName;										// 상태 이름	1 판매중, 2 예약중, 3 판매완료
 	private String nickName;										// 닉네임
 	private String userProfile;										// 유저프로필
-	private Float userVal;											// 유저평
+	private Float userVal = 3f;											// 유저평
 	private List<DaangnUsedmarketBoardFileVO> boardFileList;		// 파일 리스트
 
 	// 좋아요 했는지 안했는지 확인

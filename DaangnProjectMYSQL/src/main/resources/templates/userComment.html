@@ -1,0 +1,178 @@
+<style>
+	.modal{
+		position: absolute;
+		top:50%; left:50%;
+		transform: translate(-50%, -50%);
+		width: 329px;
+		background-color: #fff;
+		border-radius: 20px;
+		z-index: 1000;
+		overflow: hidden;
+		display: none;
+	}
+	#modalBackground{
+		width: 100vw;
+		height: 100vh;
+		position: absolute;
+		top: 0; left: 0;
+		background: rgba(0,0,0,0.3);
+		z-index: 999;
+		display: none;
+	}
+	.modal-inner{
+		padding: 30px 24px 58px;
+		position: relative;
+	}
+	.modal-title{
+		margin-bottom: 20px;
+	    padding: 30px 0 14px;
+	    border-bottom: 1px solid #303038;
+	    font-size: 20px;
+	    font-weight: 300;
+	    line-height: 28px;
+	    letter-spacing: -.8px;
+	    color: #1e1e23;
+	    word-break: break-all;
+	}
+	.modalBtns{
+		position: absolute;
+		left: 0; bottom: 0;
+		width: 100%;
+		display: flex;
+		color: #fff
+	}
+	.modalBtns input:first-child {
+		width: 40%;
+		background: #ccc;
+	}
+	.modalBtns input:last-child {
+		width: 60%;
+		background: #FF8A3D;
+	}
+	.modalCloseBtn{
+		position: absolute;
+		right: 20px; top: 20px;
+		cursor: pointer;
+	}
+	.uk-input:focus {
+		border-color: #FF8A3D;
+	}
+	.highlight{
+		color: #FF8A3D;
+	}
+	
+	
+	#imgBox img {filter: grayscale(100%);}
+	#imgBox label{border-radius: 10px; box-shadow: 1px 2px 4px #ccc;}
+	#imgBox label.active {box-shadow: 1px 2px 4px #FF8A3D;}
+	#imgBox label.active img{filter: none;}
+</style>
+
+<!-- 모달배경 -->
+<div id="modalBackground"></div>
+<!-- 모달 -->
+<div id="userCommentModal" class="modal">
+	<div class="modal-inner">
+		<p class="modal-title"><b>[[${board.nickName}]]</b>님에게 <span class="highlight">유저평</span>을 남겨주세요.</p>
+		<p style="margin: 0; font-weight: 500;">유저 점수 <span style="font-size: 12px; font-weight: 300;">(1점, 3점, 5점)</span></p>
+		<div id="imgBox" style="width: 100%; display: flex; justify-content: space-around; margin-bottom: 30px;">
+			<label for="s1" id="label1"><img src="/img/s1.png" alt="" /></label>
+			<label for="s2" id="label2"><img src="/img/s2.png" alt="" /></label>
+			<label for="s3" id="label3" class="active"><img src="/img/s3.png" alt="" /></label>
+			<div style="display: none;">
+				<input id="s1" type="radio" name="score" value="1">
+				<input id="s2" type="radio" name="score" value="3">
+				<input id="s3" type="radio" name="score" value="5" checked="checked">
+			</div>							
+		</div>
+		<p style="margin: 0; font-weight: 500;">유저 평</p>
+		<textarea rows="1" class="uk-textarea" maxlength="100" style="resize: none; overflow-y: hidden;" id="userCommentContent" onkeyup="autoResize(this)" onkeydown="autoResize(this)"></textarea>
+		<div id="charCount">0 / 100</div>
+		<!-- 버튼 -->
+		<div class="modalBtns">
+			<input style="width: 40%;" type="button" class="uk-button cancleBtn" value="취소"/>
+			<input style="width: 60%;" type="submit" class="uk-button" id="userCommentBtn" value="평가하기"/>
+		</div>
+		<div class="modalCloseBtn">X</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+	
+	function autoResize(textarea) {
+		textarea.style.height = 'auto';
+		textarea.style.height = textarea.scrollHeight + 'px';
+	}
+	
+	$(function(){
+		// MoreBtn 클릭 이벤트!
+	    $("#moreBtn").click(function(){
+	    	$("#modalBackground").show();
+	    	$("#userCommentModal").show();
+	    	$("body").css("overflow", "hidden");
+	    })
+	    
+	    $('input[name="score"]').change(function() {
+            var index = $(this).index('input[name="score"]');
+            $('label').removeClass('active');
+            $('#label' + (index + 1)).addClass('active');
+            $('input[name="score"]').attr('checked', false);  // 모든 라디오 버튼의 체크를 해제합니다.
+		    $(`#s`+ (index + 1)).attr('checked', true);  // 선택된 라디오 버튼을 체크합니다.
+        });
+	    
+	    
+	    $("#userCommentContent").on('input', function() {
+		    var text = $("#userCommentContent").val();
+		    var maxLength = parseInt($("#userCommentContent").attr('maxlength'));
+		    var remaining = maxLength - text.length;
+
+		    if (remaining >= 0) {
+		        $("#charCount").text(`${text.length} / ${maxLength}`);
+		    } else {
+		        $("#userCommentContent").val(text.substring(0, maxLength));
+		        $("#charCount").text(`${maxLength} / ${maxLength}`);
+		    }
+		});
+	    
+	    $("#modalBackground, .modalCloseBtn, .cancleBtn").click(function(){
+	    	var maxLength = parseInt($("#userCommentContent").attr('maxlength'));
+	    	$("#charCount").text(`0 / ${maxLength}`);
+	    	$("#userCommentContent").val('');
+	    	$("#modalBackground").hide();
+	    	$("#userCommentModal").hide();
+	    	$("body").css("overflow", "auto");
+	    })
+	    
+	    // 게시글 유저평하기
+	    
+	    $("#userCommentBtn").click(function(){
+	    	if($("#userCommentContent").val().trim().length == 0){
+	    		alert("유저평을 작성해주세요.");
+	    		$("#userCommentContent").val('');
+	    		$("#userCommentContent").focus();
+	    		return ;
+	    	}
+	    	
+	    	var selectedScore = $('input[name="score"]:checked').val();
+	    	
+	    	axios.post("/user/comments", {
+	    		'content': $("#userCommentContent").val().trim(),
+	    		'score' : selectedScore,
+	    		'userRef' : $("#userRef").val()
+	    	})
+	    	.then(res => {
+	    		const data = res.data;
+	    		if(data == 0){
+	    			alert('오류가 발생했습니다. 잠시후 다시 시도해주세요.');
+	    		} else {
+	    			alert('유저평이 저장되었습니다.');		    			
+	    		}
+	    		location.reload();
+	    	})
+	    	.catch(err => {
+	    		console.log(err);
+	    	})
+	    })
+	})
+</script>

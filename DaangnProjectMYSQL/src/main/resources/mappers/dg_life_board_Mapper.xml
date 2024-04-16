@@ -78,7 +78,8 @@
 		    dlb.*,
 		    dlc.categoryName AS categoryName,
 		    dm.nickName AS nickName,
-		    duf.saveFileName as userProfile
+		    duf.saveFileName as userProfile,
+		    duc.userVal AS userVal
 		FROM
 		    daangn_life_board dlb
 		JOIN
@@ -87,6 +88,16 @@
 			daangn_user_file duf on dlb.userRef = duf.ref
 		JOIN
 			daangn_life_category dlc ON dlb.categoryRef = dlc.idx
+		LEFT JOIN
+		    (
+		        SELECT 
+		            userRef,
+		            AVG(score) AS userVal
+		        FROM 
+		            daangn_comment
+		        GROUP BY 
+		            userRef
+		    ) duc ON duc.userRef = dlb.userRef
 		WHERE
         	dlb.idx = #{idx}
 	</select>

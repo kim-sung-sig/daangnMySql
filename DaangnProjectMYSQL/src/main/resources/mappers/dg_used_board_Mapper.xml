@@ -107,13 +107,13 @@
 		LEFT JOIN
 		    (
 		        SELECT 
-		            userIdx,
+		            userRef,
 		            AVG(score) AS userVal
 		        FROM 
 		            daangn_comment
 		        GROUP BY 
-		            userIdx
-		    ) duc ON duc.userIdx = dub.userRef
+		            userRef
+		    ) duc ON duc.userRef = dub.userRef
 		WHERE
 			dub.idx = #{idx}
 	</select>
