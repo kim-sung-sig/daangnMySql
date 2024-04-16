@@ -42,8 +42,8 @@
 ### 상세 스택
 
 - BackEnd
-  - JAVA 17, SpringBoot 3.2.4
-  - Mybatis, Lombok, SpringSecuriy
+  - JAVA 17, SpringBoot 3.2.4, Lombok, SpringSecuriy
+  - Mybatis, MySQL, Oracle
   - Gradle
 - FrontEnd
   - HTML5, CSS3, JavaScript(ES6)
