@@ -38,22 +38,19 @@
   - AWS : Ubuntu
 - IDE
   - Eclipse, STS
-  - Visual Studio Code
 - DataBase
-  - MySQL workbench
   - MySQL
-  - Redis
 
 
 ### 상세 스택
 
 - BackEnd
-  - JAVA 17
+  - JAVA 17, SpringBoot 3.2.4
+  - Mybatis, Lombok, SpringSecuriy
   - Gradle
-  - SpringBoot 3.2.4, Mybatis, Lombok, Securiy, thymeleaf
 - FrontEnd
   - HTML5, CSS3, JavaScript(ES6)
-  - JQuery, axios, momentJS, SocketJS, Stomp
+  - JQuery, axios, thymeleaf, momentJS, SocketJS, Stomp
   - ui-kit
 
 
