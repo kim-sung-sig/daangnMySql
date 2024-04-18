@@ -43,7 +43,7 @@ public class SecurityConfig {
 				// 중고거래 리스트 사이트!
 				.requestMatchers("/fleamarket/**", "/fleamarketDetail/**", "/getfleamarketList").permitAll()
 				// 중고거래 리스트 사이트!
-				.requestMatchers("/used-market/view/**", "/used-market/list", "/used-market/detail/**").permitAll()
+				.requestMatchers("/used-market/view/**", "/used-market/list", "/used-market/detail/**", "/used-market/*/board").permitAll()
 				// 유저가쓴글보기
 				.requestMatchers("/user/**").permitAll()
 				// 뉴스

@@ -97,6 +97,7 @@ public class UsedmarketController {
 		}
 		model.addAttribute("lastItemIdx", usedmarketService.getBoardLastIdx() + 1);
 		model.addAttribute("totalCount", usedmarketService.getBoardCountBy(categoryRef, region, gu, dong, search));
+		log.info("totalCount => {}", usedmarketService.getBoardCountBy(categoryRef, region, gu, dong, search));
 		if(session.getAttribute("user") != null) {
 			model.addAttribute("unreadCount", chatService.getUnreadCountByUserRef(((DaangnMemberVO)session.getAttribute("user") ).getIdx()));			
 		}

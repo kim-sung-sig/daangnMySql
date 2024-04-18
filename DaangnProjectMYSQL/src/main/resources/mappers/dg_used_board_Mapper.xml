@@ -67,8 +67,9 @@
 		FROM
 			daangn_usedmarket_board
 		<where>
+			<![CDATA[statusRef <> 3]]>
 			<if test="categoryRef != null">
-                categoryRef = #{categoryRef}
+                AND categoryRef = #{categoryRef}
             </if>
 			<if test="search != null">
                 AND title LIKE CONCAT('%', #{search}, '%')
