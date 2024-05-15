@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class RefreshTokenVO {
+public class RefreshTokenEntity {
 
     private Integer idx;
 
@@ -16,7 +16,7 @@ public class RefreshTokenVO {
 
     private String refreshToken;
 
-    public RefreshTokenVO(Integer userRef, String refreshToken){
+    public RefreshTokenEntity(Integer userRef, String refreshToken){
         this.userRef = userRef;
         this.refreshToken = refreshToken;
     }
@@ -24,4 +24,5 @@ public class RefreshTokenVO {
     public void update(String newRefreshToken){
         this.refreshToken = newRefreshToken;
     }
+    
 }

@@ -13,7 +13,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import kr.ezen.daangn.global.security.jwt.dao.RefreshTokenDAO;
 import kr.ezen.daangn.global.security.jwt.dto.JwtDTO;
-import kr.ezen.daangn.global.security.jwt.entity.RefreshTokenVO;
+import kr.ezen.daangn.global.security.jwt.entity.RefreshTokenEntity;
 import kr.ezen.daangn.global.util.JwtCommonProperties;
 import kr.ezen.daangn.vo.DaangnMemberVO;
 
@@ -48,7 +48,7 @@ public class JwtUtil {
                 .signWith(secretKey)
                 .compact();
 
-        RefreshTokenVO refreshTokenVO = new RefreshTokenVO(user.getIdx(), refreshToken);
+        RefreshTokenEntity refreshTokenVO = new RefreshTokenEntity(user.getIdx(), refreshToken);
         refreshTokenDAO.insertRefreshToken(refreshTokenVO); // 토큰을 발급하며 토큰 저장
         return new JwtDTO(accessToken, refreshToken);
     }

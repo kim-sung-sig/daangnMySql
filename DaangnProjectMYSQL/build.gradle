@@ -43,7 +43,8 @@ dependencies {
 	// runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
 	// MYSQL DB 사용
 	runtimeOnly 'com.mysql:mysql-connector-j'
-
+	// MongoDB 사용 채팅용
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	
