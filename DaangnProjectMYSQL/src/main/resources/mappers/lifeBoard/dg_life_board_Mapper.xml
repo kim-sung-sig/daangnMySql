@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "./mybatis-3-mapper.dtd" >
+<mapper namespace="kr.ezen.daangn.domain.lifeboard.dao.DaangnLifeBoardDAO2">
+
+    <resultMap id="daangnLifeBoardDetailResultMap" type="kr.ezen.daangn.domain.lifeboard.vo.DaangnLifeBoardDetail">
+        <collection property="fileList" ofType="string" javaType="ArrayList" select="selectFileList" column="idx"/>
+    </resultMap>
+
+	<select id="selectFileList" parameterType="int" resultType="string">
+		SELECT saveFileName
+		FROM daangn_life_board_file
+		WHERE boardRef = #{boardRef}
+	</select>
+
+    <!-- 동네생활 게시물 1개 얻기 -->
+    <select id="selectByIdx" parameterType="int" resultMap="daangnLifeBoardDetailResultMap">
+        SELECT
+            dlb.*,
+            dlc.categoryName AS categoryName,
+            dm.nickName AS nickName,
+            duf.saveFileName as userProfile,
+            duc.userVal AS userVal
+        FROM
+            daangn_life_board dlb
+        JOIN
+            daangn_life_category dlc ON dlb.categoryRef = dlc.idx
+        JOIN
+            daangn_member dm ON dlb.userRef = dm.idx
+        LEFT JOIN
+            daangn_user_file duf on dlb.userRef = duf.ref
+        LEFT JOIN
+            (
+                SELECT 
+                    userRef,
+                    AVG(score) AS userVal
+                FROM 
+                    daangn_comment
+                GROUP BY 
+                    userRef
+            ) duc ON duc.userRef = dlb.userRef
+        WHERE
+            dlb.idx = #{idx}
+    </select>
+
+</mapper>
