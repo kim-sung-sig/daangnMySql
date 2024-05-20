@@ -1,4 +1,4 @@
-package kr.ezen.daangn.global.websocket.config;
+package kr.ezen.daangn.global.websocketconfig.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
