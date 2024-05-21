@@ -14,7 +14,6 @@ import io.jsonwebtoken.Jwts;
 import kr.ezen.daangn.global.security.jwt.dao.RefreshTokenDAO;
 import kr.ezen.daangn.global.security.jwt.dto.JwtDTO;
 import kr.ezen.daangn.global.security.jwt.entity.RefreshTokenEntity;
-import kr.ezen.daangn.global.util.JwtCommonProperties;
 import kr.ezen.daangn.vo.DaangnMemberVO;
 
 @Component

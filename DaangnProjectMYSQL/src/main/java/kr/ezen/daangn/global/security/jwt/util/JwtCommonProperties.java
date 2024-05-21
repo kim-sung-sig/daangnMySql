@@ -1,4 +1,4 @@
-package kr.ezen.daangn.global.util;
+package kr.ezen.daangn.global.security.jwt.util;
 
 public class JwtCommonProperties {
 

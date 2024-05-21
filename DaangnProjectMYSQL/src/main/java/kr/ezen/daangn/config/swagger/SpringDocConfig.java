@@ -1,4 +1,4 @@
-package kr.ezen.daangn.global.swagger.config;
+package kr.ezen.daangn.config.swagger;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

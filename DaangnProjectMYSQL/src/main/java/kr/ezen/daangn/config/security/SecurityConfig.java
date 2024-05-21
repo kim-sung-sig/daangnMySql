@@ -1,4 +1,4 @@
-package kr.ezen.daangn.global.security.config;
+package kr.ezen.daangn.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
