@@ -1,0 +1,22 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script>
+    $(function(){
+        const userIdx = [[${session.user.idx}]];
+        // alert(userIdx);
+        
+        const sock = new SockJS("/ws");
+        const ws = Stomp.over(sock);
+
+        function recvMessage(recv) {
+
+        }
+
+        ws.connect({}, function(frame){
+            ws.subscribe(`/sub/chat/alarm/${userIdx}`, function(message){
+                const recv = JSON.parse(message.body);
+                console.log(recv);
+            })
+        });
+    })
+</script>

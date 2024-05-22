@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import kr.ezen.daangn.domain.lifeboard.dao.DaangnLifeBoardDAO2;
-import kr.ezen.daangn.domain.lifeboard.vo.DaangnLifeBoardDetail;
+import kr.ezen.daangn.dao.DaangnLifeBoardDAO;
+import kr.ezen.daangn.vo.DaangnLifeBoardVO;
 
 @SpringBootTest
 class DaangnProjectApplicationTests {
@@ -19,12 +19,12 @@ class DaangnProjectApplicationTests {
 	}
 
 	@Autowired
-	private DaangnLifeBoardDAO2 lifeboardDAO;
+	private DaangnLifeBoardDAO lifeboardDAO;
 
 	@Test
 	void dbTest(){
 		try {
-			DaangnLifeBoardDetail lifeBoardDetail = lifeboardDAO.selectByIdx(2);
+			DaangnLifeBoardVO lifeBoardDetail = lifeboardDAO.selectByIdx(2);
 			System.out.println(lifeBoardDetail);
 
 

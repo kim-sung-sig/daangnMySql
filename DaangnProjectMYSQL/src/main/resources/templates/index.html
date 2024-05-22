@@ -14,7 +14,7 @@
 
 <link rel="stylesheet" href="/css/index.css">
 
-<script src="/js/index.js"></script>
+<!-- <script src="/js/index.js"></script> -->
 
 <title>당근마켓</title>
 </head>
@@ -33,5 +33,12 @@
 			<span uk-icon="icon: github" ></span> <a class="uk-icon-link" style="color: #fff;" href="https://github.com/kim-sung-sig/daangnMySql" target="_blank">GitHub 바로가기</a>
 		</div>
 	</footer>
+	<th:block th:if="${session.user == null}">
+		로그인 안했음
+	</th:block>
+	<th:block th:if="${session.user != null}">
+		로그인 했음~~~~~~
+		<th:block th:insert="~{chat/chatAlarm.html}"></th:block>
+	</th:block>
 </body>
 </html>

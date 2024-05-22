@@ -14,6 +14,7 @@ import kr.ezen.daangn.service.DaangnMemberService;
 import kr.ezen.daangn.service.DaangnUsedmarektChatService;
 import kr.ezen.daangn.vo.DaangnMemberVO;
 import kr.ezen.daangn.vo.DaangnUsedmarketChatMessageVO;
+import kr.ezen.daangn.vo.DaangnUsedmarketChatRoomVO;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -25,11 +26,14 @@ public class ChatController2 {
 	private DaangnUsedmarektChatService chatService;
 	@Autowired
 	private DaangnMemberService daangnMemberService;
-		
+	
+
 	@MessageMapping("/chat2/message")
     public void message(DaangnUsedmarketChatMessageVO message) {
 		log.info("메시지 받았음!");
 		DaangnMemberVO sender = daangnMemberService.selectByIdx(message.getSender());
+		DaangnUsedmarketChatRoomVO chatRoomVO = chatService.selectChatRoomByIdx(message.getChatRoomRef());
+		Integer receivedUserIdx = chatRoomVO.getUserRef() == message.getSender() ? chatRoomVO.getBoardUserRef() : message.getSender();
 		if(sender != null) {
 			message.setNickName(sender.getNickName());			
 			if(sender.getUserFile() != null) {
@@ -43,7 +47,8 @@ public class ChatController2 {
 			message.setCreateDate(LocalDateTime.now());
 		}
 		// 메시지 보내기
-        messagingTemplate.convertAndSend("/sub/chat2/room/" + message.getChatRoomRef(), message);
+        messagingTemplate.convertAndSend("/sub/chat2/room/" + message.getChatRoomRef(), message); // 채팅방에
+		messagingTemplate.convertAndSend("/sub/chat/alarm/" + receivedUserIdx, message); // 유저에게
     }
 	
 	@PutMapping("/chat2/read")
