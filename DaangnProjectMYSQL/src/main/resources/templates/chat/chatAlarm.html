@@ -1,8 +1,32 @@
+<div id="notification-container"></div>
+<style>
+    #notification-container {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+        #notification-container .notification {
+            background-color: #444;
+            color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        #notification-container .notification img {
+            border-radius: 50%;
+            margin-right: 10px;
+    }
+</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script>
     $(function(){
         const userIdx = [[${session.user.idx}]];
+        let notificationTimeout;
         // alert(userIdx);
         
         const sock = new SockJS("/ws");
@@ -13,10 +37,36 @@
         }
 
         ws.connect({}, function(frame){
-            ws.subscribe(`/sub/chat/alarm/${userIdx}`, function(message){
+            ws.subscribe(`/sub/chat/alarm/${userIdx}`, function(message){//
                 const recv = JSON.parse(message.body);
                 console.log(recv);
+                showCustomNotification(recv);
             })
         });
+
+
+        function showCustomNotification(message) {
+            const userProfile = message.userProfileName ? "/upload/"+message.userProfileName : '/img/user.png';
+            const notification = 
+                `<div class="notification">
+                    <img src="${userProfile}" alt="Profile" width="40" height="40">
+                    <div>
+                        <p>${message.nickName}: ${message.content}</p>
+                    </div>
+                </div>`;
+            
+            // 기존 알람제거
+            clearTimeout(notificationTimeout);
+            $('#notification-container').empty();
+            // 새알람 추가
+            $('#notification-container').append(notification);
+
+            // 일정 시간 후에 알림 제거
+            notificationTimeout = setTimeout(() => {
+                $('#notification-container .notification').fadeOut(400, function() {
+                    $(this).remove();
+                });
+            }, 5000); // 5초 후 제거
+        }
     })
 </script>

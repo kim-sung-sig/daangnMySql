@@ -45,10 +45,10 @@ public class ChatController2 {
 		if(message.getTypeRef() == 2 || message.getTypeRef() == 4) { // TALK 또는 RESERVE
 			chatService.insertMessage(message);
 			message.setCreateDate(LocalDateTime.now());
+			messagingTemplate.convertAndSend("/sub/chat/alarm/" + receivedUserIdx, message); // 유저에게
 		}
 		// 메시지 보내기
         messagingTemplate.convertAndSend("/sub/chat2/room/" + message.getChatRoomRef(), message); // 채팅방에
-		messagingTemplate.convertAndSend("/sub/chat/alarm/" + receivedUserIdx, message); // 유저에게
     }
 	
 	@PutMapping("/chat2/read")
