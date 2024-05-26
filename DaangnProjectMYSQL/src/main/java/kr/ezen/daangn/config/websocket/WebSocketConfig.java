@@ -21,7 +21,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		// stomp 엔드포인트를 등록
-		registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
+		registry
+				.addEndpoint("/ws")
+				.setAllowedOriginPatterns("*")
+				.withSockJS()
+				.setInterceptors(new HttpSessionHandshakeInterceptor());
 		// 우선 은 모든곳에서 할수 잇게 하겟다 왜냐 주소가없거든..
 	}
 

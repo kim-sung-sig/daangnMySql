@@ -5,7 +5,7 @@ $(function() {
 	let lastItemIdx = $("#lastItemIdx").val();
 	let isJoined = false;
     // WebSocket 및 Stomp 초기화
-    var sock = new SockJS("/ws");
+    var sock = new SockJS("/ws?roomId=" + chatRoomIdx);
     var ws = Stomp.over(sock);
     
     var messages = [];
@@ -28,14 +28,18 @@ $(function() {
 			message.readed = 0;
 		} else {
 			if(message.readed != 0) {
-				message.readed = 1;				
+				message.readed = 1;
 			}
 		}
         updateMessagesUI(message);
     }
+	
+	var headers = {
+		"roomId": chatRoomIdx
+	};
 
     // pub/sub 이벤트
-    ws.connect({}, function(frame) {
+    ws.connect(headers, function(frame) {
 		// 입장 모두 읽음 처리
 		axios.put("/chat/readAll", {
     		"chatRoom": chatRoomIdx,
@@ -54,7 +58,7 @@ $(function() {
 						ws.send("/pub/chat/message", {}, JSON.stringify({'typeRef': 1,'chatRoom': chatRoomIdx, 'sender': sender}));
 						console.log('상대방 입장');
 						isJoined = true;
-						$(".readed").remove();						
+						$(".readed").remove();
 					}
 				}
 			} else if(recv.typeRef == 2) {
@@ -66,7 +70,7 @@ $(function() {
 			} else if (recv.typeRef == 3) {
 				if(recv.sender != sender){
 					isJoined = false
-					console.log('상대방 떠남');					
+					console.log('상대방 떠남');
 				}
 			}
         }); // subscribe - end

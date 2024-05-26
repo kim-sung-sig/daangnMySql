@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import kr.ezen.daangn.config.websocket.WebSocketEventListener;
 import kr.ezen.daangn.service.DaangnMemberService;
 import kr.ezen.daangn.service.DaangnUsedmarektChatService;
 import kr.ezen.daangn.vo.DaangnMemberVO;
@@ -26,7 +27,8 @@ public class ChatController2 {
 	private DaangnUsedmarektChatService chatService;
 	@Autowired
 	private DaangnMemberService daangnMemberService;
-	
+	@Autowired
+	private WebSocketEventListener eventListener;
 
 	@MessageMapping("/chat2/message")
     public void message(DaangnUsedmarketChatMessageVO message) {
@@ -35,12 +37,15 @@ public class ChatController2 {
 		DaangnUsedmarketChatRoomVO chatRoomVO = chatService.selectChatRoomByIdx(message.getChatRoomRef());
 		Integer receivedUserIdx = chatRoomVO.getUserRef() == message.getSender() ? chatRoomVO.getBoardUserRef() : message.getSender();
 		if(sender != null) {
-			message.setNickName(sender.getNickName());			
+			message.setNickName(sender.getNickName());
 			if(sender.getUserFile() != null) {
-				message.setUserProfile(sender.getUserFile().getSaveFileName());			
+				message.setUserProfile(sender.getUserFile().getSaveFileName());
 			}
 		}
 		log.info("message : {}", message);
+
+		log.info("제발 잘 작동되라!!!!");
+		log.info("현제 채팅방에 있는 사람이 2명이냐? {}", eventListener.isInChatRoomCount(message.getChatRoomRef()));
 		// 메시지 저장
 		if(message.getTypeRef() == 2 || message.getTypeRef() == 4) { // TALK 또는 RESERVE
 			chatService.insertMessage(message);
