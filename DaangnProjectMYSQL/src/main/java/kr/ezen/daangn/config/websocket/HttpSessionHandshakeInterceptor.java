@@ -2,7 +2,6 @@ package kr.ezen.daangn.config.websocket;
 
 import java.util.Map;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -21,15 +20,14 @@ public class HttpSessionHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes
     ) throws Exception {
-        HttpHeaders headers = request.getHeaders();
-        System.out.println(headers);
-
         ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
         HttpSession httpSession = servletRequest.getServletRequest().getSession();
         DaangnMemberVO loginUser = (DaangnMemberVO) httpSession.getAttribute("user");
         if(loginUser != null){
             attributes.put("sessionUserIdx", loginUser.getIdx());
         }
+        String roomId = servletRequest.getServletRequest().getParameter("roomId");
+        System.out.println(roomId);
         return true;
     }
 
