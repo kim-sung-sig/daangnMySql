@@ -5,7 +5,7 @@ $(function() {
 	let lastItemIdx = $("#lastItemIdx").val();
 	let isJoined = false;
     // WebSocket 및 Stomp 초기화
-    var sock = new SockJS("/ws?roomId=" + chatRoomIdx);
+    var sock = new SockJS("/ws");
     var ws = Stomp.over(sock);
     
     var messages = [];

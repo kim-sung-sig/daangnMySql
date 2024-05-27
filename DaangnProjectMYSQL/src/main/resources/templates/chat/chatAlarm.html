@@ -1,4 +1,11 @@
-<div id="notification-container"></div>
+<div id="notification-container">
+    <div class="notification">
+        <div style="width: 40px; height: 40px; overflow: hidden; border-radius: 100%; background: url('/img/user.png') center/cover;"></div>
+        <div style="margin-left: 10px; max-width: 300px;">
+            <p>${message.nickName}: ${message.content}가가가가가가가가가가가가</p>
+        </div>
+    </div>
+</div>
 <style>
     #notification-container {
             position: fixed;
@@ -10,8 +17,7 @@
             background-color: #444;
             color: white;
             padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
+            border-radius: 15px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
@@ -46,10 +52,10 @@
 
 
         function showCustomNotification(message) {
-            const userProfile = message.userProfileName ? "/upload/"+message.userProfileName : '/img/user.png';
-            const notification = 
+            const userProfile = message.userProfile ? "/upload/"+message.userProfile : '/img/user.png';
+            const notification =
                 `<div class="notification">
-                    <img src="${userProfile}" alt="Profile" width="40" height="40">
+                    <div style="width: 40px; height: 40px; overflow: hidden; border-radius: 100%; background: url('${userProfile}') center/cover;"></div>
                     <div>
                         <p>${message.nickName}: ${message.content}</p>
                     </div>
