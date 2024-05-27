@@ -60,23 +60,31 @@ public class ChatController2 {
 			userRegistry.addUser(roomId, senderIdx);
 
 			log.info("RoomUserMapByRoomId => {}", userRegistry.getRoomUsers(roomId));
+			messagingTemplate.convertAndSend("/sub/chat2/room/" + message.getChatRoomRef(), message); // 입장메시지 보내기
 			return ;
 		}
 
 		// 메시지 진짜 메시지인 경우
 		if(message.getTypeRef() == 2 || message.getTypeRef() == 4) { // TALK 또는 RESERVE
+			log.info("진짜 메시지임!");
+			message.setReaded(userRegistry.hasUser(message.getChatRoomRef()) ? 0 : 1); // 들어와있는지 체크
+			/*
 			boolean isIn = userRegistry.hasUser(message.getChatRoomRef()); // 입장객이 두명인경우!
+
 			if(isIn) { // 채팅방에 들어와 있음
 				message.setReaded(0);
 			} else { // 채팅방에 들어와 있지 않음
 				message.setReaded(1);
 			}
+			 */
+
 			chatService.insertMessage(message); // 메시지 저장
 			message.setCreateDate(LocalDateTime.now()); // 시간을 클라이언트측에서 받을 수도 있음
+
 			messagingTemplate.convertAndSend("/sub/chat/alarm/" + receivedUserIdx, message); // 유저에게 알림 전송 (채팅방에 들어와 있지 않은 경우)
+			// 메시지 보내기
+			messagingTemplate.convertAndSend("/sub/chat2/room/" + message.getChatRoomRef(), message); // 채팅방에 메시지 전송
 		}
-		// 메시지 보내기
-        messagingTemplate.convertAndSend("/sub/chat2/room/" + message.getChatRoomRef(), message); // 채팅방에 메시지 전송
     }
 	
 	@PutMapping("/chat2/read")
